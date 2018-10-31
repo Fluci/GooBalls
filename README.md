@@ -14,4 +14,6 @@ As for each cmake project, create a `build` folder and run `cmake ..`. Then call
 
 ### Dependencies
 
-Nothing yet.
+Boost for unit testing and logging.
+
+

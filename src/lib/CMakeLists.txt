@@ -4,12 +4,17 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # list here your source files (*.cpp) of your module
 set(source_files
     generic/hello.cpp
+    rendering/2d/opengl_render.cpp
+    rendering/2d/render_scene.cpp
 )
 
 add_library(libgooBalls ${source_files})
 
 # add this path to include path of target
 target_include_directories(libgooBalls PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+find_package( Eigen3 REQUIRED )
+include_directories(${EIGEN3_INCLUDE_DIR})
 
 find_package( Boost COMPONENTS
     system
