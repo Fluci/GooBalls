@@ -1,5 +1,8 @@
+#pragma once
+
 #include <Eigen/Core>
 
+namespace GooBalls {
 
 /**
  * A bunch of typedef for general use.
@@ -46,3 +49,4 @@ typedef int TriangleIndex;
 /// A list of triangles where each triangle corresponds to one row entry consisting of three indices to vertices.
 typedef Eigen::Matrix<VertexIndex, Eigen::Dynamic, 3, Eigen::RowMajor> TriangleList;
 
+} // GooBalls
