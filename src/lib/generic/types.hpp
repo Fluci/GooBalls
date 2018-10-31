@@ -9,7 +9,6 @@ typedef double CoordinatePrecision;
 typedef Eigen::Matrix<CoordinatePrecision, Eigen::Dynamic, 2, Eigen::RowMajor> Coordinates2d;
 typedef Eigen::Matrix<CoordinatePrecision, Eigen::Dynamic, 3, Eigen::RowMajor> Coordinates3d;
 
-
 /// Colors in the range [0,1]
 typedef double ColorFloatPrecision;
 
