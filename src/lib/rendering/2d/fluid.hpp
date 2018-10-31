@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types.hpp"
+#include "renderable.hpp"
 #include <memory>
 
 namespace GooBalls {
@@ -19,7 +20,7 @@ namespace d2 {
  *
  * */
 
-class Fluid {
+class Fluid : public Renderable {
 public:
 // typedefs
 	typedef Coordinates2d Coordinates;

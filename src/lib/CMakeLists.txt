@@ -4,6 +4,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # list here your source files (*.cpp) of your module
 set(source_files
     generic/hello.cpp
+    rendering/2d/disk_fluid.cpp
     rendering/2d/fluid.cpp
     rendering/2d/mesh.cpp
     rendering/2d/opengl_render.cpp
