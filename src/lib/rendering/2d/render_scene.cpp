@@ -7,6 +7,8 @@ RenderScene::RenderScene(std::shared_ptr<Coordinates> ptr) : m_particles_positio
 	// empty
 }
 
+// Fluid
+
 const RenderScene::Coordinates& RenderScene::particles_position() const {
 	assert(m_particles_position.get() != nullptr);
 	return *m_particles_position;
@@ -33,6 +35,11 @@ RenderScene::Radii& RenderScene::particles_radius() {
 	return m_particles_radius;
 }
 
+// Mesh: Vertex
+
+// Mesh: Triangles
+
+// Background
 const Background& RenderScene::background() const {
 	return m_background;
 }
@@ -40,6 +47,7 @@ Background& RenderScene::background() {
 	return m_background;
 }
 
+// Camera
 const Camera& RenderScene::camera() const {
 	return m_camera;
 }
