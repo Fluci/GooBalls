@@ -11,6 +11,9 @@ namespace d2 {
 class DiskFluid : public Fluid {
 public:
     DiskFluid(std::shared_ptr<Fluid::Coordinates> ptr);
+    /**
+    * Renders the fluid's particles as disks according to their radius
+    */
     virtual void render() const;
 };
 

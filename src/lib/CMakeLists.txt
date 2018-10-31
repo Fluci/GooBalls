@@ -7,7 +7,7 @@ set(source_files
     rendering/2d/disk_fluid.cpp
     rendering/2d/fluid.cpp
     rendering/2d/mesh.cpp
-    rendering/2d/opengl_render.cpp
+    rendering/2d/render_engine.cpp
     rendering/2d/render_scene.cpp
 )
 

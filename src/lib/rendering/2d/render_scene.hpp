@@ -33,7 +33,7 @@ struct Camera {
  * */
 struct RenderScene {
 	std::vector<std::unique_ptr<Fluid>> fluids;
-	std::vector<Mesh> meshes;
+	std::vector<std::unique_ptr<Mesh>> meshes;
 	Background background;
 	Camera camera;
 };

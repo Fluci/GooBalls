@@ -5,17 +5,16 @@
 namespace GooBalls {
 namespace d2 {
 /**
- * Interface for a render engine
- *
+ * Know how to render a RenderScene object to screen
  * */
-class Render {
+class RenderEngine {
 public:
 /**
  * Takes a RenderScene object and creates an image from it.
  * It also has the responsibility to display the image on screen.
  *
  * */
-	virtual void render(const RenderScene& scene) = 0;
+	void render(const RenderScene& scene);
 };
 
 } // d2
