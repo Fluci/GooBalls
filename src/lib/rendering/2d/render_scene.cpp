@@ -25,13 +25,30 @@ RenderScene::Colors& RenderScene::particles_color() {
 	return m_particles_color;
 }
 
+const RenderScene::Radii& RenderScene::particles_radius() const {
+	return m_particles_radius;
+}
+
 RenderScene::Radii& RenderScene::particles_radius() {
 	return m_particles_radius;
 }
 
-const RenderScene::Radii& RenderScene::particles_radius() const {
-	return m_particles_radius;
+const Background& RenderScene::background() const {
+	return m_background;
 }
+Background& RenderScene::background() {
+	return m_background;
+}
+
+const Camera& RenderScene::camera() const {
+	return m_camera;
+}
+
+Camera& RenderScene::camera() {
+	return m_camera;
+}
+
+
 
 } // d2
 } // GooBalls
