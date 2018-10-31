@@ -10,8 +10,8 @@ set(source_files
     rendering/2d/disk_fluid.cpp
     rendering/2d/fluid.cpp
     rendering/2d/mesh.cpp
-    rendering/2d/render_engine.cpp
-    rendering/2d/render_scene.cpp
+    rendering/2d/engine.cpp
+    rendering/2d/scene.cpp
 )
 
 add_library(libgooBalls ${source_files})

@@ -6,6 +6,7 @@
 
 namespace GooBalls {
 namespace d2 {
+namespace Render {
 
 /**
  * For all attributes, accessors are provided.
@@ -40,6 +41,8 @@ private:
 	Colors m_particles_color;
 	Radii m_particles_radius;
 };
+
+} // Render
 
 } // d2
 

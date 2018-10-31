@@ -6,6 +6,7 @@
 
 namespace GooBalls {
 namespace d2 {
+namespace Render {
 
 /**
  * Vertices/Triangles: Mesh to render in the scene
@@ -35,6 +36,8 @@ private:
 	Colors m_vertices_colors;
 	std::shared_ptr<TriangleList> m_triangles;
 };
+
+} // Render
 
 } // d2
 

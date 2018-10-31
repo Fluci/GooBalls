@@ -2,7 +2,7 @@
 
 #include "placeholder.hpp"
 #include "generic/hello.hpp"
-#include "rendering/2d/render_engine.hpp"
+#include "rendering/2d/engine.hpp"
 #include "rendering/2d/disk_fluid.hpp"
 #include "physics/2d/engine.hpp"
 
@@ -27,20 +27,20 @@ int main(int argc, char *argv[]){
     Physics::Engine physEngine;
     
     // create data for rendering
-	auto fluid = std::make_unique<DiskFluid>(particleCoordinates);
+	auto fluid = std::make_unique<Render::DiskFluid>(particleCoordinates);
 	fluid->particles_color().setRandom(10, 3);
 	fluid->particles_color().array() += 1.0;
 	fluid->particles_color() /= 2.0;
 	fluid->particles_radius().setRandom(10, 1);
 	fluid->particles_radius().array() += 2.0;
-    auto mesh = std::make_unique<Mesh>(verts, triangles);
+    auto mesh = std::make_unique<Render::Mesh>(verts, triangles);
     mesh->vertices_color().setRandom(30,3);
     mesh->vertices_color().array() += 1.0;
     mesh->vertices_color() /= 2.0;
-    RenderScene aRenderScene;
+    Render::Scene aRenderScene;
 	aRenderScene.fluids.push_back(std::move(fluid));
     aRenderScene.meshes.push_back(std::move(mesh));
-    RenderEngine render;
+    Render::Engine render;
     // DEMO
     // show what we can
     std::cout << "first frame: " << std::endl;

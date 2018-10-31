@@ -6,6 +6,8 @@ namespace GooBalls {
 
 namespace d2 {
 
+namespace Render { 
+
 DiskFluid::DiskFluid(std::shared_ptr<Fluid::Coordinates> ptr) : Fluid(ptr) {
     // empty
 }
@@ -20,6 +22,8 @@ void DiskFluid::render() const {
         std::cout << "r: " << particles_radius()[i] << "\n";
     }
 }
+
+} // Render
 
 } // d2
 

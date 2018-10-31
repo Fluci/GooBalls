@@ -3,6 +3,7 @@
 
 namespace GooBalls {
 namespace d2 {
+namespace Render {
 
 Fluid::Fluid(std::shared_ptr<Coordinates> ptr) : m_particles_position(ptr){
 	// Empty
@@ -36,6 +37,6 @@ Fluid::Radii& Fluid::particles_radius() {
 	return m_particles_radius;
 }
 
-
+} // Render
 } // d2
 } // GooBalls

@@ -4,6 +4,7 @@
 
 namespace GooBalls {
 namespace d2 {
+namespace Render {
 
 /**
  * Fluid who's particles will be rendered as disks.
@@ -16,6 +17,8 @@ public:
     */
     virtual void render() const;
 };
+
+} // Render
 
 } // d2
 

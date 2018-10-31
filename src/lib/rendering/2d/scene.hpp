@@ -7,6 +7,7 @@
 
 namespace GooBalls {
 namespace d2 {
+namespace Render {
 
 struct Background {
 	ColorFloatPrecision r;
@@ -31,11 +32,12 @@ struct Camera {
  * This class describes a 2D scene that should be rendered.
  *
  * */
-struct RenderScene {
+struct Scene {
 	std::vector<std::unique_ptr<Fluid>> fluids;
 	std::vector<std::unique_ptr<Mesh>> meshes;
 	Background background;
 	Camera camera;
 };
+} // Render
 } // d2
 } // GooBalls

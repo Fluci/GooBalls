@@ -1,10 +1,10 @@
-#include "render_engine.hpp"
-#include <iostream>
+#include "engine.hpp"
 
 namespace GooBalls {
 namespace d2 {
+namespace Render {
 
-void RenderEngine::render(const RenderScene& scene) {
+void Engine::render(const Scene& scene) {
     // Create nice image and display on screen
     
     // Mock:
@@ -15,5 +15,6 @@ void RenderEngine::render(const RenderScene& scene) {
         mesh->render();
     }   
 }
+} // Render
 } // d2
 } // GooBalls

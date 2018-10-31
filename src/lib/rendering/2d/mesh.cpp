@@ -4,7 +4,7 @@
 
 namespace GooBalls {
 namespace d2 {
-
+namespace Render {
 // constructors
 
 Mesh::Mesh(std::shared_ptr<Mesh::Coordinates> verts, std::shared_ptr<TriangleList> triangles) : 
@@ -55,6 +55,8 @@ void Mesh::render() const {
         std::cout << tris(i,0) << ", " << tris(i, 1) << " " << tris(i, 2) << "\n";
     }
 }
+
+} // Render
 
 } // d2
 
