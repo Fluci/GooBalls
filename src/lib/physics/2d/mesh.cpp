@@ -5,17 +5,25 @@ namespace d2 {
 namespace Physics {
 
 Mesh::Mesh(std::shared_ptr<Mesh::Coordinates> verts, std::shared_ptr<TriangleList> tris) : 
-    m_vertices_position(verts),
+    m_vertices_position_global(verts),
     m_triangles(tris)
-    {
-    // empty
+{
+    m_vertices_position_local = *verts;
 }
 
-const Mesh::Coordinates& Mesh::vertices_position() const {
-    return *m_vertices_position;
+const Mesh::Coordinates& Mesh::vertices_position_global() const {
+    return *m_vertices_position_global;
 }
-Mesh::Coordinates& Mesh::vertices_position() {
-    return *m_vertices_position;
+
+Mesh::Coordinates& Mesh::vertices_position_global() {
+    return *m_vertices_position_global;
+}
+
+const Mesh::Coordinates& Mesh::vertices_position_local() const {
+    return m_vertices_position_local;
+}
+Mesh::Coordinates& Mesh::vertices_position_local() {
+    return m_vertices_position_local;
 }
 
 const TriangleList& Mesh::triangles() const {

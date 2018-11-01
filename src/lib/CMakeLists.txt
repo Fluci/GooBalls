@@ -31,10 +31,13 @@ find_package( Boost COMPONENTS
 
 ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
 
+find_package( Box2D REQUIRED )
+
 target_link_libraries(libgooBalls
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_LOG_LIBRARY}
+    ${BOX2D_LIBRARIES}
     )
 # list here your testing files (*.test.cc) of your module
 set(test_files

@@ -23,6 +23,8 @@ find_package( Boost COMPONENTS
 
 ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
 
+find_package( Box2D REQUIRED )
+
 # compile everything into a library and then link into the target executable (tests, main, etc.)
 # this should increase compilation speed
 add_library(libgooBallsAll ${source_files})
@@ -34,6 +36,7 @@ target_link_libraries(libgooBallsAll
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${Boost_LOG_LIBRARY}
+    ${BOX2D_LIBRARIES}
 )
 
 # Create app executable
@@ -41,6 +44,7 @@ target_link_libraries(libgooBallsAll
 add_executable(gooBalls main.cpp)
 target_link_libraries(gooBalls
     libgooBallsAll
+    ${BOX2D_LIBRARIES}
     )
 
 # create unit test executable
