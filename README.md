@@ -16,6 +16,8 @@ As for each cmake project, create a `build` folder and run `cmake ..`. Then call
 
 Boost for unit testing and logging.
 
+Box2D as rigid body solver.
+
 Ubuntu packages:
 
 `sudo apt install libbox2d-dev libboost-filesystem-dev libboost-log-dev libboost-test-dev`

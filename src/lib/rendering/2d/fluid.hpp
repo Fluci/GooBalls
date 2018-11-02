@@ -24,23 +24,23 @@ namespace Render {
 class Fluid : public Renderable {
 public:
 // typedefs
-	typedef Coordinates2d Coordinates;
-	typedef ColorsFloatRGB Colors;
-	typedef Eigen::VectorXd Radii;
-	// constructor
+    typedef Coordinates2d Coordinates;
+    typedef ColorsFloatRGB Colors;
+    typedef Eigen::VectorXd Radii;
+    // constructor
     Fluid();
-	Fluid(std::shared_ptr<Coordinates> ptr);
-	// particles
-	const Coordinates& particles_position() const;
-	Coordinates& particles_position();
-	const Colors& particles_color() const;
-	Colors& particles_color();
-	const Radii& particles_radius() const;
-	Radii& particles_radius();
+    Fluid(std::shared_ptr<Coordinates> ptr);
+    // particles
+    const Coordinates& particles_position() const;
+    Coordinates& particles_position();
+    const Colors& particles_color() const;
+    Colors& particles_color();
+    const Radii& particles_radius() const;
+    Radii& particles_radius();
 private:
-	std::shared_ptr<Coordinates> m_particles_position;
-	Colors m_particles_color;
-	Radii m_particles_radius;
+    std::shared_ptr<Coordinates> m_particles_position;
+    Colors m_particles_color;
+    Radii m_particles_radius;
 };
 
 } // Render

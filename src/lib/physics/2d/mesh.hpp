@@ -22,7 +22,7 @@ public:
     const TriangleList& triangles() const;
     TriangleList& triangles();
     /**
-     * Holds a pointer to it's corresponding Box2d object
+     * Holds a pointer to its corresponding Box2d object
      * */
     b2Body* body = nullptr;
 private:

@@ -16,6 +16,8 @@ void Engine::advance(Scene& scene, TimeStep dt) {
         dx[1] = mesh.body->GetPosition().y;
         FloatPrecision radianAngle = mesh.body->GetAngle();
         // eigen convention: counter-clockwise rotation in radians
+        // box2d convention: not clear, only hint is in chapter 8.6 Revolute Joint of the manual -> test
+        // TODO: test rotation direction of Box2d
         Eigen::Rotation2D<FloatPrecision> rot(radianAngle);
         Eigen::Matrix<FloatPrecision, 2, 2> rotM = rot.toRotationMatrix();
         const auto& loc = mesh.vertices_position_local();
