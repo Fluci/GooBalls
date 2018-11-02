@@ -5,6 +5,9 @@ namespace GooBalls {
 namespace d2 {
 namespace Render {
 
+Fluid::Fluid() : m_particles_position(new Coordinates()){
+    // Empty
+}
 Fluid::Fluid(std::shared_ptr<Coordinates> ptr) : m_particles_position(ptr){
 	// Empty
 }

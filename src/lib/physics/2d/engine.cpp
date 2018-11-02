@@ -8,6 +8,7 @@ namespace Physics {
 
 void Engine::advance(Scene& scene, TimeStep dt) {
     scene.world.Step(dt, velocity_iterations, position_iterations);
+    return;
     // The rigid bodies moved, use their transform to compute the local meshes
     for(auto& mesh : scene.meshes){
         Eigen::Matrix<FloatPrecision, 1, 2> dx(1,2);

@@ -4,6 +4,9 @@ namespace GooBalls {
 namespace d2 {
 namespace Physics {
 
+Fluid::Fluid() : m_particles_position(new Coordinates2d()){
+    // empty
+}
 Fluid::Fluid(std::shared_ptr<Fluid::Coordinates> ptr) : m_particles_position(ptr) {
     // empty
 }

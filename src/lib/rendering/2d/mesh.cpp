@@ -7,6 +7,11 @@ namespace d2 {
 namespace Render {
 // constructors
 
+Mesh::Mesh() : 
+    m_vertices(new Coordinates()),
+    m_triangles(new TriangleList())
+{}
+
 Mesh::Mesh(std::shared_ptr<Mesh::Coordinates> verts, std::shared_ptr<TriangleList> triangles) : 
     m_vertices(verts), 
     m_triangles(triangles)

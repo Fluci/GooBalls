@@ -28,6 +28,7 @@ public:
 	typedef ColorsFloatRGB Colors;
 	typedef Eigen::VectorXd Radii;
 	// constructor
+    Fluid();
 	Fluid(std::shared_ptr<Coordinates> ptr);
 	// particles
 	const Coordinates& particles_position() const;

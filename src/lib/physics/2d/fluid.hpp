@@ -12,6 +12,7 @@ public:
     typedef Coordinates2d Coordinates;
     typedef Eigen::Matrix<FloatPrecision, Eigen::Dynamic, 1> MassList; 
     // constructors
+    Fluid();
     Fluid(std::shared_ptr<Coordinates> ptr);
     // Field access
     const Coordinates& particles_position() const;

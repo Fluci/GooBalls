@@ -4,6 +4,12 @@ namespace GooBalls {
 namespace d2 {
 namespace Physics {
 
+Mesh::Mesh() : 
+    m_vertices_position_global(new Coordinates()), 
+    m_triangles(new TriangleList()){
+    // empty
+}
+
 Mesh::Mesh(std::shared_ptr<Mesh::Coordinates> verts, std::shared_ptr<TriangleList> tris) : 
     m_vertices_position_global(verts),
     m_triangles(tris)

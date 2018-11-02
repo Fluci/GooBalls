@@ -43,6 +43,7 @@ target_link_libraries(libgooBalls
 set(test_files
     test_root.cc
     generic/hello.test.cc
+    physics/2d/engine.test.cc
     )
 add_executable(tests ${test_files})
 target_link_libraries(tests

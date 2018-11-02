@@ -12,6 +12,7 @@ class Mesh {
 public:
     typedef Coordinates2d Coordinates;
     // constructors
+    Mesh();
     Mesh(std::shared_ptr<Coordinates> verts, std::shared_ptr<TriangleList> tris);
     // accessors
     const Coordinates& vertices_position_global() const;

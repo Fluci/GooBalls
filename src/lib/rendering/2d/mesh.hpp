@@ -20,6 +20,7 @@ public:
 	typedef Coordinates2d Coordinates;
 	typedef ColorsFloatRGB Colors;
     // Constructor
+    Mesh();
     Mesh(std::shared_ptr<Coordinates> verts, std::shared_ptr<TriangleList> triangles);
 	// Vertices
 	const Coordinates& vertices_position() const;
