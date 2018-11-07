@@ -1,4 +1,6 @@
-#include <iostream>
+#include<iostream>
+#include<fstream>
+#include<jsoncpp/json/json.h>
 
 #include "placeholder.hpp"
 #include "generic/hello.hpp"
@@ -66,6 +68,15 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     mesh->vertices_color() /= 2.0;
     aRenderScene.fluids.push_back(std::move(fluid));
     aRenderScene.meshes.push_back(std::move(mesh));
+
+	// test parsing a json
+	std::ifstream ifs("test.json");
+	Json::Reader reader;
+	Json::Value obj;
+	reader.parse(ifs, obj);
+	std::cout << "Last Name: " << obj["lastname"].asString() << std::endl;
+	std::cout << "First Name: " << obj["firstname"] << std::endl;
+	std::cout << "Legi: " << obj["legi"].asInt() - 1.5 << std::endl;
 }
 
 

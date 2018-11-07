@@ -20,5 +20,5 @@ Box2D as rigid body solver.
 
 Ubuntu packages:
 
-`sudo apt install libbox2d-dev libboost-filesystem-dev libboost-log-dev libboost-test-dev`
+`sudo apt install libbox2d-dev libboost-filesystem-dev libboost-log-dev libboost-test-dev libjsoncpp-dev`
 
