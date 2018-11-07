@@ -21,7 +21,9 @@ find_package( Boost COMPONENTS
     unit_test_framework
     REQUIRED )
 
-include_directories(${Jsoncpp_INCLUDE_DIR})
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP jsoncpp)
+link_libraries(${JSONCPP_LIBRARIES})
 
 ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
 
@@ -41,19 +43,13 @@ target_link_libraries(libgooBallsAll
     ${BOX2D_LIBRARIES}
 )
 
-get_cmake_property(varnames VARIABLES)
-list (SORT varnames)
-foreach (varname ${varnames})
-	message(STATUS "${varname}=${${varname}}")
-endforeach()
-
 # Create app executable
 
 add_executable(gooBalls main.cpp)
 target_link_libraries(gooBalls
     libgooBallsAll
     ${BOX2D_LIBRARIES}
-	${Jsoncpp_LIBRARY}
+    ${JSONCPP_LIBRARIES}
     )
 
 # create unit test executable
