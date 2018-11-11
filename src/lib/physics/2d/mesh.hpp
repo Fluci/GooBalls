@@ -21,6 +21,18 @@ public:
     Coordinates& vertices_position_local();
     const TriangleList& triangles() const;
     TriangleList& triangles();
+    RotationMatrix rotation() const;
+    TranslationVector translation() const;
+    TranslationVector linear_velocity() const;
+    RotationMatrix angular_velocity() const;
+    /// takes the rigid body transformation from the box2D object and applies it locally
+    void update_from_rigid_body();
+    /// Computes everything to make the object ready for the run loop
+    /// `h` needs to be known, as the boundary particles are pre-computed as much as possible
+    void prepare(FloatPrecision h);
+    const Coordinates2d& particles_position_local() const;
+    const Coordinates2d& particles_velocity() const;
+    const Coordinates1d& particles_volume() const;
     /**
      * Holds a pointer to its corresponding Box2d object
      * */
@@ -31,6 +43,14 @@ private:
     /// in local coordinates
     Coordinates m_vertices_position_local;
     std::shared_ptr<TriangleList> m_triangles;
+    /// the local positions need to be set once
+    Coordinates m_particles_position_local;
+    Coordinates m_particles_velocity;
+    Coordinates1d m_particles_volume;
+    /// Create fixed particles
+    void create_particles(FloatPrecision h);
+    /// Compute weight for particles
+    void compute_particles_volume(FloatPrecision h);
 };
 
 } // Physics

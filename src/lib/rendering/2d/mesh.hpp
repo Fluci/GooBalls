@@ -29,7 +29,7 @@ public:
 	Colors& vertices_color();
 	// Triangles
 	const TriangleList& triangles() const;
-	TriangleList& triangles();
+    TriangleList& triangles();
     // rendering
     virtual void render() const;
 private:

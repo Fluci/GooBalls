@@ -9,8 +9,14 @@ namespace GooBalls {
  * */
 
 typedef double CoordinatePrecision;
+typedef Eigen::Matrix<CoordinatePrecision, Eigen::Dynamic, 1, Eigen::ColMajor> Coordinates1d;
+/// Each row is a coordinate tuple: (x,y)
 typedef Eigen::Matrix<CoordinatePrecision, Eigen::Dynamic, 2, Eigen::RowMajor> Coordinates2d;
+/// Each row is a coordiante tuple: (x,y,z)
 typedef Eigen::Matrix<CoordinatePrecision, Eigen::Dynamic, 3, Eigen::RowMajor> Coordinates3d;
+
+typedef Eigen::Matrix<CoordinatePrecision, 2, 2, Eigen::RowMajor> RotationMatrix;
+typedef Eigen::Matrix<CoordinatePrecision, 1, 2, Eigen::RowMajor> TranslationVector;
 
 /// Colors in the range [0,1]
 typedef double ColorFloatPrecision;

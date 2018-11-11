@@ -25,6 +25,7 @@ BOOST_AUTO_TEST_CASE(simple_world) {
     
     auto fluidPhys = std::make_unique<Fluid>(particleCoordinates);
     fluidPhys->particles_velocity().setRandom(10, 2);
+    fluidPhys->particles_mass().setOnes(10);
     Scene scene;
     scene.fluid = std::move(fluidPhys);
 

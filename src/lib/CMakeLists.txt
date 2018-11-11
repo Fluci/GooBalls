@@ -4,20 +4,30 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # list here your source files (*.cpp) of your module
 set(source_files
     generic/hello.cpp
+    loader/scene_loader.cpp
     observing/abstractObserver.cpp
     observing/abstractDelayedObserver.cpp
     observing/abstractSubject.cpp
     physics/2d/message.cpp
     physics/2d/box2dmessages.cpp
+    physics/2d/message.cpp
     physics/2d/engine.cpp
+    physics/2d/fluid_solver.cpp
     physics/2d/fluid.cpp
     physics/2d/mesh.cpp
+    physics/2d/ssph.cpp
+    physics/2d/visco_elastic.cpp
+    physics/2d/kernel_debrun_spiky.cpp
+    physics/2d/kernel_poly6.cpp
+    physics/2d/kernel_viscosity.cpp
     rendering/2d/disk_fluid.cpp
     rendering/2d/fluid.cpp
     rendering/2d/mesh.cpp
     rendering/2d/engine.cpp
     rendering/2d/scene.cpp
-    loader/scene_loader.cpp
+    spatial/2d/neighborhood.cpp
+    spatial/2d/neighborhood_brute_force.cpp
+    spatial/2d/neighborhood_spatial_hashing.cpp
 )
 
 message(STATUS "Shader files located at ${CMAKE_CURRENT_SOURCE_DIR}/rendering/2d/shaders")
@@ -57,6 +67,9 @@ set(test_files
     test_root.cc
     generic/hello.test.cc
     physics/2d/engine.test.cc
+    observing/abstractSubject.test.cc
+    spatial/2d/neighborhood_spatial_hashing.test.cc
+    spatial/2d/neighborhood_brute_force.test.cc
     )
 
 add_executable(tests ${test_files})

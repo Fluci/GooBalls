@@ -73,3 +73,4 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_subdirectory(src/lib)
 add_subdirectory(src/GooBallsApp)
+add_subdirectory(src/benchmark_neighborhood)

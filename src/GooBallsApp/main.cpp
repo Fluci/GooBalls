@@ -26,6 +26,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     // create physics data
     auto fluidPhys = std::make_unique<Physics::Fluid>(particleCoordinates);
     fluidPhys->particles_velocity().setRandom(10, 2);
+    fluidPhys->particles_mass().setOnes(10);
     physScene.fluid = std::move(fluidPhys);
 
     Physics::Mesh physMesh(verts, triangles);
