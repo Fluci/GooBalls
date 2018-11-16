@@ -1,4 +1,5 @@
 #include "engine.hpp"
+#include "box2dmessages.hpp"
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
@@ -31,6 +32,29 @@ void Engine::advance(Scene& scene, TimeStep dt) {
         scene.fluid->particles_position() += scene.fluid->particles_velocity()*dt;
     }
 }
+
+void Engine::BeginContact(b2Contact* contact) {
+    auto msg = std::shared_ptr<Box2DBeginContactMessage>();
+    msg->contact = contact;
+    sendMessage(msg);
+}
+void Engine::EndContact(b2Contact* contact){
+    auto msg = std::shared_ptr<Box2DEndContactMessage>();
+    msg->contact = contact;
+    sendMessage(msg);
+}
+void Engine::PreSolve(b2Contact* contact, const b2Manifold* oldManifold){
+    auto msg = std::shared_ptr<Box2DPreSolveMessage>();
+    msg->contact = contact;
+    msg->oldManifold = oldManifold;
+    sendMessage(msg);
+}
+void Engine::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse){
+    auto msg = std::shared_ptr<Box2DPostSolveMessage>();
+    msg->contact = contact;
+    msg->impulse = impulse;
+}
+
 
 } // Physics
 } // d2
