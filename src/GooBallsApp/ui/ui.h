@@ -64,7 +64,9 @@
 #endif
 
 #include "rendering/2d/engine.hpp"
+#include "rendering/2d/disk_fluid.hpp"
 
+using std::endl;
 
 class MyGLCanvas : public nanogui::GLCanvas {
 public:
@@ -72,7 +74,29 @@ public:
     ~MyGLCanvas() { }
 
     virtual void drawGL() override {
-        m_renderEngine.render({});
+        std::shared_ptr<GooBalls::Coordinates2d> centers = std::make_shared<GooBalls::Coordinates2d>();
+        centers->resize(4, 2);
+        centers->row(0) << -0.45f,  0.45f;
+        centers->row(1) <<  0.45f,  0.45f;
+        centers->row(2) <<  0.45f, -0.45f;
+        centers->row(3) << -0.45f, -0.45f;
+
+        Eigen::VectorXf radii(4);
+        radii << 0.1f, 0.2f, 0.3f, 0.4f;
+
+        GooBalls::ColorsFloatRGB colors(4, 3);
+        colors.row(0) << 0.8f, 0.8f, 0.8f;
+        colors.row(1) << 0.5f, 0.5f, 0.7f;
+        colors.row(2) << 0.2f, 0.5f, 0.2f;
+        colors.row(3) << 0.6f, 0.3f, 0.1f;
+
+        auto fluid = std::make_unique<GooBalls::d2::Render::DiskFluid>(centers);
+        fluid->particles_radius() = radii;
+        fluid->particles_color() = colors;
+
+        GooBalls::d2::Render::Scene renderScene;
+        renderScene.fluids.push_back(std::move(fluid));
+        m_renderEngine.render(renderScene);
     }
 
 private:
@@ -82,16 +106,16 @@ private:
 
 class ExampleApplication : public nanogui::Screen {
 public:
-    ExampleApplication() : nanogui::Screen(Eigen::Vector2i(800, 600), "NanoGUI Test", false) {
+    ExampleApplication() : nanogui::Screen(Eigen::Vector2i(600, 650), "NanoGUI Test", false) {
         using namespace nanogui;
 
-        Window *window = new Window(this, "GLCanvas Demo");
+        Window *window = new Window(this, "GooFBalls");
         window->setPosition(Vector2i(15, 15));
         window->setLayout(new GroupLayout());
 
         mCanvas = new MyGLCanvas(window);
-        mCanvas->setBackgroundColor({100, 100, 100, 255});
-        mCanvas->setSize({400, 400});
+        mCanvas->setBackgroundColor({80, 80, 100, 255});
+        mCanvas->setSize({500, 500});
 
         Widget *tools = new Widget(window);
         tools->setLayout(new BoxLayout(Orientation::Horizontal,
