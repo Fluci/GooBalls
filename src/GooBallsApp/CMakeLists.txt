@@ -10,24 +10,11 @@ set(test_files
     test_root.cc
     )
 
-find_package( Eigen3 REQUIRED )
-include_directories(${EIGEN3_INCLUDE_DIR})
-
-find_package( Boost COMPONENTS
-    system
-    filesystem
-    program_options
-    log
-    unit_test_framework
-    REQUIRED )
-
-ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
-
-find_package( Box2D REQUIRED )
-
 # compile everything into a library and then link into the target executable (tests, main, etc.)
 # this should increase compilation speed
 add_library(libgooBallsAll ${source_files})
+
+target_include_directories(libgooBallsAll PUBLIC ${GOOBALLS_EIGEN3_INCLUDE_DIR})
 
 # link all dependencies
 target_link_libraries(libgooBallsAll
@@ -37,6 +24,7 @@ target_link_libraries(libgooBallsAll
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${Boost_LOG_LIBRARY}
     ${BOX2D_LIBRARIES}
+    nanogui ${NANOGUI_EXTRA_LIBS}
 )
 
 # Create app executable
