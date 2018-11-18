@@ -14,7 +14,9 @@ set(test_files
 # this should increase compilation speed
 add_library(libgooBallsAll ${source_files})
 
-target_include_directories(libgooBallsAll PUBLIC ${GOOBALLS_EIGEN3_INCLUDE_DIR})
+message(STATUS "nanogui extra incs: ${NANOGUI_EXTRA_INCS}")
+
+target_include_directories(libgooBallsAll PUBLIC )
 
 # link all dependencies
 target_link_libraries(libgooBallsAll
@@ -24,7 +26,6 @@ target_link_libraries(libgooBallsAll
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${Boost_LOG_LIBRARY}
     ${BOX2D_LIBRARIES}
-    nanogui ${NANOGUI_EXTRA_LIBS}
 )
 
 # Create app executable

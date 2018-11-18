@@ -1,5 +1,8 @@
 #pragma once
 
+#include "nanogui/opengl.h"
+#include "nanogui/glutil.h"
+
 #include "scene.hpp"
 
 namespace GooBalls {
@@ -10,12 +13,17 @@ namespace Render {
  * */
 class Engine {
 public:
-/**
- * Takes a RenderScene object and creates an image from it.
- * It also has the responsibility to display the image on screen.
- *
- * */
+    Engine();
+    ~Engine();
+
+    /**
+     * Takes a RenderScene object and creates an image from it.
+     * It also has the responsibility to display the image on screen.
+     *
+     * */
 	void render(const Scene& scene);
+private:
+    nanogui::GLShader m_particleShader;
 };
 } // Render
 } // d2

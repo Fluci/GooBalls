@@ -6,6 +6,8 @@
 #include "rendering/2d/disk_fluid.hpp"
 #include "physics/2d/engine.hpp"
 
+#include "ui/ui.h"
+
 using namespace GooBalls;
 using namespace d2;
 
@@ -69,6 +71,32 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
 }
 
 
+int main(int /* argc */, char ** /* argv */) {
+    try {
+        nanogui::init();
+
+        /* scoped variables */ {
+            nanogui::ref<ExampleApplication> app = new ExampleApplication();
+            app->drawAll();
+            app->setVisible(true);
+            nanogui::mainloop();
+        }
+
+        nanogui::shutdown();
+    } catch (const std::runtime_error &e) {
+        std::string error_msg = std::string("Caught a fatal error: ") + std::string(e.what());
+        #if defined(_WIN32)
+            MessageBoxA(nullptr, error_msg.c_str(), NULL, MB_ICONERROR | MB_OK);
+        #else
+            std::cerr << error_msg << endl;
+        #endif
+        return -1;
+    }
+
+    return 0;
+}
+
+/* 
 int main(int argc, char *argv[]){
     std::cout << "Hi there!" << std::endl;
     anotherHello();
@@ -91,3 +119,4 @@ int main(int argc, char *argv[]){
     render.render(aRenderScene);
     return 0;
 }
+*/
