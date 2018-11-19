@@ -17,6 +17,7 @@ set(source_files
     rendering/2d/mesh.cpp
     rendering/2d/engine.cpp
     rendering/2d/scene.cpp
+    loader/scene_loader.cpp
 )
 
 message(STATUS "Shader files located at ${CMAKE_CURRENT_SOURCE_DIR}/rendering/2d/shaders")
@@ -36,6 +37,10 @@ add_library(libgooBalls ${source_files})
 
 add_dependencies(libgooBalls copy_shader_files)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP jsoncpp)
+link_libraries(${JSONCPP_LIBRARIES})
+
 # add this path to include path of target
 target_include_directories(libgooBalls PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${NANOGUI_EXTRA_INCS} ${GOOBALLS_EIGEN3_INCLUDE_DIR})
 
@@ -44,6 +49,7 @@ target_link_libraries(libgooBalls
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_LOG_LIBRARY}
     ${BOX2D_LIBRARIES}
+    ${JSONCPP_LIBRARIES}
     nanogui ${NANOGUI_EXTRA_LIBS}
     )
 # list here your testing files (*.test.cc) of your module

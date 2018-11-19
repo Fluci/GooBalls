@@ -1,10 +1,13 @@
-#include <iostream>
+#include<iostream>
+#include<fstream>
+#include<jsoncpp/json/json.h>
 
 #include "placeholder.hpp"
 #include "generic/hello.hpp"
 #include "rendering/2d/engine.hpp"
 #include "rendering/2d/disk_fluid.hpp"
 #include "physics/2d/engine.hpp"
+#include "loader/scene_loader.hpp"
 
 #include "ui/ui.h"
 
@@ -61,22 +64,33 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     fluid->particles_color().array() += 1.0;
     fluid->particles_color() /= 2.0;
     fluid->particles_radius().setRandom(10, 1);
-    fluid->particles_radius().array() += 2.0;
+    fluid->particles_radius().array() += 1.0;
+    fluid->particles_radius().array() *= 0.1;
     auto mesh = std::make_unique<Render::Mesh>(verts, triangles);
     mesh->vertices_color().setRandom(30,3);
     mesh->vertices_color().array() += 1.0;
     mesh->vertices_color() /= 2.0;
     aRenderScene.fluids.push_back(std::move(fluid));
     aRenderScene.meshes.push_back(std::move(mesh));
+
+    SceneLoader::loadScene(physScene, aRenderScene, "../examples/scenes/scene0.json");
+
 }
 
 
-int main(int /* argc */, char ** /* argv */) {
+int main(int argc, char **argv) {
+    Physics::Engine physicsEngine;
+    Physics::Scene physicsScene;
+    Render::Engine renderEngine;
+    Render::Scene renderScene;
+    createRandomScene(physicsScene, renderScene);
+
     try {
         nanogui::init();
 
         /* scoped variables */ {
-            nanogui::ref<ExampleApplication> app = new ExampleApplication();
+            nanogui::ref<ExampleApplication> app = 
+                new ExampleApplication(physicsEngine, renderEngine, physicsScene, renderScene);
             app->drawAll();
             app->setVisible(true);
             nanogui::mainloop();
@@ -95,28 +109,3 @@ int main(int /* argc */, char ** /* argv */) {
 
     return 0;
 }
-
-/* 
-int main(int argc, char *argv[]){
-    std::cout << "Hi there!" << std::endl;
-    anotherHello();
-    hello();
-
-    Physics::Engine physEngine;
-    Physics::Scene physScene;
-    Render::Scene aRenderScene;
-    createRandomScene(physScene, aRenderScene);
-    Render::Engine render;
-    // DEMO
-    // show what we can
-    std::cout << "first frame: " << std::endl;
-    render.render(aRenderScene);
-    // do one step
-    // as both scene objects share the underlying particle positions, 
-    // we don't need to copy anything for the render engine
-    physEngine.advance(physScene, 0.1);
-    std::cout << "second frame: " << std::endl;
-    render.render(aRenderScene);
-    return 0;
-}
-*/
