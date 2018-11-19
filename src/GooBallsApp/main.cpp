@@ -79,7 +79,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     fluid->particles_color() /= 2.0;
     fluid->particles_radius().setOnes(PN, 1);
     fluid->particles_radius().array() += 0.0;
-    fluid->particles_radius().array() *= 0.05;
+    fluid->particles_radius().array() *= 0.03;
     auto mesh = std::make_unique<Render::Mesh>(verts, triangles);
     mesh->vertices_color().setRandom(30,3);
     mesh->vertices_color().array() += 1.0;

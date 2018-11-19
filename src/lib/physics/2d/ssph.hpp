@@ -22,10 +22,6 @@ private:
     std::unique_ptr<Neighborhood> m_neighborhood;
     std::unique_ptr<Neighborhood> m_boundary_neighborhood;
     std::unique_ptr<Kernel> m_kernel;
-    FloatPrecision m_K = 1.0; // gas constant, TODO: correct value?
-    FloatPrecision m_rho0 = 1.0; // TODO: get correct base value
-    FloatPrecision m_color_relevant_normal_size = 0.01; // TODO: correct value
-    FloatPrecision m_color_sigma = 10.0; // TODO: correct value
     bool m_consider_boundary = false;
     /// force from fluid to boundary particles
     Coordinates2d m_boundary_force;

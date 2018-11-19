@@ -32,6 +32,10 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     auto& pos = scene.fluid->particles_position();
     auto& vs = scene.fluid->particles_velocity();
     auto& ms = scene.fluid->particles_mass();
+    FloatPrecision K = 1.0; // gas constant, TODO: correct value?
+    FloatPrecision rho0 = 10.0; // TODO: get correct base value
+    FloatPrecision color_relevant_normal_size = 0.01; // TODO: correct value
+    FloatPrecision color_sigma = 10.0; // TODO: correct value
     FloatPrecision mu = 100.0;
     const int PN = pos.rows();
     // Müller et al., all equations we need:
@@ -63,7 +67,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     Coordinates1d psi;
     bool consider_boundary = m_consider_boundary && scene.fluid->boundary_volume().rows() > 0;
     if(consider_boundary){
-        psi = m_rho0 * scene.fluid->boundary_volume();
+        psi = rho0 * scene.fluid->boundary_volume();
         m_boundary_neighborhood->inRange(scene.fluid->boundary_position(), h);
         m_boundary_force.setZero(psi.rows(), Eigen::NoChange);
     }
@@ -93,7 +97,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     }
 
     // pressure: p = k (rho - rho_0)
-    Coordinates1d ps = m_K * (rho.array() - m_rho0);
+    Coordinates1d ps = K * (rho.array() - rho0);
     Coordinates2d FPressure (PN, 2);
     Coordinates2d FViscosity (PN, 2);
     Coordinates2d FSurface (PN, 2);
@@ -147,8 +151,8 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
         RowVec colorN = jColGrad.colwise().sum();
         FloatPrecision colorLap = jColLap.sum();
         FloatPrecision colorNNorm = colorN.norm();
-        if(colorNNorm > m_color_relevant_normal_size){
-            FloatPrecision aa = (-m_color_sigma * colorLap / colorNNorm);
+        if(colorNNorm > color_relevant_normal_size){
+            FloatPrecision aa = (-color_sigma * colorLap / colorNNorm);
             FSurface.row(i) = aa * colorN;
         }
     }
