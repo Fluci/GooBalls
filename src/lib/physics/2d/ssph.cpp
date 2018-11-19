@@ -72,7 +72,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
         auto& index = m_neighborhood->indexes()[i];
         // rho(r_i) = sum_j m_j W(r_i - r_j, h)
         pickRows(pos, index, jpos);
-        m_kernel->compute(jpos.rowwise() - pos.row(i), &jW, nullptr, nullptr);
+        m_kernel->compute(-(jpos.rowwise() - pos.row(i)), &jW, nullptr, nullptr);
         for(int j = 0; j < index.size(); ++j){
             int jj = index[j];
             jW[j] *= ms[jj];
@@ -83,7 +83,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
             auto& index = m_boundary_neighborhood->indexes()[i];
             pickRows(pos, index, jpos);
             // sum_k psi_bk(rho_0) W_ik
-            m_kernel->compute(jpos.rowwise() - pos.row(i), &jW, nullptr, nullptr);
+            m_kernel->compute(-(jpos.rowwise() - pos.row(i)), &jW, nullptr, nullptr);
             for(int j = 0; j < index.size(); ++j){
                 int jj = index[j];
                 jW[j] *= psi[jj];
@@ -113,12 +113,12 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
         // f_i^pressure = - sum_j m_j*(p_i + p_j) / (2 rho_j) \nabla W(r_i - r_j, h)
         // f_i^viscosity = mu * sum_j m_j (v_j - v_i) / rho_j \nabla^2 W(r_i - r_j, h)
         // c_s(r_i) = sum_j m_j/rho-j W(r_i - r_j, h)
-        m_kernel->compute(jpos.rowwise() - pos.row(i), nullptr /*&jW*/, &jGrad, &jLap);
+        m_kernel->compute(-(jpos.rowwise() - pos.row(i)), nullptr /*&jW*/, &jGrad, &jLap);
         for(int j = 0; j < index.size(); ++j){
             int jj = index[j];
             FloatPrecision a = ms[jj] / rho[jj];
             jPress.row(j) = a * (ps[jj] + ps[i]) / 2.0 * jGrad.row(j);
-            jVisc.row(j) = a * (vs.row(i) - vs.row(jj)) * jLap[j];
+            jVisc.row(j) = a * (vs.row(jj) - vs.row(i)) * jLap[j];
             //jColor[j] = a * jW[j];
             jColGrad.row(j) = a * jGrad.row(j);
             jColLap[j] = a * jLap[j];
@@ -153,7 +153,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
         }
     }
     //scene.fluid->particles_total_force() = (FPressure + FViscosity + FSurface).rowwise() + scene.gravity;
-    scene.fluid->particles_total_force() = -FViscosity - FPressure - FSurface;
+    scene.fluid->particles_total_force() = FViscosity + FPressure + FSurface;
 }
 
 
