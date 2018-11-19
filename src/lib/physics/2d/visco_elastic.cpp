@@ -36,14 +36,6 @@ void ViscoElastic::computeTotalForce(Scene& scene, TimeStep dt){
     m_solver->computeTotalForce(scene, dt);
 }
 
-CoordinatePrecision ViscoElastic::h() const {
-    return m_solver->h();
-}
-
-void ViscoElastic::h(CoordinatePrecision h) {
-    m_solver->h(h);
-}
-
 } // Physics
 
 } // d2

@@ -78,6 +78,14 @@ Coordinates1d& Fluid::boundary_volume() {
     return m_boundary_volume;
 }
 
+CoordinatePrecision Fluid::h() const {
+    return m_h;
+}
+
+void Fluid::h(CoordinatePrecision h) {
+    m_h = h;
+}
+
 bool Fluid::sanity_check() const {
     if(particles_position().rows() != particles_velocity().rows()){
         std::cerr << "Position and velocity should have same number of rows." << std::endl;

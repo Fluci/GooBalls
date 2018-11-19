@@ -29,13 +29,10 @@ private:
     bool m_consider_boundary = true;
     /// force from fluid to boundary particles
     Coordinates2d m_boundary_force;
-    CoordinatePrecision m_h;
 public:
     SSPH();
     virtual ~SSPH() = default;
     virtual void computeTotalForce(Scene& scene, TimeStep dt);
-    virtual CoordinatePrecision h() const;
-    virtual void h(CoordinatePrecision h);
 
 };
 

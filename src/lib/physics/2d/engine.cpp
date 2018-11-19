@@ -10,7 +10,7 @@ namespace Physics {
 
 void Engine::initScene(Scene& scene){
     for(auto& mesh : scene.meshes){
-        mesh.prepare(m_fluidSolver.h());
+        mesh.prepare(scene.fluid->h());
     }
 }
 

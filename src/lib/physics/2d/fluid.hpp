@@ -44,7 +44,10 @@ public:
      * Checks invariants of the fluid
      * */
     bool sanity_check() const;
-    
+
+    /// Sphere of influence for each particle
+    virtual CoordinatePrecision h() const;
+    virtual void h(CoordinatePrecision h);
 private:
     std::shared_ptr<Coordinates2d> m_particles_position;
     Coordinates2d m_particles_velocity;
@@ -56,6 +59,7 @@ private:
     Coordinates2d m_boundary_velocity;
     Coordinates1d m_boundary_volume;
     Coordinates2d m_boundary_force;
+    CoordinatePrecision m_h = 0.05;
 };
 
 

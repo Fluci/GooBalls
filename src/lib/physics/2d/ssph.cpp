@@ -19,14 +19,6 @@ SSPH::SSPH(){
     m_kernel = std::make_unique<Poly6>();
 }
 
-CoordinatePrecision SSPH::h() const {
-    return m_h;
-}
-
-void SSPH::h(CoordinatePrecision h) {
-    m_h = h;
-}
-
 typedef Eigen::Matrix<FloatPrecision, 1, 2> RowVec;
 
 void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
@@ -35,7 +27,8 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     }
     assert(m_kernel.get() != nullptr);
     assert(scene.fluid->sanity_check());
-    m_kernel->setH(m_h);
+    const CoordinatePrecision h = scene.fluid->h();
+    m_kernel->setH(h);
     auto& pos = scene.fluid->particles_position();
     auto& vs = scene.fluid->particles_velocity();
     auto& ms = scene.fluid->particles_mass();
@@ -62,7 +55,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     // surface force should be fine I guess ..
     // implementation:
     // let's get the neighborhood information
-    m_neighborhood->inRange(scene.fluid->particles_position(), m_h);
+    m_neighborhood->inRange(scene.fluid->particles_position(), h);
     auto& rho = scene.fluid->particles_density();
     rho.resize(PN);
     Coordinates1d jW(1,1);
@@ -71,7 +64,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     bool consider_boundary = m_consider_boundary && scene.fluid->boundary_volume().rows() > 0;
     if(consider_boundary){
         psi = m_rho0 * scene.fluid->boundary_volume();
-        m_boundary_neighborhood->inRange(scene.fluid->boundary_position(), m_h);
+        m_boundary_neighborhood->inRange(scene.fluid->boundary_position(), h);
         m_boundary_force.setZero(psi.rows(), Eigen::NoChange);
     }
     for(int i = 0; i < PN; ++i){

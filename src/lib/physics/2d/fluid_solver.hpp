@@ -21,10 +21,6 @@ public:
     * The total force is stored in `scene.fluid`
     **/
     virtual void computeTotalForce(Scene& scene, TimeStep dt) = 0;
-
-    /// Sphere of influence for each particle
-    virtual CoordinatePrecision h() const = 0;
-    virtual void h(CoordinatePrecision h) = 0;
 };
 
 } // Physics

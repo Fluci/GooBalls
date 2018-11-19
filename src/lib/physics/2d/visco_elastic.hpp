@@ -14,8 +14,6 @@ public:
     ViscoElastic();
     virtual void advance(Scene& scene, TimeStep dt);
     virtual void computeTotalForce(Scene& scene, TimeStep dt);
-    virtual CoordinatePrecision h() const;
-    virtual void h(CoordinatePrecision h);
 private:
     /// This is the main fluid solver who's results we adjust to make the fluid visco elastic
     std::unique_ptr<FluidSolver> m_solver;
