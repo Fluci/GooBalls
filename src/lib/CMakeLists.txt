@@ -12,6 +12,7 @@ set(source_files
     rendering/2d/mesh.cpp
     rendering/2d/engine.cpp
     rendering/2d/scene.cpp
+	loader/scene_loader.cpp
 )
 
 add_library(libgooBalls ${source_files})
@@ -31,6 +32,10 @@ find_package( Boost COMPONENTS
 
 ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP jsoncpp)
+link_libraries(${JSONCPP_LIBRARIES})
+
 find_package( Box2D REQUIRED )
 
 target_link_libraries(libgooBalls
@@ -38,6 +43,7 @@ target_link_libraries(libgooBalls
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_LOG_LIBRARY}
     ${BOX2D_LIBRARIES}
+    ${JSONCPP_LIBRARIES}
     )
 # list here your testing files (*.test.cc) of your module
 set(test_files

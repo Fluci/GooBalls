@@ -21,10 +21,6 @@ find_package( Boost COMPONENTS
     unit_test_framework
     REQUIRED )
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(JSONCPP jsoncpp)
-link_libraries(${JSONCPP_LIBRARIES})
-
 ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
 
 find_package( Box2D REQUIRED )
@@ -49,7 +45,6 @@ add_executable(gooBalls main.cpp)
 target_link_libraries(gooBalls
     libgooBallsAll
     ${BOX2D_LIBRARIES}
-    ${JSONCPP_LIBRARIES}
     )
 
 # create unit test executable
