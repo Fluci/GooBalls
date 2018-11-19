@@ -17,7 +17,7 @@ set(source_files
     rendering/2d/mesh.cpp
     rendering/2d/engine.cpp
     rendering/2d/scene.cpp
-	loader/scene_loader.cpp
+    loader/scene_loader.cpp
 )
 
 message(STATUS "Shader files located at ${CMAKE_CURRENT_SOURCE_DIR}/rendering/2d/shaders")
