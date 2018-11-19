@@ -5,6 +5,9 @@ namespace d2 {
 namespace Render {
 
 Engine::Engine() {
+}
+
+void Engine::init() {
     m_particleShader.initFromFiles(
         "particle_shader",
         "shaders/particle.vert",
@@ -29,7 +32,7 @@ void Engine::render(const Scene& scene) {
     }   
 
     for(const auto& mesh : scene.meshes){
-        mesh->render();
+        // mesh->render();
     }   
     glDisable(GL_DEPTH_TEST);
 }

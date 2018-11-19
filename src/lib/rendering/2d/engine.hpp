@@ -22,6 +22,8 @@ public:
      *
      * */
 	void render(const Scene& scene);
+
+    void init();
 private:
     nanogui::GLShader m_particleShader;
 };
