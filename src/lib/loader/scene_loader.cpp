@@ -93,8 +93,9 @@ void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::stri
 
 
 			// create a PhysicsMesh object for Box2D
-			Physics::Mesh physMesh(std::make_shared<Coordinates2d>(vertices),
-								   std::make_shared<TriangleList>(faces));
+			auto vertex_ptr = std::make_shared<Coordinates2d>(vertices);
+			auto face_ptr = std::make_shared<TriangleList>(faces);
+			Physics::Mesh physMesh(vertex_ptr, face_ptr);
 
 			// create a body for box2d
 			b2BodyDef bodyDefinition;
@@ -116,8 +117,7 @@ void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::stri
 
 	
 			// insert the mesh into the scene's rendering
-			auto mesh = std::make_unique<Render::Mesh>(std::make_shared<Coordinates2d>(vertices),
-													   std::make_shared<TriangleList>(faces));
+			auto mesh = std::make_unique<Render::Mesh>(vertex_ptr, face_ptr);
 			mesh->vertices_color() = Eigen::MatrixXd::Zero(vertexCount, 3);
 			mesh->vertices_color().array() += 0.5; // grey
 			aRenderScene.meshes.push_back(std::move(mesh));
