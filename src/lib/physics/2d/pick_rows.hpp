@@ -13,7 +13,7 @@ void pickRows(
         ) {
     out.resize(indexes.size(), data.cols());
     for(size_t i = 0; i < indexes.size(); ++i){
-        out.row(i) = data.row(i);
+        out.row(i) = data.row(indexes[i]);
     }
 }
 

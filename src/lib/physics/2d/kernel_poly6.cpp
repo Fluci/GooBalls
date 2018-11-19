@@ -23,7 +23,7 @@ void Poly6::compute(
     assert(diffH2.rows() == rs.rows());
     if(wResult != nullptr){
         // 315/(64*M_PI)/std::pow(h, 9) * std::pow(h*h - r^2, 3)
-        wResult->resize(rs.rows(), 1);
+        //wResult->resize(rs.rows(), 1);
         *wResult = m_A * diffH2*diffH;
     }
     if(gradientResult != nullptr){

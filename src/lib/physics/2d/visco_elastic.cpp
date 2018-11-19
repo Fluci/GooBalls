@@ -23,6 +23,7 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
     a.resize(rho.rows(), 2);
     a.col(0) = Ftotal.col(0).array() / rho.array();
     a.col(1) = Ftotal.col(1).array() / rho.array();
+    a = a.rowwise() + scene.gravity;
     auto& pos = scene.fluid->particles_position();
     auto& vs = scene.fluid->particles_velocity();
 

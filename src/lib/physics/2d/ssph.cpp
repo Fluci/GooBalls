@@ -32,7 +32,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     auto& pos = scene.fluid->particles_position();
     auto& vs = scene.fluid->particles_velocity();
     auto& ms = scene.fluid->particles_mass();
-    FloatPrecision mu = 1.0;
+    FloatPrecision mu = 100.0;
     const int PN = pos.rows();
     // Müller et al., all equations we need:
     // density: rho(r_i) = sum_j m_j W(r_i - r_j, h)
@@ -118,7 +118,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
             int jj = index[j];
             FloatPrecision a = ms[jj] / rho[jj];
             jPress.row(j) = a * (ps[jj] + ps[i]) / 2.0 * jGrad.row(j);
-            jVisc.row(j) = a * (vs.row(jj) - vs.row(i)) * jLap[j];
+            jVisc.row(j) = a * (vs.row(i) - vs.row(jj)) * jLap[j];
             //jColor[j] = a * jW[j];
             jColGrad.row(j) = a * jGrad.row(j);
             jColLap[j] = a * jLap[j];
@@ -152,7 +152,8 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
             FSurface.row(i) = aa * colorN;
         }
     }
-    scene.fluid->particles_total_force() = (FPressure + FViscosity + FSurface).rowwise() + scene.gravity;
+    //scene.fluid->particles_total_force() = (FPressure + FViscosity + FSurface).rowwise() + scene.gravity;
+    scene.fluid->particles_total_force() = -FViscosity - FPressure - FSurface;
 }
 
 

@@ -129,7 +129,10 @@ public:
     }
 
     virtual void draw(NVGcontext *ctx) {
-        m_physicsEngine.advance(m_physicsScene, 0.1);
+        int n = 2;
+        for(int i = 0; i < n; ++i){
+            m_physicsEngine.advance(m_physicsScene, 0.001);
+        }
         /* Draw the user interface */
         Screen::draw(ctx);
     }

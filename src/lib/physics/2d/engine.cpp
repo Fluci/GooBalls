@@ -15,9 +15,9 @@ namespace Physics {
 using namespace Spatial;
 
 Engine::Engine() {
-    //m_fluidSolver = std::make_unique<SSPH>();
+    m_fluidSolver = std::make_unique<SSPH>();
     //m_fluidSolver = std::make_unique<ViscoElastic>();
-    m_fluidSolver = std::make_unique<NoSph>();
+    //m_fluidSolver = std::make_unique<NoSph>();
 }
 
 void Engine::initScene(Scene& scene){
