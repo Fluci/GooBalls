@@ -63,57 +63,46 @@
 #  include <windows.h>
 #endif
 
+#include "physics/2d/engine.hpp"
 #include "rendering/2d/engine.hpp"
 #include "rendering/2d/disk_fluid.hpp"
+
+namespace GooBalls {
+
+namespace d2 {
 
 using std::endl;
 
 class MyGLCanvas : public nanogui::GLCanvas {
 public:
-    MyGLCanvas(Widget *parent) : nanogui::GLCanvas(parent) { }
+    MyGLCanvas(Widget *parent, Render::Engine& renderEngine, Render::Scene& renderScene) 
+        : nanogui::GLCanvas(parent), r_renderEngine(renderEngine), r_renderScene(renderScene) { }
     ~MyGLCanvas() { }
 
     virtual void drawGL() override {
-        std::shared_ptr<GooBalls::Coordinates2d> centers = std::make_shared<GooBalls::Coordinates2d>();
-        centers->resize(4, 2);
-        centers->row(0) << -0.45f,  0.45f;
-        centers->row(1) <<  0.45f,  0.45f;
-        centers->row(2) <<  0.45f, -0.45f;
-        centers->row(3) << -0.45f, -0.45f;
-
-        Eigen::VectorXf radii(4);
-        radii << 0.1f, 0.2f, 0.3f, 0.4f;
-
-        GooBalls::ColorsFloatRGB colors(4, 3);
-        colors.row(0) << 0.8f, 0.8f, 0.8f;
-        colors.row(1) << 0.5f, 0.5f, 0.7f;
-        colors.row(2) << 0.2f, 0.5f, 0.2f;
-        colors.row(3) << 0.6f, 0.3f, 0.1f;
-
-        auto fluid = std::make_unique<GooBalls::d2::Render::DiskFluid>(centers);
-        fluid->particles_radius() = radii;
-        fluid->particles_color() = colors;
-
-        GooBalls::d2::Render::Scene renderScene;
-        renderScene.fluids.push_back(std::move(fluid));
-        m_renderEngine.render(renderScene);
+        r_renderEngine.render(r_renderScene);
     }
 
 private:
-    GooBalls::d2::Render::Engine m_renderEngine;
+    Render::Engine& r_renderEngine;
+    Render::Scene& r_renderScene;
 };
 
 
 class ExampleApplication : public nanogui::Screen {
 public:
-    ExampleApplication() : nanogui::Screen(Eigen::Vector2i(600, 650), "NanoGUI Test", false) {
+    ExampleApplication(Physics::Engine& physicsEngine, Render::Engine& renderEngine,
+            Physics::Scene& physicsScene, Render::Scene& renderScene) 
+            : nanogui::Screen(Eigen::Vector2i(600, 650), "NanoGUI Test", false),
+            m_physicsEngine(physicsEngine), m_renderEngine(renderEngine),
+            m_physicsScene(physicsScene), m_renderScene(renderScene) {
         using namespace nanogui;
 
         Window *window = new Window(this, "GooFBalls");
         window->setPosition(Vector2i(15, 15));
         window->setLayout(new GroupLayout());
 
-        mCanvas = new MyGLCanvas(window);
+        mCanvas = new MyGLCanvas(window, m_renderEngine, m_renderScene);
         mCanvas->setBackgroundColor({80, 80, 100, 255});
         mCanvas->setSize({500, 500});
 
@@ -125,6 +114,8 @@ public:
         b0->setCallback([this]() { mCanvas->setBackgroundColor(Vector4i(rand() % 256, rand() % 256, rand() % 256, 255)); });
 
         performLayout();
+
+        m_renderEngine.init();
     }
 
     virtual bool keyboardEvent(int key, int scancode, int action, int modifiers) {
@@ -138,9 +129,20 @@ public:
     }
 
     virtual void draw(NVGcontext *ctx) {
+        m_physicsEngine.advance(m_physicsScene, 0.1);
         /* Draw the user interface */
         Screen::draw(ctx);
     }
 private:
     MyGLCanvas *mCanvas;
+
+    Physics::Engine& m_physicsEngine;
+    Physics::Scene& m_physicsScene;
+
+    Render::Engine& m_renderEngine;
+    Render::Scene& m_renderScene;
 };
+
+} // d2
+
+} // GooBalls
