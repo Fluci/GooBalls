@@ -10,24 +10,13 @@ set(test_files
     test_root.cc
     )
 
-find_package( Eigen3 REQUIRED )
-include_directories(${EIGEN3_INCLUDE_DIR})
-
-find_package( Boost COMPONENTS
-    system
-    filesystem
-    program_options
-    log
-    unit_test_framework
-    REQUIRED )
-
-ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
-
-find_package( Box2D REQUIRED )
-
 # compile everything into a library and then link into the target executable (tests, main, etc.)
 # this should increase compilation speed
 add_library(libgooBallsAll ${source_files})
+
+message(STATUS "nanogui extra incs: ${NANOGUI_EXTRA_INCS}")
+
+target_include_directories(libgooBallsAll PUBLIC )
 
 # link all dependencies
 target_link_libraries(libgooBallsAll

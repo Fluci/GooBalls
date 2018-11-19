@@ -39,7 +39,5 @@ private:
 };
 
 } // Render
-
 } // d2
-
 } // GooBalls

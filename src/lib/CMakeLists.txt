@@ -7,6 +7,7 @@ set(source_files
     observing/abstractObserver.cpp
     observing/abstractDelayedObserver.cpp
     observing/abstractSubject.cpp
+    physics/2d/message.cpp
     physics/2d/box2dmessages.cpp
     physics/2d/engine.cpp
     physics/2d/fluid.cpp
@@ -18,38 +19,40 @@ set(source_files
     rendering/2d/scene.cpp
 )
 
+message(STATUS "Shader files located at ${CMAKE_CURRENT_SOURCE_DIR}/rendering/2d/shaders")
+message(STATUS "Shader copied to ${CMAKE_CURRENT_BINARY_DIR}/shaders")
+
+add_custom_target(copy_shader_files)
+
+add_custom_command(
+    TARGET copy_shader_files POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_CURRENT_SOURCE_DIR}/rendering/2d/shaders"
+    "${CMAKE_BINARY_DIR}/shaders"
+    COMMENT "Copying shader files." VERBATIM 
+)
+
 add_library(libgooBalls ${source_files})
 
+add_dependencies(libgooBalls copy_shader_files)
+
 # add this path to include path of target
-target_include_directories(libgooBalls PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-find_package( Eigen3 REQUIRED )
-include_directories(${EIGEN3_INCLUDE_DIR})
-
-find_package( Boost COMPONENTS
-    system
-    filesystem
-    log
-    unit_test_framework
-    REQUIRED )
-
-ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
-
-find_package( Box2D REQUIRED )
+target_include_directories(libgooBalls PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${NANOGUI_EXTRA_INCS} ${GOOBALLS_EIGEN3_INCLUDE_DIR})
 
 target_link_libraries(libgooBalls
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_LOG_LIBRARY}
     ${BOX2D_LIBRARIES}
+    nanogui ${NANOGUI_EXTRA_LIBS}
     )
 # list here your testing files (*.test.cc) of your module
 set(test_files
     test_root.cc
     generic/hello.test.cc
     physics/2d/engine.test.cc
-    observing/abstractSubject.test.cc
     )
+
 add_executable(tests ${test_files})
 target_link_libraries(tests
     libgooBalls
@@ -60,5 +63,3 @@ target_link_libraries(tests
 # but this way, IDE's also show header files in their project overviews
 file(GLOB_RECURSE header_files "*.h*")
 add_custom_target(headers SOURCES ${header_files})
-
-
