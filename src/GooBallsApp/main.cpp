@@ -26,6 +26,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     // create physics data
     auto fluidPhys = std::make_unique<Physics::Fluid>(particleCoordinates);
     fluidPhys->particles_velocity().setRandom(10, 2);
+    fluidPhys->particles_velocity() *= 0.1;
     fluidPhys->particles_mass().setOnes(10);
     physScene.fluid = std::move(fluidPhys);
 
@@ -66,7 +67,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     fluid->particles_color() /= 2.0;
     fluid->particles_radius().setRandom(10, 1);
     fluid->particles_radius().array() += 1.0;
-    fluid->particles_radius().array() *= 0.1;
+    fluid->particles_radius().array() *= 0.01;
     auto mesh = std::make_unique<Render::Mesh>(verts, triangles);
     mesh->vertices_color().setRandom(30,3);
     mesh->vertices_color().array() += 1.0;
@@ -74,7 +75,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     aRenderScene.fluids.push_back(std::move(fluid));
     aRenderScene.meshes.push_back(std::move(mesh));
 
-    SceneLoader::loadScene(physScene, aRenderScene, "../examples/scenes/scene0.json");
+    //SceneLoader::loadScene(physScene, aRenderScene, "../examples/scenes/scene0.json");
 
 }
 

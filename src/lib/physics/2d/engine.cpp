@@ -2,6 +2,7 @@
 #include "box2dmessages.hpp"
 #include "ssph.hpp"
 #include "visco_elastic.hpp"
+#include "no_sph.hpp"
 #include "spatial/2d/neighborhood_spatial_hashing.hpp"
 
 #include <Eigen/Core>
@@ -15,7 +16,8 @@ using namespace Spatial;
 
 Engine::Engine() {
     //m_fluidSolver = std::make_unique<SSPH>();
-    m_fluidSolver = std::make_unique<ViscoElastic>();
+    //m_fluidSolver = std::make_unique<ViscoElastic>();
+    m_fluidSolver = std::make_unique<NoSph>();
 }
 
 void Engine::initScene(Scene& scene){
@@ -52,6 +54,9 @@ void Engine::initScene(Scene& scene){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity correction coefficients set, setting to 1.";
         scene.fluid->particles_velocity_correction().setOnes(pos.rows(), Eigen::NoChange);
     }
+    // adjusted later down the road, just making sure the width is ok
+    scene.fluid->particles_density().resize(1, Eigen::NoChange);
+    scene.fluid->particles_total_force().resize(1, Eigen::NoChange);
 }
 
 void Engine::advance(Scene& scene, TimeStep dt) {

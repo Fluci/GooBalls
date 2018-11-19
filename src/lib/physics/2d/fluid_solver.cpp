@@ -10,6 +10,9 @@ void FluidSolver::advance(Scene& scene, TimeStep dt){
     if(scene.fluid.get() == nullptr){
         return;
     }
+    if(scene.fluid->particles_position().rows() == 0){
+        return;
+    }
     computeTotalForce(scene, dt);
     Coordinates2d a;
     // a_i = f_i / rho_i

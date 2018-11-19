@@ -16,6 +16,7 @@ set(source_files
     physics/2d/fluid.cpp
     physics/2d/mesh.cpp
     physics/2d/ssph.cpp
+    physics/2d/no_sph.cpp
     physics/2d/visco_elastic.cpp
     physics/2d/kernel_debrun_spiky.cpp
     physics/2d/kernel_poly6.cpp
