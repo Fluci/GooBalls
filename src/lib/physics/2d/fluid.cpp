@@ -54,6 +54,22 @@ Coordinates2d& Fluid::particles_total_force() {
     return m_particles_total_force;
 }
 
+std::vector<std::vector<Connection>>& Fluid::particles_connectivity() {
+    return m_connectivity;
+}
+
+const std::vector<std::vector<Connection>>& Fluid::particles_connectivity() const {
+    return m_connectivity;
+}
+
+Coordinates1d& Fluid::particles_velocity_correction(){
+    return m_velocity_correction;
+}
+
+const Coordinates1d& Fluid::particles_velocity_correction() const {
+    return m_velocity_correction;
+}
+
 const Coordinates2d& Fluid::boundary_position() const {
     return m_boundary_position;
 }

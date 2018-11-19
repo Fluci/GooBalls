@@ -27,7 +27,24 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
     auto& vs = scene.fluid->particles_velocity();
 
     // v^* = v^t + dt * a;
-    // Delta v =
+    // D_ij = max(||x_ij|| - r_ij, 0)
+    // Delta v_i = - 1/dt * sum_j (c_i + c_j)/2 * m_j/(m_i+m_j) D_ij x_ij / ||x_ij||
+    const auto& cs = scene.fluid->particles_velocity_correction();
+    const auto& ms = scene.fluid->particles_mass();
+    Coordinates2d dv;
+    dv.resize(pos.rows(), Eigen::NoChange);
+    for(int i = 0; i < pos.rows(); ++i){
+        const auto& conn = scene.fluid->particles_connectivity()[i];
+        TranslationVector sum;
+        sum.setZero();
+        for(size_t j = 0; j < conn.size(); ++j){
+            auto diff = pos.row(j) - pos.row(i);
+            auto diffN = diff.norm();
+            auto Dij = std::max(diffN, conn[j].rij);
+            sum = sum + (cs[i] + cs[j])/2.0 * ms[j] / (ms[i] + ms[j]) * diff.normalized();
+        }
+        dv.row(i) = sum;
+    }
     vs = vs + dt * a;
     pos = pos + dt * vs;
 }

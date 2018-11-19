@@ -2,11 +2,23 @@
 
 #include "types.hpp"
 #include <memory>
+#include <vector>
 
 namespace GooBalls {
 namespace d2 {
 namespace Physics {
 
+/// The particles of a fluid can be pairwise connected.
+/// This struct describes that connection.
+struct Connection {
+    /// index of other particle
+    int partner;
+    /// ||r_j - r_i||
+    CoordinatePrecision rij;
+};
+
+
+/// Describes a fluid for the physics engine
 class Fluid {
 public:
     // constructors
@@ -28,6 +40,12 @@ public:
 
     const Coordinates2d& particles_total_force() const;
     Coordinates2d& particles_total_force();
+
+    std::vector<std::vector<Connection>>& particles_connectivity();
+    const std::vector<std::vector<Connection>>& particles_connectivity() const;
+
+    Coordinates1d& particles_velocity_correction();
+    const Coordinates1d& particles_velocity_correction() const;
 
     const Coordinates2d& boundary_position() const;
     Coordinates2d& boundary_position();
@@ -60,6 +78,9 @@ private:
     Coordinates1d m_boundary_volume;
     Coordinates2d m_boundary_force;
     CoordinatePrecision m_h = 0.05;
+    std::vector<std::vector<Connection>> m_connectivity;
+    /// c_i: velocity correction coefficient
+    Coordinates1d m_velocity_correction;
 };
 
 

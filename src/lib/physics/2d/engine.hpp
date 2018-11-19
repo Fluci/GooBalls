@@ -4,15 +4,18 @@
 #include "scene.hpp"
 #include "observing/interfaces.hpp"
 #include "observing/abstractSubject.hpp"
-#include "ssph.hpp"
+#include "fluid_solver.hpp"
+
+#include <memory>
 
 namespace GooBalls {
 namespace d2 {
 namespace Physics {
 
 class Engine : public Observing::AbstractSubject, public b2ContactListener {
-    SSPH m_fluidSolver;
+    std::unique_ptr<FluidSolver> m_fluidSolver;
 public:
+    Engine();
     void initScene(Scene& scene);
     /**
     * Modifies the objects in `scene` s.t. they move as if `dt` time passed

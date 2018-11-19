@@ -1,16 +1,56 @@
 #include "engine.hpp"
 #include "box2dmessages.hpp"
 #include "ssph.hpp"
+#include "visco_elastic.hpp"
+#include "spatial/2d/neighborhood_spatial_hashing.hpp"
 
 #include <Eigen/Core>
+
+#include <boost/log/trivial.hpp>
 
 namespace GooBalls {
 namespace d2 {
 namespace Physics {
+using namespace Spatial;
+
+Engine::Engine() {
+    //m_fluidSolver = std::make_unique<SSPH>();
+    m_fluidSolver = std::make_unique<ViscoElastic>();
+}
 
 void Engine::initScene(Scene& scene){
     for(auto& mesh : scene.meshes){
         mesh.prepare(scene.fluid->h());
+    }
+    const auto& pos = scene.fluid->particles_position();
+    if(pos.rows() != scene.fluid->particles_velocity().rows()){
+        // by default, give the particles no speed
+        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity set, setting to zero.";
+        scene.fluid->particles_velocity().setOnes(pos.rows(), Eigen::NoChange);
+    }
+    if(pos.rows() != scene.fluid->particles_mass().rows()){
+        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle mass set, setting to zero.";
+        scene.fluid->particles_mass().setZero(pos.rows(), Eigen::NoChange);
+    }
+    auto& conn = scene.fluid->particles_connectivity();
+    if(pos.rows() != conn.size()){
+        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle connectivity set, setting to 1.5*h.";
+        NeighborhoodSpatialHashing neigh;
+        neigh.inRange(pos, scene.fluid->h()*1.5);
+        conn.resize(pos.rows());
+        for(int i = 0; i < pos.rows(); ++i){
+            const auto& index = neigh.indexes()[i];
+            conn[i].resize(index.size());
+            for(size_t j = 0; j < index.size(); ++j){
+                int jj = index[j];
+                conn[i][j].partner = jj;
+                conn[i][j].rij = (pos.row(j) - pos.row(i)).norm();
+            }
+        }
+    }
+    if(pos.rows() != scene.fluid->particles_velocity_correction().rows()){
+        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity correction coefficients set, setting to 1.";
+        scene.fluid->particles_velocity_correction().setOnes(pos.rows(), Eigen::NoChange);
     }
 }
 
@@ -40,7 +80,7 @@ void Engine::advance(Scene& scene, TimeStep dt) {
         }
     }
     // solve fluid
-    m_fluidSolver.advance(scene, dt);
+    m_fluidSolver->advance(scene, dt);
 
     // TODO: transfer forces of boundary particles back
 }
