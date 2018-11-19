@@ -52,7 +52,8 @@ void Engine::initScene(Scene& scene){
     }
     if(pos.rows() != scene.fluid->particles_velocity_correction().rows()){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity correction coefficients set, setting to 1.";
-        scene.fluid->particles_velocity_correction().setOnes(pos.rows(), Eigen::NoChange);
+        scene.fluid->particles_velocity_correction().resize(pos.rows(), Eigen::NoChange);
+        scene.fluid->particles_velocity_correction().setOnes();
     }
     // adjusted later down the road, just making sure the width is ok
     scene.fluid->particles_density().resize(1, Eigen::NoChange);
@@ -78,7 +79,7 @@ void Engine::advance(Scene& scene, TimeStep dt) {
         int s = 0;
         for(auto& mesh : scene.meshes){
             const auto& local = mesh.particles_position_local();
-            boundary.block(s, 0, local.rows(), 2) = (local * mesh.rotation().transpose()).rowwise() + mesh.translation(); // TODO: check order of arguments
+            boundary.block(s, 0, local.rows(), 2) = local.rowwise() + mesh.translation();//(local * mesh.rotation().transpose()).rowwise() + mesh.translation(); // TODO: check order of arguments
             volume.block(s, 0, local.rows(), 1) = mesh.particles_volume();
             velocity.block(s, 0, local.rows(), 2) = mesh.particles_velocity();
             s += local.rows();

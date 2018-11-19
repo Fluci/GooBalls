@@ -23,7 +23,7 @@ class Fluid {
 public:
     // constructors
     Fluid();
-    Fluid(std::shared_ptr<Coordinates2d> ptr);
+    Fluid(std::shared_ptr<Coordinates2d> ptr, std::shared_ptr<Coordinates2d> boundary = nullptr);
 
     // Field access
     const Coordinates2d& particles_position() const;
@@ -73,7 +73,7 @@ private:
     Coordinates1d m_particles_density;
     Coordinates2d m_particles_external_force;
     Coordinates2d m_particles_total_force;
-    Coordinates2d m_boundary_position;
+    std::shared_ptr<Coordinates2d> m_boundary_position;
     Coordinates2d m_boundary_velocity;
     Coordinates1d m_boundary_volume;
     Coordinates2d m_boundary_force;

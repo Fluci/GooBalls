@@ -29,7 +29,7 @@ public:
     typedef Eigen::VectorXf Radii;
     // constructor
     Fluid();
-    Fluid(std::shared_ptr<Coordinates> ptr);
+    Fluid(std::shared_ptr<Coordinates> ptr, std::shared_ptr<Coordinates> boundary = nullptr);
     // particles
     const Coordinates& particles_position() const;
     Coordinates& particles_position();
@@ -37,10 +37,20 @@ public:
     Colors& particles_color();
     const Radii& particles_radius() const;
     Radii& particles_radius();
+
+    const Coordinates& boundary_position() const;
+    Coordinates& boundary_position();
+    const Colors& boundary_color() const;
+    Colors& boundary_color();
+    const Radii& boundary_radius() const;
+    Radii& boundary_radius();
 private:
     std::shared_ptr<Coordinates> m_particles_position;
+    std::shared_ptr<Coordinates> m_boundary_position;
     Colors m_particles_color;
     Radii m_particles_radius;
+    Colors m_boundary_color;
+    Radii m_boundary_radius;
 };
 
 } // Render

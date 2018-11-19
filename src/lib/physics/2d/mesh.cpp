@@ -5,6 +5,7 @@
 #include "spatial/2d/neighborhood_spatial_hashing.hpp"
 
 #include <Eigen/Geometry>
+#include <iostream>
 
 namespace GooBalls {
 namespace d2 {
@@ -128,16 +129,18 @@ void Mesh::create_particles(FloatPrecision h) {
     int totalPoints = 0;
     int inserted = 0;
     auto& pts = m_particles_position_local;
+
     for(int t = 0; t < tris.rows(); ++t){
         for(int v = 0; v < 3; v++){
-            // insert vertex
-            pts.row(inserted++) = verts.row(tris(t, v));
             int vn = (v+1)%3; // next vertex
             // process edge
             auto diffV = verts.row(tris(t, vn)) - verts.row(tris(t, v));
             int n = std::ceil(diffV.norm()/h*2)+1;
+            totalPoints += 1;
             totalPoints += n;
             pts.conservativeResize(totalPoints, Eigen::NoChange);
+            // insert vertex
+            pts.row(inserted++) = verts.row(tris(t, v));
             TranslationVector diff = (diffV)/double(n+2);
             for(int ni = 0; ni < n; ni++){
                 pts.row(inserted++) = (ni+1) * diff + verts.row(tris(t, v));

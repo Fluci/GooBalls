@@ -18,6 +18,7 @@ using namespace d2;
 /// Create a random scene as mock data
 void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     int PN = 100;
+    //physScene.gravity.array() *= 0.01;
 
     // some example data to allow first testing with rendering
     auto particleCoordinates = std::make_shared<Coordinates2d>(Coordinates2d::Random(PN, 2)/2.0);
@@ -27,14 +28,17 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
             (*particleCoordinates)(i*10+j, 1) = j;
         }
     }
+    auto boundaryCoords = std::make_shared<Coordinates2d>();
     (*particleCoordinates) = (*particleCoordinates) * 0.05;
-    auto verts = std::make_shared<Coordinates2d>(Coordinates2d::Random(30, 2));
-    auto triangles = std::make_shared<TriangleList>(TriangleList::Random(10, 3));
-    triangles->array() = triangles->unaryExpr([](const VertexIndex x) { return std::abs(x)%30; });
+    int VN = 3*4; // number of verts, multiple of three
+    int TN = 2;
+    auto verts = std::make_shared<Coordinates2d>(Coordinates2d::Random(VN, 2)*0.5);
+    auto triangles = std::make_shared<TriangleList>(TriangleList::Random(TN, 3));
+    triangles->array() = triangles->unaryExpr([VN](const VertexIndex x) { return std::abs(x)%VN; });
 
 
     // create physics data
-    auto fluidPhys = std::make_unique<Physics::Fluid>(particleCoordinates);
+    auto fluidPhys = std::make_unique<Physics::Fluid>(particleCoordinates, boundaryCoords);
     fluidPhys->particles_velocity().setRandom(PN, 2);
     fluidPhys->particles_velocity() *= 0.0;
     fluidPhys->particles_mass().setOnes(PN);
@@ -43,22 +47,26 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
 
     Physics::Mesh physMesh(verts, triangles);
     physScene.meshes.push_back(std::move(physMesh));
+    Physics::Mesh physMesh2(verts, triangles);
+    physScene.meshes.push_back(std::move(physMesh2));
 
 
     // create scene floor
     b2BodyDef groundBodyDef;
-    groundBodyDef.position.Set(0, -10);
+    groundBodyDef.position.Set(0, -0.8);
     b2PolygonShape groundBox;
-    groundBox.SetAsBox(50.0, 10.0);
+    groundBox.SetAsBox(5.0, 0.5);
     b2Body* groundBody = physScene.world.CreateBody(&groundBodyDef);
     groundBody->CreateFixture(&groundBox, 0.0f);
+    physScene.meshes[0].body = groundBody;
+
     // create first dynamic body
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
-    bodyDef.position.Set(0.0f, 4.0f);
+    bodyDef.position.Set(0.0f, 1.0f);
     // create collision object (a polygon shape) -> bounding box
     b2PolygonShape dynamicBox;
-    dynamicBox.SetAsBox(1.0f, 1.0f);
+    dynamicBox.SetAsBox(0.2f, 0.2f);
     // create a fixture: 
     // this defines physical properties of the collision shape
     b2FixtureDef fixtureDef;
@@ -66,22 +74,23 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.3f;
     // attach to body
-    physScene.gravity.setZero();
     physScene.world.SetGravity(b2Vec2(physScene.gravity[0], physScene.gravity[1]));
     // store pointer to Rigid Body in our Scene-Mesh
-    physScene.meshes[0].body = physScene.world.CreateBody(&bodyDef);
-    physScene.meshes[0].body->CreateFixture(&fixtureDef);
+    physScene.meshes[1].body = physScene.world.CreateBody(&bodyDef);
+    physScene.meshes[1].body->CreateFixture(&fixtureDef);
 
     // create data for rendering
-    std::unique_ptr<Render::DiskFluid> fluid = std::make_unique<Render::DiskFluid>(particleCoordinates);
-    fluid->particles_color().setRandom(PN, 3);
-    fluid->particles_color().array() += 1.0;
+    std::unique_ptr<Render::DiskFluid> fluid = std::make_unique<Render::DiskFluid>(particleCoordinates, boundaryCoords);
+    fluid->particles_color().resize(PN, 3);
+    fluid->particles_color().col(0).array() = 0.4;
+    fluid->particles_color().col(1).array() = 0.4;
+    fluid->particles_color().col(2).array() = 1.0;
     fluid->particles_color() /= 2.0;
     fluid->particles_radius().setOnes(PN, 1);
     fluid->particles_radius().array() += 0.0;
     fluid->particles_radius().array() *= 0.03;
     auto mesh = std::make_unique<Render::Mesh>(verts, triangles);
-    mesh->vertices_color().setRandom(30,3);
+    mesh->vertices_color().setRandom(VN,3);
     mesh->vertices_color().array() += 1.0;
     mesh->vertices_color() /= 2.0;
     aRenderScene.fluids.push_back(std::move(fluid));
@@ -94,9 +103,10 @@ int main(int argc, char **argv) {
     Physics::Scene physicsScene;
     Render::Engine renderEngine;
     Render::Scene renderScene;
-    //SceneLoader::loadScene(physScene, aRenderScene, "../examples/scenes/scene0.json");
     createRandomScene(physicsScene, renderScene);
-
+    SceneLoader::loadScene(physicsScene, renderScene, "../examples/scenes/scene0.json");
+    physicsEngine.initScene(physicsScene);
+    std::cout << "Starting gui" << std::endl;
     try {
         nanogui::init();
 

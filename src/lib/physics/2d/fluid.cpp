@@ -8,7 +8,7 @@ namespace Physics {
 Fluid::Fluid() : m_particles_position(new Coordinates2d()){
     // empty
 }
-Fluid::Fluid(std::shared_ptr<Coordinates2d> ptr) : m_particles_position(ptr) {
+Fluid::Fluid(std::shared_ptr<Coordinates2d> ptr, std::shared_ptr<Coordinates2d> boundary) : m_particles_position(ptr), m_boundary_position(boundary) {
     // empty
 }
 
@@ -71,11 +71,11 @@ const Coordinates1d& Fluid::particles_velocity_correction() const {
 }
 
 const Coordinates2d& Fluid::boundary_position() const {
-    return m_boundary_position;
+    return *m_boundary_position;
 }
 
 Coordinates2d& Fluid::boundary_position() {
-    return m_boundary_position;
+    return *m_boundary_position;
 }
 
 const Coordinates2d& Fluid::boundary_velocity() const {

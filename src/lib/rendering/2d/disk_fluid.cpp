@@ -8,7 +8,7 @@ namespace d2 {
 
 namespace Render { 
 
-DiskFluid::DiskFluid(std::shared_ptr<Fluid::Coordinates> ptr) : Fluid(ptr) {
+DiskFluid::DiskFluid(std::shared_ptr<Fluid::Coordinates> ptr, std::shared_ptr<Fluid::Coordinates> boundary) : Fluid(ptr, boundary) {
     // empty
 }
 
