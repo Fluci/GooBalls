@@ -73,7 +73,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     aRenderScene.fluids.push_back(std::move(fluid));
     aRenderScene.meshes.push_back(std::move(mesh));
 
-	SceneLoader::loadScene(physScene, aRenderScene, "../src/GooBallsApp/scenes/scene0.json");
+    SceneLoader::loadScene(physScene, aRenderScene, "../examples/scenes/scene0.json");
 
 }
 

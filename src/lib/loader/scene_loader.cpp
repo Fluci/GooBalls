@@ -30,9 +30,9 @@ using namespace d2;
 
 bool showDebugOutput = true;
 
-void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::string relativePath) {
+void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::string path) {
 
-	std::ifstream ifs(relativePath);
+	std::ifstream ifs(path);
 
 	if (!ifs.is_open()) {
 		std::cout << "Error on opening scene file!" << std::endl;
