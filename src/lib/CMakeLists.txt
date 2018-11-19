@@ -4,6 +4,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # list here your source files (*.cpp) of your module
 set(source_files
     generic/hello.cpp
+    observing/abstractObserver.cpp
+    observing/abstractDelayedObserver.cpp
+    observing/abstractSubject.cpp
+    physics/2d/box2dmessages.cpp
     physics/2d/engine.cpp
     physics/2d/fluid.cpp
     physics/2d/mesh.cpp
@@ -46,6 +50,7 @@ set(test_files
     test_root.cc
     generic/hello.test.cc
     physics/2d/engine.test.cc
+    observing/abstractSubject.test.cc
     )
 
 add_executable(tests ${test_files})
