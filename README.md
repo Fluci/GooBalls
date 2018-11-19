@@ -12,13 +12,21 @@ Semester project in Physically-Based Simulations 2018.
 
 As for each cmake project, create a `build` folder and run `cmake ..`. Then call `make` and wait until it compiled.
 
+### Building tools
+
+Ubuntu:
+
+`sudo apt install build-essentials git cmake`
+
 ### Dependencies
 
 Boost for unit testing and logging.
 
 Box2D as rigid body solver.
 
+Eigen as linear algebra library.
+
 Ubuntu packages:
 
-`sudo apt install libbox2d-dev libboost-filesystem-dev libboost-log-dev libboost-test-dev libjsoncpp-dev`
+`sudo apt install libbox2d-dev libboost-filesystem-dev libboost-program-options-dev libboost-log-dev libboost-test-dev libjsoncpp-dev`
 

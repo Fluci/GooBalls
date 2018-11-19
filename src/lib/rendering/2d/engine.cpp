@@ -4,16 +4,34 @@ namespace GooBalls {
 namespace d2 {
 namespace Render {
 
+Engine::Engine() {
+    m_particleShader.initFromFiles(
+        "particle_shader",
+        "shaders/particle.vert",
+        "shaders/particle.frag",
+        "shaders/particle.geom"
+    );
+}
+
+Engine::~Engine() {
+    m_particleShader.free();
+}
+
 void Engine::render(const Scene& scene) {
-    // Create nice image and display on screen
+    glEnable(GL_DEPTH_TEST);
+    m_particleShader.bind();
     
-    // Mock:
     for(const auto& fluid : scene.fluids){
-        fluid->render();
+        m_particleShader.uploadAttrib("center", fluid->particles_position().transpose());
+        m_particleShader.uploadAttrib("radius", fluid->particles_radius().transpose());
+        m_particleShader.uploadAttrib("color", fluid->particles_color().transpose());
+        m_particleShader.drawArray(GL_POINTS, 0, fluid->particles_position().rows());
     }   
+
     for(const auto& mesh : scene.meshes){
         mesh->render();
     }   
+    glDisable(GL_DEPTH_TEST);
 }
 } // Render
 } // d2
