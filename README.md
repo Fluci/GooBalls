@@ -28,6 +28,6 @@ Eigen as linear algebra library.
 
 Ubuntu packages:
 
-`sudo apt install libbox2d-dev libboost-program-options-dev libboost-log-dev libboost-test-dev libeigen3-dev`
+`sudo apt install libbox2d-dev libboost-program-options-dev libboost-log-dev libboost-test-dev libeigen3-dev xorg-dev`
 
 
