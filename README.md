@@ -8,6 +8,20 @@ Semester project in Physically-Based Simulations 2018.
 
 - `README.md`: Everything you need to know to get started in this repository.
 
+## Submodules
+
+If you can't find nanogui or one of its dependencies, try:
+
+```bash
+$ git submodule update --init --recursive
+```
+
+Or 
+```bash
+$ git submodule update --recursive
+```
+
+
 ## Build instructions
 
 As for each cmake project, create a `build` folder and run `cmake ..`. Then call `make` and wait until it compiled.
