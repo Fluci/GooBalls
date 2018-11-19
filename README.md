@@ -8,6 +8,20 @@ Semester project in Physically-Based Simulations 2018.
 
 - `README.md`: Everything you need to know to get started in this repository.
 
+## Submodules
+
+If you can't find nanogui or one of its dependencies, try:
+
+```bash
+$ git submodule update --init --recursive
+```
+
+Or 
+```bash
+$ git submodule update --recursive
+```
+
+
 ## Build instructions
 
 As for each cmake project, create a `build` folder and run `cmake ..`. Then call `make` and wait until it compiled.
@@ -28,5 +42,5 @@ Eigen as linear algebra library.
 
 Ubuntu packages:
 
-`sudo apt install libbox2d-dev libboost-filesystem-dev libboost-program-options-dev libboost-log-dev libboost-test-dev libjsoncpp-dev`
+`sudo apt install libbox2d-dev libboost-filesystem-dev libboost-program-options-dev libboost-log-dev libboost-test-dev libjsoncpp-dev xorg-dev libgl1-mesa-dev`
 
