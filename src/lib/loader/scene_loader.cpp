@@ -30,9 +30,8 @@ using namespace d2;
 
 bool showDebugOutput = true;
 
-void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::string sceneName) {
+void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::string relativePath) {
 
-	std::string relativePath = "../../../src/GooBallsApp/scenes/" + sceneName;
 	std::ifstream ifs(relativePath);
 
 	if (!ifs.is_open()) {
