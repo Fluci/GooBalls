@@ -141,7 +141,7 @@ void Mesh::create_particles(FloatPrecision h) {
         for(int v = 0; v < 3; v++){
             int vn = (v+1)%3; // next vertex
             // process edge
-            int sampling = 4;
+            int sampling = 40;
             auto diffV = verts.row(tris(t, vn)) - verts.row(tris(t, v));
             int n = std::ceil(diffV.norm()/h*sampling)+1;
             totalPoints += 1;
@@ -172,7 +172,7 @@ void Mesh::compute_particles_volume(FloatPrecision h) {
         Coordinates1d W;
         pickRows(m_particles_position_local, indexes[i], jpos);
         kernel.compute(jpos, &W, nullptr, nullptr);
-        m_particles_volume[i] = 1.0/W.sum();
+        m_particles_volume[i] = 100.0/W.sum();
     }
 }
 

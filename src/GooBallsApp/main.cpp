@@ -41,7 +41,8 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     auto fluidPhys = std::make_unique<Physics::Fluid>(particleCoordinates, boundaryCoords);
     fluidPhys->particles_velocity().setRandom(PN, 2);
     fluidPhys->particles_velocity() *= 0.0;
-    fluidPhys->particles_mass().setOnes(PN);
+    fluidPhys->particles_mass().resize(PN);
+    fluidPhys->particles_mass().array() = 65.0;
     fluidPhys->h(0.2);
     physScene.fluid = std::move(fluidPhys);
 

@@ -15,8 +15,8 @@ using namespace Spatial;
 SSPH::SSPH(){
     m_neighborhood = std::make_unique<NeighborhoodSpatialHashing>();
     m_boundary_neighborhood = std::make_unique<NeighborhoodSpatialHashing>();
-    //m_kernel = std::make_unique<DebrunSpiky>();
-    m_kernel = std::make_unique<Poly6>();
+    m_kernel = std::make_unique<DebrunSpiky>();
+    //m_kernel = std::make_unique<Poly6>();
 }
 
 typedef Eigen::Matrix<FloatPrecision, 1, 2> RowVec;
@@ -32,11 +32,11 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     auto& pos = scene.fluid->particles_position();
     auto& vs = scene.fluid->particles_velocity();
     auto& ms = scene.fluid->particles_mass();
-    FloatPrecision K = 1.0; // gas constant, TODO: correct value?
-    FloatPrecision rho0 = 10.0; // TODO: get correct base value
+    FloatPrecision K = 100.0; // gas constant, TODO: correct value?
+    FloatPrecision rho0 = 200000.0; // rest density, TODO: get correct base value
     FloatPrecision color_relevant_normal_size = 0.01; // TODO: correct value
-    FloatPrecision color_sigma = 10.0; // TODO: correct value
-    FloatPrecision mu = 100.0;
+    FloatPrecision color_sigma = 100.0; // surface tension, TODO: correct value
+    FloatPrecision mu = 100.0; // viscosity
     const int PN = pos.rows();
     // Müller et al., all equations we need:
     // density: rho(r_i) = sum_j m_j W(r_i - r_j, h)
@@ -96,7 +96,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
                 int jj = index[j];
                 jW[j] *= psi[jj];
             }
-            rho[i] += jW.sum();
+            //rho[i] += jW.sum();
         }
     }
 
@@ -148,7 +148,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
                 jVisc.row(j) = psi[jj] * (scene.fluid->boundary_velocity().row(jj) - vs.row(i))/rho[i] * jLap[j];
                 m_boundary_force.row(jj) = m_boundary_force.row(jj) - (jPress.row(j) + jVisc.row(j));
             }
-            FPressure.row(i) += - ms[i] * jPress.colwise().sum();
+            //FPressure.row(i) += - ms[i] * jPress.colwise().sum();
             FViscosity.row(i) += mu * jVisc.colwise().sum();
         }
         //FloatPrecision color = jColor.sum();
