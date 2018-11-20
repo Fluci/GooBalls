@@ -30,6 +30,10 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     }
     auto boundaryCoords = std::make_shared<Coordinates2d>();
     (*particleCoordinates) = (*particleCoordinates) * 0.05;
+    std::cout << "particles: \n";
+    for(int i = 0; i < particleCoordinates->rows(); ++i){
+        std::cout << (*particleCoordinates)(i,0) << " " << (*particleCoordinates)(i,1) << std::endl;
+    }
     int VN = 3*4; // number of verts, multiple of three
     int TN = 2;
     auto verts = std::make_shared<Coordinates2d>(Coordinates2d::Random(VN, 2)*0.5);
@@ -83,8 +87,8 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     // create data for rendering
     std::unique_ptr<Render::DiskFluid> fluid = std::make_unique<Render::DiskFluid>(particleCoordinates, boundaryCoords);
     fluid->particles_color().resize(PN, 3);
-    fluid->particles_color().col(0).array() = 0.4;
-    fluid->particles_color().col(1).array() = 0.4;
+    fluid->particles_color().col(0).array() = 0.6;
+    fluid->particles_color().col(1).array() = 0.6;
     fluid->particles_color().col(2).array() = 1.0;
     fluid->particles_color() /= 2.0;
     fluid->particles_radius().setOnes(PN, 1);

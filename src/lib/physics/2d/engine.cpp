@@ -15,8 +15,8 @@ namespace Physics {
 using namespace Spatial;
 
 Engine::Engine() {
-    //m_fluidSolver = std::make_unique<SSPH>();
-    m_fluidSolver = std::make_unique<ViscoElastic>();
+    m_fluidSolver = std::make_unique<SSPH>();
+    //m_fluidSolver = std::make_unique<ViscoElastic>();
     //m_fluidSolver = std::make_unique<NoSph>();
 }
 
@@ -38,7 +38,7 @@ void Engine::initScene(Scene& scene){
     if(pos.rows() != conn.size()){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle connectivity set, setting to 1.5*h.";
         NeighborhoodSpatialHashing neigh;
-        neigh.inRange(pos, scene.fluid->h()*4);
+        neigh.inRange(pos, scene.fluid->h()*2);
         conn.resize(pos.rows());
         for(int i = 0; i < pos.rows(); ++i){
             const auto& index = neigh.indexes()[i];

@@ -91,6 +91,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
             // adjusted density: m_i * sum_j W_ij + m_i * sum_k W_ik
             // = m_i * sum_j W_ij + sum_k psi_k * W_ik
             // sum_k psi_bk(rho_0) W_ik
+            //
             m_kernel->compute(-(jpos.rowwise() - pos.row(i)), &jW, nullptr, nullptr);
             for(int j = 0; j < index.size(); ++j){
                 int jj = index[j];
@@ -134,6 +135,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
         FPressure.row(i) = - jPress.colwise().sum();
         FViscosity.row(i) = mu * jVisc.colwise().sum();
         if(consider_boundary){
+            // pressure: makes sure stuff doesn't enter the rigid body
             // F^pressure = - m_i sum_k psi_k(rho_0) p_i / (rho_i * rho_k) nabla W_ik
             // F^viscosity = mu * sum_k psi_k(rho_0) (v_k - v_i) / rho_k \nabla^2 W(r_i - r_k, h)
             // paper assumption: rho_k = rho_i
@@ -141,15 +143,15 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
             Coordinates2d jPress(index.size(), 2);
             Coordinates2d jVisc(index.size(), 2);
             pickRows(scene.fluid->boundary_position(), index, jpos);
-            m_kernel->compute(jpos.rowwise() - pos.row(i), nullptr, &jGrad, &jLap);
+            m_kernel->compute(-(jpos.rowwise() - pos.row(i)), nullptr, &jGrad, &jLap);
             for(int j = 0; j < index.size(); ++j){
                 int jj = index[j];
                 jPress.row(j) = psi[jj] * ps[i]/(rho[i] * rho[i]) * jGrad.row(j);
-                jVisc.row(j) = psi[jj] * (scene.fluid->boundary_velocity().row(jj) - vs.row(i))/rho[i] * jLap[j];
+                jVisc.row(j) = psi[jj] * (vs.row(i) - scene.fluid->boundary_velocity().row(jj))/rho[i] * jLap[j];
                 m_boundary_force.row(jj) = m_boundary_force.row(jj) - (jPress.row(j) + jVisc.row(j));
             }
-            FPressure.row(i) += - ms[i] * jPress.colwise().sum();
-            FViscosity.row(i) += mu * jVisc.colwise().sum();
+            FPressure.row(i) += -10000*ms[i] * jPress.colwise().sum();
+            FViscosity.row(i) += 10000*mu * jVisc.colwise().sum();
         }
         //FloatPrecision color = jColor.sum();
         RowVec colorN = jColGrad.colwise().sum();

@@ -93,7 +93,7 @@ class ExampleApplication : public nanogui::Screen {
 public:
     ExampleApplication(Physics::Engine& physicsEngine, Render::Engine& renderEngine,
             Physics::Scene& physicsScene, Render::Scene& renderScene) 
-            : nanogui::Screen(Eigen::Vector2i(600, 650), "NanoGUI Test", false),
+            : nanogui::Screen(Eigen::Vector2i(900, 900), "NanoGUI Test", false),
             m_physicsEngine(physicsEngine), m_renderEngine(renderEngine),
             m_physicsScene(physicsScene), m_renderScene(renderScene) {
         using namespace nanogui;
@@ -103,8 +103,8 @@ public:
         window->setLayout(new GroupLayout());
 
         mCanvas = new MyGLCanvas(window, m_renderEngine, m_renderScene);
-        mCanvas->setBackgroundColor({80, 80, 100, 255});
-        mCanvas->setSize({500, 500});
+        mCanvas->setBackgroundColor({190, 190, 255, 255});
+        mCanvas->setSize({800, 800});
 
         Widget *tools = new Widget(window);
         tools->setLayout(new BoxLayout(Orientation::Horizontal,
