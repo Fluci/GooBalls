@@ -38,7 +38,7 @@ void Engine::initScene(Scene& scene){
     if(pos.rows() != conn.size()){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle connectivity set, setting to 1.5*h.";
         NeighborhoodSpatialHashing neigh;
-        neigh.inRange(pos, scene.fluid->h()*100);
+        neigh.inRange(pos, scene.fluid->h()*4);
         conn.resize(pos.rows());
         for(int i = 0; i < pos.rows(); ++i){
             const auto& index = neigh.indexes()[i];

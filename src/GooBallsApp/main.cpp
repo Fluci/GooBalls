@@ -45,7 +45,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     fluidPhys->particles_mass().array() = 65.0;
     fluidPhys->h(0.2);
     physScene.fluid = std::move(fluidPhys);
-
+    /*
     Physics::Mesh physMesh(verts, triangles);
     physScene.meshes.push_back(std::move(physMesh));
     Physics::Mesh physMesh2(verts, triangles);
@@ -79,7 +79,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     // store pointer to Rigid Body in our Scene-Mesh
     physScene.meshes[1].body = physScene.world.CreateBody(&bodyDef);
     physScene.meshes[1].body->CreateFixture(&fixtureDef);
-
+    // */
     // create data for rendering
     std::unique_ptr<Render::DiskFluid> fluid = std::make_unique<Render::DiskFluid>(particleCoordinates, boundaryCoords);
     fluid->particles_color().resize(PN, 3);
@@ -90,12 +90,15 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     fluid->particles_radius().setOnes(PN, 1);
     fluid->particles_radius().array() += 0.0;
     fluid->particles_radius().array() *= 0.03;
+    /*
     auto mesh = std::make_unique<Render::Mesh>(verts, triangles);
     mesh->vertices_color().setRandom(VN,3);
     mesh->vertices_color().array() += 1.0;
     mesh->vertices_color() /= 2.0;
-    aRenderScene.fluids.push_back(std::move(fluid));
     aRenderScene.meshes.push_back(std::move(mesh));
+    //*/
+    aRenderScene.fluids.push_back(std::move(fluid));
+
 }
 
 

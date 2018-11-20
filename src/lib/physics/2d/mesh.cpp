@@ -141,7 +141,7 @@ void Mesh::create_particles(FloatPrecision h) {
         for(int v = 0; v < 3; v++){
             int vn = (v+1)%3; // next vertex
             // process edge
-            int sampling = 40;
+            int sampling = 20;
             auto diffV = verts.row(tris(t, vn)) - verts.row(tris(t, v));
             int n = std::ceil(diffV.norm()/h*sampling)+1;
             totalPoints += 1;
