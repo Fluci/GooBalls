@@ -96,7 +96,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
                 int jj = index[j];
                 jW[j] *= psi[jj];
             }
-            //rho[i] += jW.sum();
+            rho[i] += jW.sum();
         }
     }
 
@@ -148,7 +148,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
                 jVisc.row(j) = psi[jj] * (scene.fluid->boundary_velocity().row(jj) - vs.row(i))/rho[i] * jLap[j];
                 m_boundary_force.row(jj) = m_boundary_force.row(jj) - (jPress.row(j) + jVisc.row(j));
             }
-            //FPressure.row(i) += - ms[i] * jPress.colwise().sum();
+            FPressure.row(i) += - ms[i] * jPress.colwise().sum();
             FViscosity.row(i) += mu * jVisc.colwise().sum();
         }
         //FloatPrecision color = jColor.sum();
