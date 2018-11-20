@@ -28,6 +28,7 @@ void NeighborhoodSpatialHashing::inRange(const Coordinates2d& points, Coordinate
     /// We use a grid of size h and a hash table for near linear complexity
     GridCoordinates queryGridCoords = (points.array()/h).floor().cast<int>();
     computeInRange(points, points, queryGridCoords, queryGridCoords, h);
+    assert(points.rows() == m_indexes.size());
 }
 
 void NeighborhoodSpatialHashing::inRange(const Coordinates2d& query, const Coordinates2d& target, CoordinatePrecision h){
@@ -36,6 +37,7 @@ void NeighborhoodSpatialHashing::inRange(const Coordinates2d& query, const Coord
     GridCoordinates queryGridCoords = (query.array()/h).floor().cast<int>();
     GridCoordinates targetGridCoords = (target.array()/h).floor().cast<int>();
     computeInRange(query, target, queryGridCoords, targetGridCoords, h);
+    assert(query.rows() == m_indexes.size());
 }
 
 void NeighborhoodSpatialHashing::computeInRange(

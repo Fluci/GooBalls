@@ -68,8 +68,10 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     bool consider_boundary = m_consider_boundary && scene.fluid->boundary_volume().rows() > 0;
     if(consider_boundary){
         psi = rho0 * scene.fluid->boundary_volume();
-        m_boundary_neighborhood->inRange(scene.fluid->boundary_position(), h);
-        m_boundary_force.setZero(psi.rows(), Eigen::NoChange);
+        m_boundary_neighborhood->inRange(scene.fluid->particles_position(), scene.fluid->boundary_position(), h);
+        assert(m_boundary_neighborhood->indexes().size() == PN);
+        m_boundary_force.resize(psi.rows(), Eigen::NoChange);
+        m_boundary_force.setZero();
     }
     for(int i = 0; i < PN; ++i){
         // density from fluid<->fluid
@@ -85,7 +87,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
         // density from fluid<->boundary
         if(consider_boundary){
             auto& index = m_boundary_neighborhood->indexes()[i];
-            pickRows(pos, index, jpos);
+            pickRows(scene.fluid->boundary_position(), index, jpos);
             // sum_k psi_bk(rho_0) W_ik
             m_kernel->compute(-(jpos.rowwise() - pos.row(i)), &jW, nullptr, nullptr);
             for(int j = 0; j < index.size(); ++j){
@@ -136,7 +138,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
             auto& index = m_boundary_neighborhood->indexes()[i];
             Coordinates2d jPress(index.size(), 2);
             Coordinates2d jVisc(index.size(), 2);
-            pickRows(pos, index, jpos);
+            pickRows(scene.fluid->boundary_position(), index, jpos);
             m_kernel->compute(jpos.rowwise() - pos.row(i), nullptr, &jGrad, &jLap);
             for(int j = 0; j < index.size(); ++j){
                 int jj = index[j];
