@@ -1,6 +1,6 @@
 {
 	"name":"Scene0",
-	"scale": 0.018,
+	"scale": 0.035,
 	"translation": [-1, -.5],
 	"objects": {
 		"count": 6,

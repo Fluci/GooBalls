@@ -36,7 +36,7 @@ void Engine::render(const Scene& scene) {
             auto& bound = fluid->boundary_position();
             //bound.setRandom();
             fluid->boundary_radius().resize(bound.rows(), Eigen::NoChange);
-            fluid->boundary_radius().array() = 0.03;
+            fluid->boundary_radius().array() = 0.01;
             fluid->boundary_color().resize(bound.rows(), Eigen::NoChange);
             fluid->boundary_color().array() = 0.5;
         }

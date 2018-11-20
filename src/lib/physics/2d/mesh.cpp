@@ -126,6 +126,13 @@ void Mesh::create_particles(FloatPrecision h) {
     // - look at all edges and sample each edge n additional times
     const auto& tris = triangles();
     const auto& verts = vertices_position_local();
+    /*
+    std::cout << "pts: \n";
+    for(int i = 0; i < verts.rows(); ++i){
+        std::cout << verts(i,0) << " " << verts(i, 1) << std::endl;
+    }
+    std::cout << "body: " << body->GetPosition().x << ", " << body->GetPosition().y << std::endl;
+    */
     int totalPoints = 0;
     int inserted = 0;
     auto& pts = m_particles_position_local;
@@ -142,7 +149,7 @@ void Mesh::create_particles(FloatPrecision h) {
             pts.conservativeResize(totalPoints, Eigen::NoChange);
             // insert vertex
             pts.row(inserted++) = verts.row(tris(t, v));
-            TranslationVector diff = (diffV)/double(n+2);
+            TranslationVector diff = (diffV)/double(n+1);
             for(int ni = 0; ni < n; ni++){
                 pts.row(inserted++) = (ni+1) * diff + verts.row(tris(t, v));
             }
