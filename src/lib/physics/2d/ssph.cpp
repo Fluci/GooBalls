@@ -88,6 +88,8 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
         if(consider_boundary){
             auto& index = m_boundary_neighborhood->indexes()[i];
             pickRows(scene.fluid->boundary_position(), index, jpos);
+            // adjusted density: m_i * sum_j W_ij + m_i * sum_k W_ik
+            // = m_i * sum_j W_ij + sum_k psi_k * W_ik
             // sum_k psi_bk(rho_0) W_ik
             m_kernel->compute(-(jpos.rowwise() - pos.row(i)), &jW, nullptr, nullptr);
             for(int j = 0; j < index.size(); ++j){
