@@ -30,6 +30,8 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     }
     auto boundaryCoords = std::make_shared<Coordinates2d>();
     (*particleCoordinates) = (*particleCoordinates) * 0.05;
+    particleCoordinates->col(0).array() += -0.7;
+    particleCoordinates->col(1).array() += 0.3;
     std::cout << "particles: \n";
     for(int i = 0; i < particleCoordinates->rows(); ++i){
         std::cout << (*particleCoordinates)(i,0) << " " << (*particleCoordinates)(i,1) << std::endl;
@@ -46,7 +48,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     fluidPhys->particles_velocity().setRandom(PN, 2);
     fluidPhys->particles_velocity() *= 0.0;
     fluidPhys->particles_mass().resize(PN);
-    fluidPhys->particles_mass().array() = 65.0;
+    fluidPhys->particles_mass().array() = 0.3;
     fluidPhys->h(0.2);
     physScene.fluid = std::move(fluidPhys);
     /*

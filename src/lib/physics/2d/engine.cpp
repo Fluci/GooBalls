@@ -55,6 +55,7 @@ void Engine::initScene(Scene& scene){
         scene.fluid->particles_velocity_correction().resize(pos.rows(), Eigen::NoChange);
         scene.fluid->particles_velocity_correction().setOnes();
     }
+
     // adjusted later down the road, just making sure the width is ok
     scene.fluid->particles_density().resize(1, Eigen::NoChange);
     scene.fluid->particles_total_force().resize(1, Eigen::NoChange);
