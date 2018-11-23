@@ -26,3 +26,8 @@ BOOST_AUTO_TEST_CASE(poly6_monotonicity, *utf::tolerance(0.0001)){
     KKernel k;
     testMonotonicity(k, 10);
 }
+
+BOOST_AUTO_TEST_CASE(poly6_radial_symmetric){
+    KKernel k;
+    testRadialSymmetry(k, 100);
+}

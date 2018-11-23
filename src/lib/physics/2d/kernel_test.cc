@@ -30,6 +30,32 @@ Coordinates2d randomUnitDisk(int samples){
     return Xs;
 }
 
+void testRadialSymmetry(Kernel& k, int experiments){
+    int radiusSamples = std::sqrt(experiments);
+    int angleSamples = radiusSamples;
+    FloatPrecision h = 1.0;
+    k.setH(h);
+    Coordinates2d Xs(angleSamples, 2);
+    Coordinates1d w, wgradN, wlap;
+    Coordinates2d wgrad;
+    Coordinates2d dirs(angleSamples, 2);
+    for(int i = 0; i < radiusSamples; ++i){
+        FloatPrecision radius = i/double(radiusSamples) * h;
+        for(int j = 0; j < angleSamples; ++j){
+            FloatPrecision angle = i/double(angleSamples) * 2*M_PI;
+            dirs(j, 0) = std::sin(angle);
+            dirs(j, 1) = std::cos(angle);
+        }
+        Xs = dirs * radius;
+        k.compute(Xs, &w, &wgrad, &wlap);
+        wgradN = wgrad.rowwise().norm();
+        BOOST_TEST(w.maxCoeff() - w.minCoeff() < 0.0001);
+        BOOST_TEST(wlap.maxCoeff() - wlap.minCoeff() < 0.0001);
+        BOOST_TEST(wgradN.maxCoeff() - wgradN.minCoeff() < 0.0001);
+        // TODO: check gradient direction
+    }
+}
+
 void testZeroBorder(Kernel& k, int experiments){
     std::mt19937 rnd;
     rnd.seed(17); // we use a fixed seed for repeatability
@@ -68,29 +94,40 @@ void testMonotonicity(Kernel& k, int experiments){
     Coordinates1d w;
     k.compute(Xs, &w, nullptr, nullptr);
     for(int i = 1; i < experiments; ++i){
-        BOOST_TEST(w[i-1] > w[i]);
+        BOOST_TEST(w[i-1] >= w[i], std::to_string(i) + ": " + std::to_string(w[i-1]) + " >=! " + std::to_string(w[i]));
     }
 }
 
 void testNormalization(Kernel& k, int experiments){
-    FloatPrecision h = 1.0;
-    int special = 7;
-    Coordinates2d Xs = randomUnitDisk(experiments+special);
-    Xs(0, 0) = 0.0; Xs(0, 0) = 0.0;
-    Xs(1, 0) = 0.0; Xs(1, 1) = 1.0;
-    Xs(2, 0) = 1.0; Xs(2, 1) = 0.0;
-    Xs(3, 0) = 0.1; Xs(3, 1) = 0.1;
-    Xs(4, 0) = 0.2; Xs(4, 1) = 0.2;
-    Xs(5, 0) = 0.3; Xs(5, 1) = 0.3;
-    Xs(6, 0) = 0.4; Xs(6, 1) = 0.4;
-    Coordinates1d W;
-    k.setH(h);
-    k.compute(Xs, &W, nullptr, nullptr);
-    for(int i = 0; i < experiments; ++i){
-       // std::cout << W[i] << std::endl;
+    std::vector<FloatPrecision> hs;
+    hs.push_back(0.1);
+    hs.push_back(1.0);
+    hs.push_back(10.0);
+    int n = std::sqrt(experiments);
+    n = 100;
+    for(auto h : hs){
+        Coordinates2d Xs(n*n, 2);
+        int inserted = 0;
+        for(int i = 0; i < n; ++i){
+            for(int j = 0; j < n; ++j){
+                TranslationVector pos;
+                pos[0] = h*(2*i/double(n)-1);
+                pos[1] = h*(2*j/double(n)-1);
+                if(pos.norm() > h){
+                    continue;
+                }
+                Xs.row(inserted++) = pos;
+            }
+        }
+        Xs.conservativeResize(inserted, Eigen::NoChange);
+        FloatPrecision dA;
+        dA = 1.0/(n*n); // area of one test square
+        Coordinates1d W;
+        k.setH(h);
+        k.compute(Xs, &W, nullptr, nullptr);
+        FloatPrecision totalWeight = W.sum()*dA;
+        BOOST_TEST(totalWeight == 1.0);
     }
-    auto integral = W.sum() / experiments * 4.0;
-    BOOST_TEST(integral == 1.0);
 }
 
 } // Physics

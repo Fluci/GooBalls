@@ -1,10 +1,10 @@
 #include "kernel_debrun_spiky.hpp"
 
-
 namespace GooBalls {
 namespace d2 {
 namespace Physics {
 
+FloatPrecision epsilon = 0.000001;
 
 void DebrunSpiky::setH(FloatPrecision h) {
     m_h = h;
@@ -16,24 +16,25 @@ void DebrunSpiky::compute(
         Coordinates1d* wResult, 
         Coordinates2d* gradientResult, 
         Coordinates1d* laplacianResult) const {
-    auto sqNorm = rs.rowwise().squaredNorm().eval();
-    auto norm = sqNorm.array().sqrt().eval();
-    auto invNorm = 1.0 / norm;
-    auto diffH = m_h - norm;
-    auto diffH2 = diffH * diffH;
+    Coordinates1d sqNorm = rs.rowwise().squaredNorm();
+    assert(sqNorm.maxCoeff() <= m_h*m_h*1.01);
+    Coordinates1d norm = sqNorm.array().sqrt();
+    Coordinates1d invNorm = 1.0 / (norm.array() + epsilon);
+    Coordinates1d diffH = m_h - norm.array();
+    Coordinates1d diffH2 = diffH.array() * diffH.array();
     assert(invNorm.rows() == rs.rows());
     assert(diffH.rows() == rs.rows());
     assert(diffH2.rows() == rs.rows());
     if(wResult != nullptr){
     // 15/(pi*h^6) (h-r)^3
         wResult->resize(rs.rows(), 1);
-        *wResult = m_A * diffH2*diffH;
+        *wResult = m_A * diffH2.array()*diffH.array();
     }
     if(gradientResult != nullptr){
         // d/dx * (h - sqrt(x^2+y^2))^3
         // = 3*(h - (x^2 + y^2)^1/2)^2  *  (-1/2*(x^2 + y^2)^(-1/2)) * 2 x
         // = -3*x*(h - |r|)^2/|r|
-        auto comm = (-3*m_A) * diffH2 * invNorm;
+        auto comm = (-3*m_A) * diffH2.array() * invNorm.array();
         gradientResult->resize(rs.rows(), rs.cols());
         gradientResult->col(0) = comm.array() * rs.col(0).array();
         gradientResult->col(1) = comm.array() * rs.col(1).array();
@@ -71,7 +72,7 @@ void DebrunSpiky::compute(
         // = h^2 * 1/|r| - 4*h + 3 * |r|
 
         laplacianResult->resize(rs.rows(), 1);
-        *laplacianResult = m_h*m_h * invNorm + 3*norm ;
+        *laplacianResult = (m_h*m_h * invNorm) + (3.0*norm) ;
         *laplacianResult = laplacianResult->unaryExpr([](auto v){return std::isfinite(v) ? v : 0.0;});
         *laplacianResult = (-3.0*m_A)*(laplacianResult->array() - 4.0*m_h);
     }

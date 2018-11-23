@@ -1,6 +1,5 @@
 #include "kernel_poly6.hpp"
 
-
 namespace GooBalls {
 namespace d2 {
 namespace Physics {
@@ -17,6 +16,7 @@ void Poly6::compute(
         Coordinates2d* gradientResult, 
         Coordinates1d* laplacianResult) const {
     auto sqNorm = rs.rowwise().squaredNorm().eval();
+    assert(sqNorm.maxCoeff() <= m_h*m_h*1.01);
     auto diffH = m_h*m_h - sqNorm.array();
     auto diffH2 = diffH * diffH;
     assert(diffH.rows() == rs.rows());

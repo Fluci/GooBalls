@@ -20,10 +20,12 @@ void Viscosity::compute(
         Coordinates1d* wResult, 
         Coordinates2d* gradientResult, 
         Coordinates1d* laplacianResult) const {
-    auto sqNorm = rs.rowwise().squaredNorm().eval();
-    auto norm = sqNorm.array().sqrt().eval();
-    auto diffH = m_h*m_h - sqNorm.array();
-    auto diffH2 = diffH * diffH;
+    FloatPrecision epsilon = 0.000001;
+    Coordinates1d sqNorm = rs.rowwise().squaredNorm();
+    assert(sqNorm.maxCoeff() <= m_h*m_h*1.01);
+    Coordinates1d norm = sqNorm.array().sqrt();
+    Coordinates1d diffH = m_h*m_h - sqNorm.array();
+    Coordinates1d diffH2 = diffH.array() * diffH.array();
     assert(diffH.rows() == rs.rows());
     assert(diffH2.rows() == rs.rows());
     FloatPrecision h2 = m_h*m_h;
@@ -33,7 +35,7 @@ void Viscosity::compute(
         // ((-(x^2 + y^2)^(3/2) / (2h^3) + (x^2 + y^2) / h^2 + h/2 * (x^2 + y^2)^(-1/2)) - 1))
         wResult->resize(rs.rows(), 1);
         auto r3 = norm.array().pow(3.0);
-        *wResult = m_A * (-r3 / (2*h3) + sqNorm.array() / h2 + (m_h / 2.0) / norm.array() - 1);
+        *wResult = m_A * (-r3 / (2*h3) + sqNorm.array() / h2 + (m_h / 2.0) / (norm.array() + epsilon) - 1);
     }
     if(gradientResult != nullptr){
         // d/dx (-r^3 / (2h^3)          + r^2 / h^2         + h/2 * r^-1               - 1)

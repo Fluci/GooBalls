@@ -26,3 +26,8 @@ BOOST_AUTO_TEST_CASE(viscosity_monotonicity, *utf::tolerance(0.0001)){
     KKernel k;
     testMonotonicity(k, 10);
 }
+
+BOOST_AUTO_TEST_CASE(viscosity_radial_symmetric){
+    KKernel k;
+    testRadialSymmetry(k, 100);
+}

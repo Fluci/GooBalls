@@ -32,3 +32,8 @@ BOOST_AUTO_TEST_CASE(debrun_spiky_non_negativity){
     KKernel k;
     testNonNegativity(k, 100);
 }
+
+BOOST_AUTO_TEST_CASE(debrun_spiky_radial_symmetric){
+    KKernel k;
+    testRadialSymmetry(k, 100);
+}

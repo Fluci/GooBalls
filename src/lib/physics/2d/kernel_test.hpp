@@ -19,6 +19,8 @@ void testNonNegativity(Kernel& k, int experiments);
 
 void testNormalization(Kernel& k, int experiments);
 
+void testRadialSymmetry(Kernel& k, int experiments);
+
 } // Physics
 } // d2
 } // GooBalls
