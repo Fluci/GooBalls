@@ -48,7 +48,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     fluidPhys->particles_velocity().setRandom(PN, 2);
     fluidPhys->particles_velocity() *= 0.0;
     fluidPhys->particles_mass().resize(PN);
-    fluidPhys->particles_mass().array() = 0.3;
+    fluidPhys->particles_mass().array() = 15;
     fluidPhys->h(0.2);
     physScene.fluid = std::move(fluidPhys);
     /*

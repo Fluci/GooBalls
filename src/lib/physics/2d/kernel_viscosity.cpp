@@ -8,7 +8,9 @@ namespace Physics {
 
 void Viscosity::setH(FloatPrecision h) {
     m_h = h;
-    m_A = 15.0/(2.0*M_PI)/std::pow(h, 3); 
+    // only very rough
+    // TODO: get proper formula
+    m_A = 1.0/16.0/M_PI/std::pow(h, 1);
 }
 
 /// 15.0/(2*pi*h^3) * (-r^3 / (2h^3) + r^2 / h^2 + h / (2r) - 1)

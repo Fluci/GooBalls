@@ -100,9 +100,13 @@ void testMonotonicity(Kernel& k, int experiments){
 
 void testNormalization(Kernel& k, int experiments){
     std::vector<FloatPrecision> hs;
+    hs.push_back(0.01);
     hs.push_back(0.1);
+    hs.push_back(0.5);
     hs.push_back(1.0);
+    hs.push_back(5.0);
     hs.push_back(10.0);
+    hs.push_back(100.0);
     int n = std::sqrt(experiments);
     n = 100;
     for(auto h : hs){

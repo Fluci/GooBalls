@@ -1,5 +1,7 @@
 #include "kernel_debrun_spiky.hpp"
 
+#include <iostream>
+
 namespace GooBalls {
 namespace d2 {
 namespace Physics {
@@ -8,7 +10,7 @@ FloatPrecision epsilon = 0.000001;
 
 void DebrunSpiky::setH(FloatPrecision h) {
     m_h = h;
-    m_A = 15.0/M_PI/std::pow(h, 6); 
+    m_A = 40.0/M_PI/std::pow(h, 3);
 }
 
 void DebrunSpiky::compute(

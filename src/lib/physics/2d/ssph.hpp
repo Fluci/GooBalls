@@ -28,6 +28,7 @@ private:
 public:
     SSPH();
     virtual ~SSPH() = default;
+    virtual void advance(Scene& scene, TimeStep dt);
     virtual void computeTotalForce(Scene& scene, TimeStep dt);
 
 };

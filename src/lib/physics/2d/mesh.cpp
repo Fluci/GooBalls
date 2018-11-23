@@ -171,7 +171,8 @@ void Mesh::compute_particles_volume(FloatPrecision h) {
         Coordinates2d jpos;
         Coordinates1d W;
         pickRows(m_particles_position_local, indexes[i], jpos);
-        kernel.compute(jpos, &W, nullptr, nullptr);
+        auto xij = -(jpos.rowwise() - m_particles_position_local.row(i));
+        kernel.compute(xij, &W, nullptr, nullptr);
         m_particles_volume[i] = 1.0/W.sum();
     }
 }

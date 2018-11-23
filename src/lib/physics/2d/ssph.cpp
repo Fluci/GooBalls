@@ -40,9 +40,9 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     // often: nu = mu / rho
     // mu, dynamic viscosity coefficient:
     FloatPrecision rho0 = 1000.0; // rest density? according to Bridson: environmental pressure?, TODO: get correct base value
-    FloatPrecision color_relevant_normal_size = 0.01; // TODO: correct value
-    FloatPrecision color_sigma = 100.0; // surface tension, TODO: correct value
-    FloatPrecision mu = 10.0; // viscosity
+    FloatPrecision color_relevant_normal_size = 0.1; // TODO: correct value
+    FloatPrecision color_sigma = 1.0; // surface tension, TODO: correct value
+    FloatPrecision mu = 100.0; // viscosity
     FloatPrecision visc_epsilon = 0.01;
     const int PN = pos.rows();
     // Müller et al., all equations we need:
@@ -73,11 +73,10 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     Coordinates2d jpos(1,2);
     Coordinates1d psi;
     bool consider_boundary = m_consider_boundary && scene.fluid->boundary_volume().rows() > 0;
-    consider_boundary = !false;
+    consider_boundary = false;
     if(consider_boundary){
         psi = rho0 * scene.fluid->boundary_volume();
         m_boundary_neighborhood->inRange(scene.fluid->particles_position(), scene.fluid->boundary_position(), h);
-        assert(m_boundary_neighborhood->indexes().size() == PN);
         m_boundary_force.resize(psi.rows(), Eigen::NoChange);
         m_boundary_force.setZero();
     }
@@ -86,7 +85,8 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
         auto& index = m_neighborhood->indexes()[i];
         // rho(r_i) = sum_j m_j W(r_i - r_j, h)
         pickRows(pos, index, jpos);
-        m_kernel->compute(-(jpos.rowwise() - pos.row(i)), &jW, nullptr, nullptr);
+        auto xij = -(jpos.rowwise() - pos.row(i));
+        m_kernel->compute(xij, &jW, nullptr, nullptr);
         for(int j = 0; j < index.size(); ++j){
             int jj = index[j];
             jW[j] *= ms[jj];
@@ -95,12 +95,16 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
         // density from fluid<->boundary
         if(consider_boundary){
             auto& index = m_boundary_neighborhood->indexes()[i];
+            if(index.empty()){
+                continue;
+            }
             pickRows(scene.fluid->boundary_position(), index, jpos);
             // adjusted density: m_i * sum_j W_ij + m_i * sum_k W_ik
             // = m_i * sum_j W_ij + sum_k psi_k * W_ik
             // sum_k psi_bk(rho_0) W_ik
             //
-            m_kernel->compute(-(jpos.rowwise() - pos.row(i)), &jW, nullptr, nullptr);
+            auto xik = -(jpos.rowwise() - pos.row(i));
+            m_kernel->compute(xik, &jW, nullptr, nullptr);
             for(int j = 0; j < index.size(); ++j){
                 int jj = index[j];
                 jW[j] *= psi[jj];
@@ -130,7 +134,8 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
         // f_i^pressure = - sum_j m_j*(p_i + p_j) / (2 rho_j) \nabla W(r_i - r_j, h)
         // f_i^viscosity = mu * sum_j m_j (v_j - v_i) / rho_j \nabla^2 W(r_i - r_j, h)
         // c_s(r_i) = sum_j m_j/rho-j W(r_i - r_j, h)
-        m_kernel->compute(-(jpos.rowwise() - pos.row(i)), nullptr /*&jW*/, &jGrad, &jLap);
+        auto xij = -(jpos.rowwise() - pos.row(i));
+        m_kernel->compute(xij, nullptr /*&jW*/, &jGrad, &jLap);
         for(int j = 0; j < index.size(); ++j){
             int jj = index[j];
             FloatPrecision a = ms[jj] / rho[jj];
@@ -148,21 +153,25 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
             // F^viscosity = mu * sum_k psi_k(rho_0) (v_k - v_i) / rho_k \nabla^2 W(r_i - r_k, h)
             // paper assumption: rho_k = rho_i
             auto& index = m_boundary_neighborhood->indexes()[i];
+            if(index.empty()){
+                continue;
+            }
             Coordinates2d jPress(index.size(), 2);
             Coordinates2d jVisc(index.size(), 2);
             pickRows(scene.fluid->boundary_position(), index, jpos);
-            Coordinates2d xij = -(jpos.rowwise() - pos.row(i));
-            m_kernel->compute(xij, nullptr, &jGrad, &jLap);
+            Coordinates2d xik = -(jpos.rowwise() - pos.row(i));
+            m_kernel->compute(xik, nullptr, &jGrad, &jLap);
             for(int j = 0; j < index.size(); ++j){
                 int jj = index[j];
                 TranslationVector vij = vs.row(i) - scene.fluid->boundary_velocity().row(jj);
                 jPress.row(j) = psi[jj] * ps[i]/(rho[i] * rho[i]) * jGrad.row(j);
-                FloatPrecision PI = h * std::max(vij.dot(xij.row(j)), 0.0)/(xij.squaredNorm() + visc_epsilon*h*h);
+                FloatPrecision PI = h * std::max(vij.dot(xik.row(j)), 0.0)/(xik.squaredNorm() + visc_epsilon + h*h);
                 jVisc.row(j) = psi[jj] * PI/rho[i] * vij * jLap[j];
                 m_boundary_force.row(jj) = m_boundary_force.row(jj) - (jPress.row(j) + jVisc.row(j));
             }
-            FPressure.row(i) += -100000*ms[i] * jPress.colwise().sum();
-            //FViscosity.row(i) += 10000*mu * jVisc.colwise().sum();
+            // TODO: nasty constant, not sure where it comes from
+            FPressure.row(i) += -100*ms[i] * jPress.colwise().sum();
+            FViscosity.row(i) += mu * jVisc.colwise().sum();
         }
         //FloatPrecision color = jColor.sum();
         RowVec colorN = jColGrad.colwise().sum();
@@ -173,9 +182,45 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
             FSurface.row(i) = aa * colorN;
         }
     }
-    //scene.fluid->particles_total_force() = (FPressure + FViscosity + FSurface).rowwise() + scene.gravity;
     //scene.fluid->particles_total_force() = FViscosity + FPressure + FSurface;
-    scene.fluid->particles_total_force() = FPressure;
+    scene.fluid->particles_total_force() = FPressure + FViscosity;
+}
+
+
+void SSPH::advance(Scene& scene, TimeStep dt){
+    if(scene.fluid.get() == nullptr){
+        return;
+    }
+    if(scene.fluid->particles_position().rows() == 0){
+        return;
+    }
+    computeTotalForce(scene, dt);
+    Coordinates2d a;
+    // a_i = f_i / rho_i
+    const auto& rho = scene.fluid->particles_density();
+    const auto& Ftotal = scene.fluid->particles_total_force();
+    a.resize(rho.rows(), 2);
+    a.col(0) = Ftotal.col(0).array() / rho.array();
+    a.col(1) = Ftotal.col(1).array() / rho.array();
+    a = a.rowwise() + scene.gravity;
+    auto& pos = scene.fluid->particles_position();
+    auto& vs = scene.fluid->particles_velocity();
+    FloatPrecision damping = 1;
+    FloatPrecision floor = 0.2;
+    for(int i = 0; i < vs.rows(); ++i){
+        if(pos(i, 1) <= floor+0.001){
+            a(i, 1) = 0.0;
+        }
+    }
+    vs = vs + dt * a;
+    vs.array() *= damping;
+    // floor: y = 0
+    for(int i = 0; i < vs.rows(); ++i){
+        if(pos(i, 1) < floor){
+            vs(i, 1) = std::abs(vs(i, 1));
+        }
+    }
+    pos = pos + dt * vs;
 }
 
 

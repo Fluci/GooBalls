@@ -7,7 +7,7 @@ namespace Physics {
 
 void Poly6::setH(FloatPrecision h) {
     m_h = h;
-    m_A = 315.0/(64.0*M_PI)/std::pow(h, 9); 
+    m_A = 16.0/M_PI/std::pow(h, 6);
 }
 
 void Poly6::compute(
