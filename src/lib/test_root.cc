@@ -2,7 +2,7 @@
 #if !defined( WIN32 )
     #define BOOST_TEST_DYN_LINK
 #endif
-#define BOOST_TEST_MODULE MouseTrackTests
+#define BOOST_TEST_MODULE GooBallsTests
 #include <boost/test/unit_test.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>

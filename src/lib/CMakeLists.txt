@@ -68,6 +68,10 @@ set(test_files
     test_root.cc
     generic/hello.test.cc
     physics/2d/engine.test.cc
+    physics/2d/kernel_test.cc
+    physics/2d/kernel_debrun_spiky.test.cc
+    physics/2d/kernel_poly6.test.cc
+    physics/2d/kernel_viscosity.test.cc
     observing/abstractSubject.test.cc
     spatial/2d/neighborhood_spatial_hashing.test.cc
     spatial/2d/neighborhood_brute_force.test.cc

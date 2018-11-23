@@ -24,7 +24,9 @@ void FluidSolver::advance(Scene& scene, TimeStep dt){
     a = a.rowwise() + scene.gravity;
     auto& pos = scene.fluid->particles_position();
     auto& vs = scene.fluid->particles_velocity();
+    FloatPrecision damping = 1;
     vs = vs + dt * a;
+    vs.array() *= damping;
     pos = pos + dt * vs;
 }
 

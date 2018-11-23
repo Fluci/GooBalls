@@ -3,6 +3,7 @@
 #include "kernel_debrun_spiky.hpp"
 #include "kernel_poly6.hpp"
 #include "pick_rows.hpp"
+#include <iostream>
 
 namespace GooBalls {
 
@@ -72,7 +73,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     Coordinates2d jpos(1,2);
     Coordinates1d psi;
     bool consider_boundary = m_consider_boundary && scene.fluid->boundary_volume().rows() > 0;
-    consider_boundary = false;
+    consider_boundary = !false;
     if(consider_boundary){
         psi = rho0 * scene.fluid->boundary_volume();
         m_boundary_neighborhood->inRange(scene.fluid->particles_position(), scene.fluid->boundary_position(), h);
@@ -109,7 +110,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     }
     // pressure: p = k (rho - rho_0)
     Coordinates1d ps = K * (rho.array() - rho0);
-    ps.cwiseMax(0.0);
+    ps = ps.array().max(0);
     Coordinates2d FPressure (PN, 2);
     Coordinates2d FViscosity (PN, 2);
     Coordinates2d FSurface (PN, 2);
