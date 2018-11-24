@@ -17,6 +17,6 @@ void main() {
         vec3 normal = normalize(vec3(diffVec, sqrt(radSq - diffSq)));
         color = vec4(dot(lightVec, normal) * f_color, 1);
     } else {
-        color = vec4(0, 0, 0, 0);
+        discard; // TODO: fix
     }
 }
