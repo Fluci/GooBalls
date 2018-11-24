@@ -18,7 +18,7 @@ using namespace d2;
 /// Create a random scene as mock data
 void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     //physScene.gravity.array() *= 0.01;
-    constexpr int PN_sqrt = 15;
+    constexpr int PN_sqrt = 20;
     int PN = PN_sqrt * PN_sqrt;
 
     // some example data to allow first testing with rendering
@@ -30,7 +30,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
         }
     }
     auto boundaryCoords = std::make_shared<Coordinates2d>();
-    (*particleCoordinates) = (*particleCoordinates) * 0.05;
+    (*particleCoordinates) = (*particleCoordinates) * 0.01;
     particleCoordinates->col(0).array() += -0.7;
     particleCoordinates->col(1).array() += 0.3;
     std::cout << "particles: \n";
@@ -42,7 +42,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     auto verts = std::make_shared<Coordinates2d>(Coordinates2d::Random(VN, 2)*0.5);
     auto triangles = std::make_shared<TriangleList>(TriangleList::Random(TN, 3));
     triangles->array() = triangles->unaryExpr([VN](const VertexIndex x) { return std::abs(x)%VN; });
-    double h = 0.1;
+    double h = 0.05;
 
     // create physics data
     auto fluidPhys = std::make_unique<Physics::Fluid>(particleCoordinates, boundaryCoords);
@@ -50,7 +50,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     fluidPhys->particles_velocity() *= 0.0;
     fluidPhys->particles_mass().resize(PN);
     // compute the mass from rho*V = m
-    fluidPhys->particles_mass().array() = 500;
+    fluidPhys->particles_mass().array() = 100;
     fluidPhys->h(h);
     physScene.fluid = std::move(fluidPhys);
     /*
