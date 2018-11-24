@@ -1,6 +1,6 @@
 #include "mesh.hpp"
 #include "pick_rows.hpp"
-#include "kernel_debrun_spiky.hpp"
+#include "kernel_poly6.hpp"
 
 #include "spatial/2d/neighborhood_spatial_hashing.hpp"
 
@@ -136,7 +136,7 @@ void Mesh::create_particles(FloatPrecision h) {
     int totalPoints = 0;
     int inserted = 0;
     auto& pts = m_particles_position_local;
-    int sampling = 10;
+    int sampling = 4;
 
     for(int t = 0; t < tris.rows(); ++t){
         for(int v = 0; v < 3; v++){
@@ -163,7 +163,7 @@ void Mesh::compute_particles_volume(FloatPrecision h) {
     // V_bi = 1/sum_k W_ik, W: is a kernel
     m_particles_volume.resize(m_particles_position_local.rows(), Eigen::NoChange);
     NeighborhoodSpatialHashing neighbor;
-    DebrunSpiky kernel;
+    Poly6 kernel;
     kernel.setH(h);
     neighbor.inRange(m_particles_position_local, h);
     const auto& indexes = neighbor.indexes();

@@ -129,9 +129,14 @@ public:
     }
 
     virtual void draw(NVGcontext *ctx) {
-        int n = 4;
+        /// seconds per frame: TODO get from measurments or so
+        double target = 1/60.0;
+        /// dt: largest possible timestep, for which the simulation stays
+        /// stable
+        double dt = 0.0005;
+        int n = target/dt;
         for(int i = 0; i < n; ++i){
-            m_physicsEngine.advance(m_physicsScene, 0.0005);
+            m_physicsEngine.advance(m_physicsScene, dt);
         }
         /* Draw the user interface */
         Screen::draw(ctx);
