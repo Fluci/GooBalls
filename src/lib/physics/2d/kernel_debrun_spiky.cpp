@@ -71,7 +71,12 @@ void DebrunSpiky::compute(
         // = h^2 * (Ax + Ay) - 4*h + Bx + By
         // = h^2 * C * (ry^2 + rx^2) - 4*h + 3*(rx^2 + ry^2)/|r|
         // = h^2 * (rx^2 + ry^2)^(-1/2) - 4*h + 3*r^2/|r|
-        // = h^2 * 1/|r| - 4*h + 3 * |r|
+        // =    h^2 * 1/|r| - 4*h + 3 * |r|
+        // = 
+        // = -3(h^2 * 1/|r| - 4*h + 3 * |r|)
+        // = 12 h - 3 h^2 / |r| - 9 |r|
+        // = 12 h - (3 h^2)/sqrt(x^2 + y^2) - 9 sqrt(x^2 + y^2) // wolfram alpha
+        // = laplacian of (h - sqrt(x^2 + y^2))^3 
 
         laplacianResult->resize(rs.rows(), 1);
         *laplacianResult = (m_h*m_h * invNorm) + (3.0*norm) ;

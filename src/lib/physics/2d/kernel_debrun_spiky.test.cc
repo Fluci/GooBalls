@@ -37,3 +37,14 @@ BOOST_AUTO_TEST_CASE(debrun_spiky_radial_symmetric){
     KKernel k;
     testRadialSymmetry(k, 100);
 }
+
+BOOST_AUTO_TEST_CASE(debrun_spiky_grad_finite_diff, *utf::tolerance(0.01)){
+    KKernel k;
+    testGradientFiniteDifference(k, 100);
+}
+
+BOOST_AUTO_TEST_CASE(debrun_spiky_lap_finite_diff, *utf::tolerance(0.00001)){
+    KKernel k;
+    testLaplacianFiniteDifference(k, 100);
+}
+

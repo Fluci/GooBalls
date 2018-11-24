@@ -30,6 +30,18 @@ Coordinates2d randomUnitDisk(int samples){
     return Xs;
 }
 
+std::vector<FloatPrecision> getHs(){
+    std::vector<FloatPrecision> hs;
+    hs.push_back(0.01);
+    hs.push_back(0.1);
+    hs.push_back(0.5);
+    hs.push_back(1.0);
+    hs.push_back(5.0);
+    hs.push_back(10.0);
+    hs.push_back(100.0);
+    return hs;
+}
+
 void testRadialSymmetry(Kernel& k, int experiments){
     int radiusSamples = std::sqrt(experiments);
     int angleSamples = radiusSamples;
@@ -98,15 +110,61 @@ void testMonotonicity(Kernel& k, int experiments){
     }
 }
 
+void testGradientFiniteDifference(Kernel& k, int experiments){
+    const Coordinates2d Xorig = randomUnitDisk(experiments);
+    auto hs = getHs();
+    for(auto h : hs){
+        FloatPrecision dx = h * 0.0000001;
+        k.setH(h);
+        Coordinates2d Xs = 0.99 * h * Xorig;
+        Coordinates2d Xsx = Xs;
+        Xsx.col(0).array() += dx;
+        Coordinates2d Xsy = Xs;
+        Xsy.col(1).array() += dx;
+        Coordinates1d W0, Wx, Wy;
+        Coordinates2d WgradReceived;
+        k.compute(Xs, &W0, &WgradReceived, nullptr);
+        k.compute(Xsx, &Wx, nullptr, nullptr);
+        k.compute(Xsy, &Wy, nullptr, nullptr);
+        Coordinates2d gradExpected(Xs.rows(), 2);
+        gradExpected.col(0) = (Wx - W0)/dx;
+        gradExpected.col(1) = (Wy - W0)/dx;
+        for(int i = 0; i < Xs.rows(); ++i){
+            BOOST_TEST(gradExpected(i, 0) == WgradReceived(i, 0));
+            BOOST_TEST(gradExpected(i, 1) == WgradReceived(i, 1));
+        }
+    }
+}
+
+void testLaplacianFiniteDifference(Kernel& k, int experiments){
+    const Coordinates2d Xorig = randomUnitDisk(experiments);
+    auto hs = getHs();
+    for(auto h : hs){
+        FloatPrecision dx = h * 0.001;
+        k.setH(h);
+        Coordinates2d Xs = 0.99 * h * Xorig;
+        Coordinates2d Xsx1, Xsx2, Xsy1, Xsy2;
+        Xsx1 = Xs; Xsx1.col(0).array() -= dx;
+        Xsx2 = Xs; Xsx2.col(0).array() += dx;
+        Xsy1 = Xs; Xsy1.col(1).array() -= dx;
+        Xsy2 = Xs; Xsy2.col(1).array() += dx;
+
+        Coordinates1d W0, Wx1, Wx2, Wy1, Wy2;
+        Coordinates1d Wlap;
+        k.compute(Xs, &W0, nullptr, &Wlap);
+        k.compute(Xsx1, &Wx1, nullptr, nullptr);
+        k.compute(Xsx2, &Wx2, nullptr, nullptr);
+        k.compute(Xsy1, &Wy1, nullptr, nullptr);
+        k.compute(Xsy1, &Wy2, nullptr, nullptr);
+        Coordinates1d expectedLaplacian = (Wx1 + Wx2 + Wy1 + Wy2 - 4*W0) / (dx*dx);
+        for(int i = 0; i < Xs.rows(); ++i){
+            BOOST_TEST(expectedLaplacian[i] == Wlap[i]);
+        }
+    }
+}
+
 void testNormalization(Kernel& k, int experiments){
-    std::vector<FloatPrecision> hs;
-    hs.push_back(0.01);
-    hs.push_back(0.1);
-    hs.push_back(0.5);
-    hs.push_back(1.0);
-    hs.push_back(5.0);
-    hs.push_back(10.0);
-    hs.push_back(100.0);
+    auto hs = getHs();
     int n = std::sqrt(experiments);
     n = 100;
     for(auto h : hs){

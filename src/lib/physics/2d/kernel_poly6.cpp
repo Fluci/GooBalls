@@ -15,23 +15,23 @@ void Poly6::compute(
         Coordinates1d* wResult, 
         Coordinates2d* gradientResult, 
         Coordinates1d* laplacianResult) const {
-    auto sqNorm = rs.rowwise().squaredNorm().eval();
+    Coordinates1d sqNorm = rs.rowwise().squaredNorm();
     assert(sqNorm.maxCoeff() <= m_h*m_h*1.01);
-    auto diffH = m_h*m_h - sqNorm.array();
-    auto diffH2 = diffH * diffH;
-    assert(diffH.rows() == rs.rows());
-    assert(diffH2.rows() == rs.rows());
+    Coordinates1d sqDiffH = m_h*m_h - sqNorm.array();
+    Coordinates1d sqDiffH2 = sqDiffH.array() * sqDiffH.array();
+    assert(sqDiffH.rows() == rs.rows());
+    assert(sqDiffH2.rows() == rs.rows());
     if(wResult != nullptr){
         // 315/(64*M_PI)/std::pow(h, 9) * std::pow(h*h - r^2, 3)
         //wResult->resize(rs.rows(), 1);
-        *wResult = m_A * diffH2*diffH;
+        *wResult = m_A * sqDiffH2.array() * sqDiffH.array();
     }
     if(gradientResult != nullptr){
         // d/dx  (h^2 - r^2)^3
         // = d/dx (h^2 - (x^2 + y^2))^3
         // = 3 (h^2 - r^2)^2 * (-2x)
         // = -6x (h^2 - r^2)^2
-        auto comm = (-6.0 * m_A) * diffH2;
+        auto comm = (-6.0 * m_A) * sqDiffH2;
         gradientResult->resize(rs.rows(), rs.cols());
         gradientResult->col(0) = rs.col(0).array() * comm.array();
         gradientResult->col(1) = rs.col(1).array() * comm.array();
@@ -50,7 +50,7 @@ void Poly6::compute(
         // = (h^2 - r^2) 2(h^2 - r^2 - 2r^2)
         // = (h^2 - r^2) 2(h^2 - 3r^2)
         // = (h^2 - r^2) 2(h^2 - 3(x^2 + y^2))
-        *laplacianResult = (-6.0 * m_A) * diffH * (2.0*m_h*m_h - 6.0*sqNorm.array());
+        *laplacianResult = (-6.0 * m_A) * sqDiffH.array() * (2.0*m_h*m_h - 6.0*sqNorm.array());
         //*laplacianResult = laplacianResult->unaryExpr([](auto v){return std::isfinite(v) ? v : 0.0;});
     }
 }
