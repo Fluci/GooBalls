@@ -10,7 +10,7 @@ void Viscosity::setH(FloatPrecision h) {
     m_h = h;
     // only very rough
     // TODO: get proper formula
-    m_A = 1.0/16.0/M_PI/std::pow(h, 1);
+    m_A = 1.0/(16.0 * M_PI * std::pow(h, 6));
 }
 
 /// 15.0/(2*pi*h^3) * (-r^3 / (2h^3) + r^2 / h^2 + h / (2r) - 1)
@@ -80,7 +80,7 @@ void Viscosity::compute(
 
         // = (h^4 + 8 h (x^2 + y^2)^(3/2) - 9 (x^2 + y^2)^2)/(2 h^3 (x^2 + y^2)^(3/2))
         // according to the paper: 45/pi/h^6 (h - r)
-        *laplacianResult = (45.0/M_PI)/std::pow(m_h, 6)*(m_h - norm.array());
+        *laplacianResult = m_A * (m_h - rs.rowwise().norm().array());
         //*laplacianResult = laplacianResult->unaryExpr([](auto v){return std::isfinite(v) ? v : 0.0;});
     }
 }

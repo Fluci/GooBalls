@@ -17,15 +17,16 @@ using namespace d2;
 // TODO: this should be refactored somewhere close to the asset loader 
 /// Create a random scene as mock data
 void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
-    int PN = 100;
     //physScene.gravity.array() *= 0.01;
+    constexpr int PN_sqrt = 20;
+    int PN = PN_sqrt * PN_sqrt;
 
     // some example data to allow first testing with rendering
     auto particleCoordinates = std::make_shared<Coordinates2d>(Coordinates2d::Random(PN, 2)/2.0);
-    for(int i = 0; i < 10; ++i){
-        for(int j = 0; j < 10; ++j){
-            (*particleCoordinates)(i*10+j, 0) = i;
-            (*particleCoordinates)(i*10+j, 1) = j;
+    for(int i = 0; i < PN_sqrt; ++i){
+        for(int j = 0; j < PN_sqrt; ++j){
+            (*particleCoordinates)(i*PN_sqrt+j, 0) = i;
+            (*particleCoordinates)(i*PN_sqrt+j, 1) = j;
         }
     }
     auto boundaryCoords = std::make_shared<Coordinates2d>();
@@ -95,7 +96,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     fluid->particles_color() /= 2.0;
     fluid->particles_radius().setOnes(PN, 1);
     fluid->particles_radius().array() += 0.0;
-    fluid->particles_radius().array() *= 0.03;
+    fluid->particles_radius().array() *= 0.02;
     /*
     auto mesh = std::make_unique<Render::Mesh>(verts, triangles);
     mesh->vertices_color().setRandom(VN,3);
