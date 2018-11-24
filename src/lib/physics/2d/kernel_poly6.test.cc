@@ -17,6 +17,11 @@ BOOST_AUTO_TEST_CASE(poly6_zero_border, *utf::tolerance(0.0001)){
     testZeroBorder(k, 100);
 }
 
+BOOST_AUTO_TEST_CASE(poly6_zero_border_gradient, *utf::tolerance(0.01)){
+    KKernel k;
+    testZeroBorderGradient(k, 100);
+}
+
 BOOST_AUTO_TEST_CASE(poly6_normalization, *utf::tolerance(0.0001)){
     KKernel k;
     testNormalization(k, 100);
@@ -37,7 +42,13 @@ BOOST_AUTO_TEST_CASE(poly6_grad_finite_diff, *utf::tolerance(0.001)){
     testGradientFiniteDifference(k, 100);
 }
 
-BOOST_AUTO_TEST_CASE(poly6_lap_finite_diff, *utf::tolerance(0.00001)){
+
+BOOST_AUTO_TEST_CASE(poly6_lap_grad_finite_diff, *utf::tolerance(0.005)){
+    KKernel k;
+    testLaplacianFromGradientFiniteDifferences(k, 100);
+}
+
+BOOST_AUTO_TEST_CASE(poly6_lap_finite_diff, *utf::tolerance(0.001)){
     KKernel k;
     testLaplacianFiniteDifference(k, 100);
 }

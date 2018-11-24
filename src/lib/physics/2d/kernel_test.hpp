@@ -13,6 +13,8 @@ namespace Physics {
  */
 void testZeroBorder(Kernel& k, int experiments);
 
+void testZeroBorderGradient(Kernel& k, int experiments);
+
 void testMonotonicity(Kernel& k, int experiments);
 
 void testNonNegativity(Kernel& k, int experiments);
@@ -22,6 +24,8 @@ void testNormalization(Kernel& k, int experiments);
 void testRadialSymmetry(Kernel& k, int experiments);
 
 void testGradientFiniteDifference(Kernel& k, int experiments);
+
+void testLaplacianFromGradientFiniteDifferences(Kernel& k, int experiments);
 
 void testLaplacianFiniteDifference(Kernel& k, int experiments);
 
