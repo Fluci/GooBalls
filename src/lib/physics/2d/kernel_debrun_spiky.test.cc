@@ -48,7 +48,12 @@ BOOST_AUTO_TEST_CASE(debrun_spiky_grad_finite_diff, *utf::tolerance(0.01)){
     testGradientFiniteDifference(k, 100);
 }
 
-BOOST_AUTO_TEST_CASE(debrun_spiky_lap_finite_diff, *utf::tolerance(0.00001)){
+BOOST_AUTO_TEST_CASE(debrun_spiky_lap_grad_finite_diff, *utf::tolerance(0.011)){
+    KKernel k;
+    testLaplacianFromGradientFiniteDifferences(k, 100);
+}
+
+BOOST_AUTO_TEST_CASE(debrun_spiky_lap_finite_diff, *utf::tolerance(0.01)){
     KKernel k;
     testLaplacianFiniteDifference(k, 100);
 }

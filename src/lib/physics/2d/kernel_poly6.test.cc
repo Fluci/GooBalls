@@ -42,7 +42,13 @@ BOOST_AUTO_TEST_CASE(poly6_grad_finite_diff, *utf::tolerance(0.001)){
     testGradientFiniteDifference(k, 100);
 }
 
-BOOST_AUTO_TEST_CASE(poly6_lap_finite_diff, *utf::tolerance(0.00001)){
+
+BOOST_AUTO_TEST_CASE(poly6_lap_grad_finite_diff, *utf::tolerance(0.005)){
+    KKernel k;
+    testLaplacianFromGradientFiniteDifferences(k, 100);
+}
+
+BOOST_AUTO_TEST_CASE(poly6_lap_finite_diff, *utf::tolerance(0.001)){
     KKernel k;
     testLaplacianFiniteDifference(k, 100);
 }

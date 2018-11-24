@@ -25,6 +25,8 @@ void testRadialSymmetry(Kernel& k, int experiments);
 
 void testGradientFiniteDifference(Kernel& k, int experiments);
 
+void testLaplacianFromGradientFiniteDifferences(Kernel& k, int experiments);
+
 void testLaplacianFiniteDifference(Kernel& k, int experiments);
 
 } // Physics

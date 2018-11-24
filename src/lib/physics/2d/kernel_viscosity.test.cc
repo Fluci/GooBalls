@@ -38,7 +38,13 @@ BOOST_AUTO_TEST_CASE(viscosity_radial_symmetric){
     KKernel k;
     testRadialSymmetry(k, 100);
 }
+
 /*
+BOOST_AUTO_TEST_CASE(viscosity_lap_grad_finite_diff, *utf::tolerance(0.011)){
+    KKernel k;
+    testLaplacianFromGradientFiniteDifferences(k, 100);
+}
+
 BOOST_AUTO_TEST_CASE(viscosity_grad_finite_diff, *utf::tolerance(0.01)){
     KKernel k;
     testGradientFiniteDifference(k, 100);

@@ -32,12 +32,12 @@ Coordinates2d randomUnitDisk(int samples){
 
 std::vector<FloatPrecision> getHs(){
     std::vector<FloatPrecision> hs;
-    hs.push_back(0.01);
     hs.push_back(0.1);
     hs.push_back(0.5);
     hs.push_back(1.0);
     hs.push_back(5.0);
     hs.push_back(10.0);
+    hs.push_back(50.0);
     hs.push_back(100.0);
     return hs;
 }
@@ -152,11 +152,34 @@ void testGradientFiniteDifference(Kernel& k, int experiments){
     }
 }
 
+void testLaplacianFromGradientFiniteDifferences(Kernel& k, int experiments){
+    const Coordinates2d Xorig = randomUnitDisk(experiments);
+    auto hs = getHs();
+    for(auto h : hs){
+        FloatPrecision dx = h * 0.000001;
+        k.setH(h);
+        Coordinates2d Xs = 0.99*h*Xorig;
+        Coordinates2d Xsx, Xsy;
+        Xsx = Xs; Xsx.col(0).array() += dx;
+        Xsy = Xs; Xsy.col(1).array() += dx;
+
+        Coordinates2d G0, Gx, Gy;
+        Coordinates1d Wlap;
+        k.compute(Xs, nullptr, &G0, &Wlap);
+        k.compute(Xsx, nullptr, &Gx, nullptr);
+        k.compute(Xsy, nullptr, &Gy, nullptr);
+        Coordinates1d expectedLaplacian = (Gx - G0).col(0)/dx + (Gy - G0).col(1)/dx;
+        for(int i = 0; i < Xs.rows(); ++i){
+            BOOST_TEST(expectedLaplacian[i] == Wlap[i]);
+        }
+    }
+}
+
 void testLaplacianFiniteDifference(Kernel& k, int experiments){
     const Coordinates2d Xorig = randomUnitDisk(experiments);
     auto hs = getHs();
     for(auto h : hs){
-        FloatPrecision dx = h * 0.001;
+        FloatPrecision dx = h * 0.00001;
         k.setH(h);
         Coordinates2d Xs = 0.99 * h * Xorig;
         Coordinates2d Xsx1, Xsx2, Xsy1, Xsy2;
@@ -171,10 +194,10 @@ void testLaplacianFiniteDifference(Kernel& k, int experiments){
         k.compute(Xsx1, &Wx1, nullptr, nullptr);
         k.compute(Xsx2, &Wx2, nullptr, nullptr);
         k.compute(Xsy1, &Wy1, nullptr, nullptr);
-        k.compute(Xsy1, &Wy2, nullptr, nullptr);
+        k.compute(Xsy2, &Wy2, nullptr, nullptr);
         Coordinates1d expectedLaplacian = (Wx1 + Wx2 + Wy1 + Wy2 - 4*W0) / (dx*dx);
         for(int i = 0; i < Xs.rows(); ++i){
-//            BOOST_TEST(expectedLaplacian[i] == Wlap[i]);
+            BOOST_TEST(expectedLaplacian[i] == Wlap[i]);
         }
     }
 }
