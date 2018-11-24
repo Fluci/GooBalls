@@ -18,20 +18,21 @@ using namespace d2;
 /// Create a random scene as mock data
 void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     //physScene.gravity.array() *= 0.01;
-    constexpr int PN_sqrt = 20;
-    int PN = PN_sqrt * PN_sqrt;
+    constexpr int PN_X = 10;
+    int PN_Y = 20;
+    int PN = PN_Y * PN_X;
 
     // some example data to allow first testing with rendering
     auto particleCoordinates = std::make_shared<Coordinates2d>(Coordinates2d::Random(PN, 2)/2.0);
-    for(int i = 0; i < PN_sqrt; ++i){
-        for(int j = 0; j < PN_sqrt; ++j){
-            (*particleCoordinates)(i*PN_sqrt+j, 0) = i;
-            (*particleCoordinates)(i*PN_sqrt+j, 1) = j;
+    for(int i = 0; i < PN_X; ++i){
+        for(int j = 0; j < PN_Y; ++j){
+            (*particleCoordinates)(i*PN_Y+j, 0) = i;
+            (*particleCoordinates)(i*PN_Y+j, 1) = j;
         }
     }
     auto boundaryCoords = std::make_shared<Coordinates2d>();
-    (*particleCoordinates) = (*particleCoordinates) * 0.01;
-    particleCoordinates->col(0).array() += -0.7;
+    (*particleCoordinates) = (*particleCoordinates) * 0.04;
+    particleCoordinates->col(0).array() += -0.8;
     particleCoordinates->col(1).array() += 0.3;
     std::cout << "particles: \n";
     for(int i = 0; i < particleCoordinates->rows(); ++i){
