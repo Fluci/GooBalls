@@ -17,6 +17,11 @@ BOOST_AUTO_TEST_CASE(debrun_spiky_zero_border, *utf::tolerance(0.0001)){
     testZeroBorder(k, 100);
 }
 
+BOOST_AUTO_TEST_CASE(debrun_spiky_zero_border_gradient, *utf::tolerance(0.0001)){
+    KKernel k;
+    testZeroBorderGradient(k, 100);
+}
+
 BOOST_AUTO_TEST_CASE(debrun_spiky_normalization, *utf::tolerance(0.0001)){
     KKernel k;
     testNormalization(k, 100);

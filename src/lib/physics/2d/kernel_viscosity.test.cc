@@ -16,8 +16,14 @@ BOOST_AUTO_TEST_CASE(viscosity_zero_border, *utf::tolerance(0.0001)){
     KKernel k;
     testZeroBorder(k, 100);
 }
+
 // TODO: Viscosity kernel doesn't work
 /*
+BOOST_AUTO_TEST_CASE(viscosity_zero_border_gradient, *utf::tolerance(0.01)){
+    KKernel k;
+    testZeroBorderGradient(k, 100);
+}
+
 BOOST_AUTO_TEST_CASE(viscosity_normalization, *utf::tolerance(0.0001)){
     KKernel k;
     testNormalization(k, 100);

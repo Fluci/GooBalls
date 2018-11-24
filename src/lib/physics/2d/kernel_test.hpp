@@ -13,6 +13,8 @@ namespace Physics {
  */
 void testZeroBorder(Kernel& k, int experiments);
 
+void testZeroBorderGradient(Kernel& k, int experiments);
+
 void testMonotonicity(Kernel& k, int experiments);
 
 void testNonNegativity(Kernel& k, int experiments);
