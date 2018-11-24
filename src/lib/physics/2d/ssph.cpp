@@ -48,7 +48,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     constexpr FloatPrecision rho0 = 1000.0; // rest density? according to Bridson: environmental pressure?, TODO: get correct base value
     constexpr FloatPrecision color_relevant_normal_size = 0.1; // TODO: correct value
     constexpr FloatPrecision color_sigma = 1.0; // surface tension, TODO: correct value
-    constexpr FloatPrecision mu = 500.0; // viscosity
+    constexpr FloatPrecision mu = 10.0; // viscosity
     constexpr FloatPrecision visc_epsilon = 0.01;
     const int PN = pos.rows();
     // Müller et al., all equations we need:
@@ -219,7 +219,7 @@ void SSPH::advance(Scene& scene, TimeStep dt){
     FloatPrecision right_wall = 1.0;
     for(int i = 0; i < vs.rows(); ++i){
         if(pos(i, 1) <= floor+0.001){
-            a(i, 1) = 0.0;
+            // a(i, 1) = 0.0;
         }
     }
     vs = vs + dt * a;

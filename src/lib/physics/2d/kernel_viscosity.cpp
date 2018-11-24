@@ -10,7 +10,7 @@ void Viscosity::setH(FloatPrecision h) {
     m_h = h;
     // only very rough
     // TODO: get proper formula
-    m_A = 1.0/(16.0 * M_PI * std::pow(h, 6));
+    m_A = 45.0 / (M_PI * std::pow(h, 6));
 }
 
 /// 15.0/(2*pi*h^3) * (-r^3 / (2h^3) + r^2 / h^2 + h / (2r + epsilon) - 1)
