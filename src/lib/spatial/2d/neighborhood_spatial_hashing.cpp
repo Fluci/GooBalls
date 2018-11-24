@@ -29,6 +29,9 @@ void NeighborhoodSpatialHashing::inRange(const Coordinates2d& points, Coordinate
     GridCoordinates queryGridCoords = (points.array()/h).floor().cast<int>();
     computeInRange(points, points, queryGridCoords, queryGridCoords, h);
     assert(points.rows() == m_indexes.size());
+    for(int i = 0; i < points.rows(); ++i){
+        assert(!m_indexes[i].empty());
+    }
 }
 
 void NeighborhoodSpatialHashing::inRange(const Coordinates2d& query, const Coordinates2d& target, CoordinatePrecision h){

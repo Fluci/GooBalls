@@ -18,7 +18,7 @@ using namespace d2;
 /// Create a random scene as mock data
 void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     //physScene.gravity.array() *= 0.01;
-    constexpr int PN_sqrt = 20;
+    constexpr int PN_sqrt = 15;
     int PN = PN_sqrt * PN_sqrt;
 
     // some example data to allow first testing with rendering
@@ -42,15 +42,16 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     auto verts = std::make_shared<Coordinates2d>(Coordinates2d::Random(VN, 2)*0.5);
     auto triangles = std::make_shared<TriangleList>(TriangleList::Random(TN, 3));
     triangles->array() = triangles->unaryExpr([VN](const VertexIndex x) { return std::abs(x)%VN; });
-
+    double h = 0.1;
 
     // create physics data
     auto fluidPhys = std::make_unique<Physics::Fluid>(particleCoordinates, boundaryCoords);
     fluidPhys->particles_velocity().setRandom(PN, 2);
     fluidPhys->particles_velocity() *= 0.0;
     fluidPhys->particles_mass().resize(PN);
-    fluidPhys->particles_mass().array() = 15;
-    fluidPhys->h(0.2);
+    // compute the mass from rho*V = m
+    fluidPhys->particles_mass().array() = 500;
+    fluidPhys->h(h);
     physScene.fluid = std::move(fluidPhys);
     /*
     Physics::Mesh physMesh(verts, triangles);
@@ -96,7 +97,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     fluid->particles_color() /= 2.0;
     fluid->particles_radius().setOnes(PN, 1);
     fluid->particles_radius().array() += 0.0;
-    fluid->particles_radius().array() *= 0.02;
+    fluid->particles_radius().array() = 0.008;
     /*
     auto mesh = std::make_unique<Render::Mesh>(verts, triangles);
     mesh->vertices_color().setRandom(VN,3);
