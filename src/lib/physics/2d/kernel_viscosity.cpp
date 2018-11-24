@@ -13,10 +13,8 @@ void Viscosity::setH(FloatPrecision h) {
     m_A = 1.0/16.0/M_PI/std::pow(h, 1);
 }
 
-/// 15.0/(2*pi*h^3) * (-r^3 / (2h^3) + r^2 / h^2 + h / (2r) - 1)
+/// 15.0/(2*pi*h^3) * (-r^3 / (2h^3) + r^2 / h^2 + h / (2r + epsilon) - 1)
 ///
-/// WARNING: I don't get the same results for the laplacian as given in the paper.
-/// We need to clarify this before using this kernel.
 void Viscosity::compute(
         const Coordinates2d& rs, 
         Coordinates1d* wResult, 
@@ -47,8 +45,21 @@ void Viscosity::compute(
         // = x (-h^4 * r^-3 + 4h - 3 r) / (2h^3)
         // = x (-h/2 * r^-3 + 2/h^2 - 3/(2h^3) r)
         // = x (-3/(2h^3) r + 2/h^2 - h/2 r^-3)
+        // wolfram alpha:
+        // gradient of -(x^2 + y^2)^(3/2) / (2*h^3)
+        // = (-(3 x sqrt(x^2 + y^2))/(2 h^3), -(3 y sqrt(x^2 + y^2))/(2 h^3))
+        // = (-(3 x |r|/(2h^3), -(3 y |r|/2h^3))
+        // gradient of (x^2 + y^2) / h^2
+        // = ((2 x)/h^2, (2 y)/h^2)
+        // gradient of h/(2 sqrt(x^2 + y^2))
+        // = (-(h x)/(2 (x^2 + y^2)^(3/2)), -(h y)/(2 (x^2 + y^2)^(3/2)))
+        // = (-(h x)/(2 r^3), -(h y)/(2 r^3))
+        //
+        // total:
+        // -3x |r|/(2h^3) + 2 x/h^2 - h x /(2 r^3)
+        // x (-3 |r|/(2h^3) + 2/h^2 - h/(2r^3)
         auto r32 = sqNorm.array();
-        auto comm = ((-3.0/2.0/h3) * norm.array() - (m_h/2.0)*norm.array().pow(-3.0)).eval();
+        Coordinates1d comm = (-3.0/2.0/h3) * norm.array() - (m_h/2.0)/(norm.array().pow(3.0) + epsilon);
         comm = comm.unaryExpr([](auto v){return std::isfinite(v) ? v : 0.0;});
         comm = m_A*2.0/h2 + m_A*comm.array();
         gradientResult->resize(rs.rows(), rs.cols());

@@ -32,6 +32,8 @@ Coordinates2d randomUnitDisk(int samples){
 
 std::vector<FloatPrecision> getHs(){
     std::vector<FloatPrecision> hs;
+    hs.push_back(0.0001);
+    hs.push_back(0.001);
     hs.push_back(0.01);
     hs.push_back(0.1);
     hs.push_back(0.5);
@@ -39,6 +41,7 @@ std::vector<FloatPrecision> getHs(){
     hs.push_back(5.0);
     hs.push_back(10.0);
     hs.push_back(100.0);
+    hs.push_back(1000.0);
     return hs;
 }
 
@@ -114,7 +117,7 @@ void testGradientFiniteDifference(Kernel& k, int experiments){
     const Coordinates2d Xorig = randomUnitDisk(experiments);
     auto hs = getHs();
     for(auto h : hs){
-        FloatPrecision dx = h * 0.0000001;
+        FloatPrecision dx = h * 0.00000001;
         k.setH(h);
         Coordinates2d Xs = 0.99 * h * Xorig;
         Coordinates2d Xsx = Xs;
