@@ -48,7 +48,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(is_finite(pos));
     assert(is_finite(vs));
     assert(is_finite(ms));
-    FloatPrecision K = 20000.0; // gas constant dependent on temperature, TODO: correct value?
+    FloatPrecision K = 8000.0; // gas constant dependent on temperature, TODO: correct value?
     // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3
     // p, pressure: force per unit area
     // nu, kinematic viscosity: high values: fluid doesn't like to deform, low values: fluid likes deformation
@@ -56,9 +56,9 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     // mu, dynamic viscosity coefficient:
     constexpr FloatPrecision rho0 = 1000.0; // rest density? according to Bridson: environmental pressure?, TODO: get correct base value
     constexpr FloatPrecision color_relevant_normal_size = 0.1; // TODO: correct value
-    constexpr FloatPrecision color_sigma = 1.0; // surface tension, TODO: correct value
+    constexpr FloatPrecision color_sigma = 0.0; // surface tension, TODO: correct value
     constexpr FloatPrecision mu = 0.03; // viscosity
-    constexpr FloatPrecision mu_boundary = 0.0; // viscosity towards wall
+    constexpr FloatPrecision mu_boundary = 0.0001; // viscosity towards wall
     constexpr FloatPrecision visc_epsilon = 0.00001;
     constexpr FloatPrecision pressure_gamma = 7; // 1..7
     const int PN = pos.rows();
@@ -91,7 +91,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     Coordinates2d jpos(1,2);
     Coordinates1d psi;
     bool consider_boundary = m_consider_boundary && scene.fluid->boundary_volume().rows() > 0;
-    consider_boundary = !false;
+    consider_boundary = false;
     if(consider_boundary){
         psi = rho0 * scene.fluid->boundary_volume();
         m_boundary_neighborhood->inRange(scene.fluid->particles_position(), scene.fluid->boundary_position(), h);
@@ -136,28 +136,25 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
         Coordinates2d jPress(index.size(), 2);
         Coordinates2d jVisc(index.size(), 2);
         // TODO: do we need the actual color value at some point? We don't, right?
-        //Coordinates1d jColor(index.size());
         Coordinates2d jColGrad(index.size(), 2);
         Coordinates1d jColLap(index.size());
+        Coordinates1d jCLap;
         // f_i^pressure = - sum_j m_j*(p_i + p_j) / (2 rho_j) \nabla W(r_i - r_j, h)
         // f_i^viscosity = mu * sum_j m_j (v_j - v_i) / rho_j \nabla^2 W(r_i - r_j, h)
         // c_s(r_i) = sum_j m_j/rho-j W(r_i - r_j, h)
         auto xij = -(jpos.rowwise() - pos.row(i));
-        m_kernelPressure->compute(xij, nullptr, &jGrad, nullptr);
+        m_kernelPressure->compute(xij, &jW, &jGrad, &jCLap);
         m_kernelViscosity->compute(xij, nullptr, nullptr, &jLap);
         for(int j = 0; j < index.size(); ++j){
             int jj = index[j];
             FloatPrecision a = ms[jj] / rho[jj];
             jPress.row(j) = a * (ps[jj] + ps[i]) / 2.0 * jGrad.row(j);
             jVisc.row(j) = a * (vs.row(jj) - vs.row(i)) * jLap[j];
-            //jColor[j] = a * jW[j];
             jColGrad.row(j) = a * jGrad.row(j);
-            jColLap[j] = a * jLap[j];
+            jColLap[j] = a * jCLap[j];
         }
         FPressure.row(i) = - jPress.colwise().sum();
-        // Clamp extreme forces to avoid "explosions"
         FViscosity.row(i) = mu * jVisc.colwise().sum();
-        //FloatPrecision color = jColor.sum();
         RowVec colorN = jColGrad.colwise().sum();
         FloatPrecision colorLap = jColLap.sum();
         FloatPrecision colorNNorm = colorN.norm();
@@ -213,7 +210,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
                 jVisc.row(j) = psi[jj] * PI/rho[i] * vij * jLap[j];
                 m_boundary_force.row(jj) = m_boundary_force.row(jj) - (jPress.row(j) + jVisc.row(j));
             }
-            FPressure.row(i) += -0.05*ms[i] * jPress.colwise().sum();
+            FPressure.row(i) += -ms[i] * jPress.colwise().sum();
             FViscosity.row(i) += mu_boundary * jVisc.colwise().sum();
         }
     }
@@ -223,7 +220,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(is_finite(FViscosity));
     assert(is_finite(FSurface));
     //scene.fluid->particles_total_force() = FViscosity + FPressure + FSurface;
-    scene.fluid->particles_total_force() = FPressure + FViscosity;
+    scene.fluid->particles_total_force() = FPressure + FViscosity + FSurface;
 }
 
 

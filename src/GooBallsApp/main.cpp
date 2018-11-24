@@ -17,7 +17,7 @@ using namespace d2;
 // TODO: this should be refactored somewhere close to the asset loader 
 /// Create a random scene as mock data
 void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
-    //physScene.gravity.array() *= 0.01;
+    //physScene.gravity.array() *= 0.0;
     constexpr int PN_X = 10;
     int PN_Y = 20;
     int PN = PN_Y * PN_X;
@@ -31,9 +31,9 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
         }
     }
     auto boundaryCoords = std::make_shared<Coordinates2d>();
-    (*particleCoordinates) = (*particleCoordinates) * 0.04;
-    particleCoordinates->col(0).array() += -0.8;
-    particleCoordinates->col(1).array() += 0.3;
+    (*particleCoordinates) = (*particleCoordinates) * 0.032;
+    particleCoordinates->col(0).array() += -0.6;
+    particleCoordinates->col(1).array() += 0.2;
     std::cout << "particles: \n";
     for(int i = 0; i < particleCoordinates->rows(); ++i){
         std::cout << (*particleCoordinates)(i,0) << " " << (*particleCoordinates)(i,1) << std::endl;
