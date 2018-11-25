@@ -1,15 +1,21 @@
 #include "fluid.hpp"
 #include <iostream>
+#include "spatial/2d/neighborhood_spatial_hashing.hpp"
 
 namespace GooBalls {
 namespace d2 {
 namespace Physics {
 
+using namespace Spatial;
+
 Fluid::Fluid() : m_particles_position(new Coordinates2d()){
-    // empty
+    fluid_neighborhood = std::make_unique<NeighborhoodSpatialHashing>();
+    boundary_neighborhood = std::make_unique<NeighborhoodSpatialHashing>();
 }
+
 Fluid::Fluid(std::shared_ptr<Coordinates2d> ptr, std::shared_ptr<Coordinates2d> boundary) : m_particles_position(ptr), m_boundary_position(boundary) {
-    // empty
+    fluid_neighborhood = std::make_unique<NeighborhoodSpatialHashing>();
+    boundary_neighborhood = std::make_unique<NeighborhoodSpatialHashing>();
 }
 
 const Coordinates2d& Fluid::particles_position() const {
@@ -109,6 +115,14 @@ const Coordinates2d& Fluid::boundary_force() const {
 
 Coordinates2d& Fluid::boundary_force() {
     return m_boundary_force;
+}
+
+const Coordinates1d& Fluid::boundary_psi() const {
+    return m_boundary_psi;
+}
+
+Coordinates1d& Fluid::boundary_psi() {
+    return m_boundary_psi;
 }
 
 CoordinatePrecision Fluid::h() const {

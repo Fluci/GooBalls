@@ -15,14 +15,13 @@ public:
     /**
     * Simulates a timestep of size `dt` on `scene`
     **/
-    virtual void advance(Scene& scene, TimeStep dt);
+    virtual void advance(Scene& scene, TimeStep dt) = 0;
     /**
     * Computes the total force for each particle. `dt` is not yet applied to it
     * The total force is stored in `scene.fluid`
     **/
     virtual void computeTotalForce(Scene& scene, TimeStep dt) = 0;
 
-    virtual Coordinates2d gravityForce(const Scene& scene) const;
 };
 
 

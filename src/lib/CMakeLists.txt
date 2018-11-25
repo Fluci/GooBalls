@@ -13,9 +13,11 @@ set(source_files
     physics/2d/message.cpp
     physics/2d/engine.cpp
     physics/2d/fluid_solver.cpp
+    physics/2d/abstract_sph.cpp
     physics/2d/fluid.cpp
     physics/2d/mesh.cpp
     physics/2d/ssph.cpp
+    physics/2d/iisph.cpp
     physics/2d/no_sph.cpp
     physics/2d/visco_elastic.cpp
     physics/2d/kernel_debrun_spiky.cpp

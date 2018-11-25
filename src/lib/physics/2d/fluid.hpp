@@ -1,12 +1,15 @@
 #pragma once
 
 #include "types.hpp"
+#include "spatial/2d/neighborhood.hpp"
 #include <memory>
 #include <vector>
 
 namespace GooBalls {
 namespace d2 {
 namespace Physics {
+
+using namespace Spatial;
 
 /// The particles of a fluid can be pairwise connected.
 /// This struct describes that connection.
@@ -60,9 +63,14 @@ public:
     const Coordinates1d& boundary_volume() const;
     Coordinates1d& boundary_volume();
 
+    const Coordinates1d& boundary_psi() const;
+    Coordinates1d& boundary_psi();
+
     /// Total force that the fluid particles apply to each of the boundary particles
     const Coordinates2d& boundary_force() const;
     Coordinates2d& boundary_force();
+
+
     /**
      * Checks invariants of the fluid
      * */
@@ -91,6 +99,9 @@ public:
     FloatPrecision pressure_gamma() const;
     void pressure_gamma(FloatPrecision gamma);
 
+    std::unique_ptr<Neighborhood> fluid_neighborhood;
+    std::unique_ptr<Neighborhood> boundary_neighborhood;
+
 private:
     std::shared_ptr<Coordinates2d> m_particles_position;
     Coordinates2d m_particles_velocity;
@@ -103,6 +114,7 @@ private:
     Coordinates2d m_boundary_velocity;
     Coordinates1d m_boundary_volume;
     Coordinates2d m_boundary_force;
+    Coordinates1d m_boundary_psi;
     CoordinatePrecision m_h = 0.05;
     std::vector<std::vector<Connection>> m_connectivity;
     /// c_i: velocity correction coefficient

@@ -14,10 +14,10 @@ namespace Physics {
  * A NaN means: don't use this element
  * */
 struct Room {
-    CoordinatePrecision floor = -0.4;
+    CoordinatePrecision floor = -0.6;
     CoordinatePrecision left_wall = -1;
     CoordinatePrecision right_wall = 1;
-    CoordinatePrecision ceiling = 10000;
+    CoordinatePrecision ceiling = 1000000;
     void restrictFluid(Fluid& fluid) const;
 };
 
