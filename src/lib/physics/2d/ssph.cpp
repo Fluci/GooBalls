@@ -48,7 +48,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(is_finite(pos));
     assert(is_finite(vs));
     assert(is_finite(ms));
-    /*FloatPrecision K = scene.fluid->K(); // gas constant dependent on temperature, TODO: correct value?
+    FloatPrecision K = scene.fluid->K(); // gas constant dependent on temperature, TODO: correct value?
     // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3
     // p, pressure: force per unit area
     // nu, kinematic viscosity: high values: fluid doesn't like to deform, low values: fluid likes deformation
@@ -59,13 +59,6 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     FloatPrecision mu = scene.fluid->fluid_viscosity(); // viscosity
     FloatPrecision mu_boundary = scene.fluid->boundary_viscosity(); // viscosity towards wall
     FloatPrecision pressure_gamma = scene.fluid->pressure_gamma(); // 1..7
-    */
-    FloatPrecision K = 10000.0;
-    FloatPrecision rho0 = 1000.0; // rest density? according to Bridson: environmental pressure?, TODO: get correct base value
-    FloatPrecision color_sigma = 0.0; // surface tension, TODO: correct value
-    FloatPrecision mu = .03; // viscosity
-    FloatPrecision mu_boundary = .03; // viscosity towards wall
-    FloatPrecision pressure_gamma = 7; // 1..7
 
     FloatPrecision color_relevant_normal_size = 0.1; // TODO: correct value
     FloatPrecision visc_epsilon = 0.01;

@@ -71,10 +71,12 @@ const Coordinates1d& Fluid::particles_velocity_correction() const {
 }
 
 const Coordinates2d& Fluid::boundary_position() const {
+    assert(m_boundary_position.get() != nullptr);
     return *m_boundary_position;
 }
 
 Coordinates2d& Fluid::boundary_position() {
+    assert(m_boundary_position.get() != nullptr);
     return *m_boundary_position;
 }
 
@@ -100,6 +102,49 @@ CoordinatePrecision Fluid::h() const {
 
 void Fluid::h(CoordinatePrecision h) {
     m_h = h;
+}
+
+FloatPrecision Fluid::K() const {
+    return m_K;
+}
+void Fluid::K(FloatPrecision k) {
+    m_K = k;
+}
+
+FloatPrecision Fluid::rest_density() const{
+    return m_rho0;
+}
+
+void Fluid::rest_density(FloatPrecision rho) {
+    m_rho0 = rho;
+}
+
+FloatPrecision Fluid::surface_tension() const {
+    return m_color_sigma;
+}
+void Fluid::surface_tension(FloatPrecision sigma) {
+    m_color_sigma = sigma;
+}
+
+FloatPrecision Fluid::fluid_viscosity() const {
+    return m_mu;
+}
+void Fluid::fluid_viscosity(FloatPrecision m){
+    m_mu = m;
+}
+
+FloatPrecision Fluid::boundary_viscosity() const{
+    return m_boundary_mu;
+}
+void Fluid::boundary_viscosity(FloatPrecision mu_boundary) {
+    m_boundary_mu = mu_boundary;
+}
+
+FloatPrecision Fluid::pressure_gamma() const {
+    m_pressure_gamma;
+}
+void Fluid::pressure_gamma(FloatPrecision gamma) {
+    m_pressure_gamma = gamma;
 }
 
 bool Fluid::sanity_check() const {

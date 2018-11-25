@@ -7,6 +7,7 @@
 #include "rendering/2d/engine.hpp"
 #include "rendering/2d/disk_fluid.hpp"
 #include "physics/2d/engine.hpp"
+#include "physics/2d/fluid.hpp"
 #include "loader/scene_loader.hpp"
 
 #include "ui/ui.h"
