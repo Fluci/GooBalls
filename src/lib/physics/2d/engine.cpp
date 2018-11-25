@@ -53,7 +53,7 @@ void Engine::initScene(Scene& scene){
     if(pos.rows() != scene.fluid->particles_velocity_correction().rows()){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity correction coefficients set, setting to 1.";
         scene.fluid->particles_velocity_correction().resize(pos.rows(), Eigen::NoChange);
-        scene.fluid->particles_velocity_correction().array() = 0.001;
+        scene.fluid->particles_velocity_correction().array() = 0.0001;
     }
 
     // adjusted later down the road, just making sure the width is ok

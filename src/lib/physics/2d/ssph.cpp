@@ -48,19 +48,27 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(is_finite(pos));
     assert(is_finite(vs));
     assert(is_finite(ms));
-    FloatPrecision K = 10000.0; // gas constant dependent on temperature, TODO: correct value?
+    /*FloatPrecision K = scene.fluid->K(); // gas constant dependent on temperature, TODO: correct value?
     // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3
     // p, pressure: force per unit area
     // nu, kinematic viscosity: high values: fluid doesn't like to deform, low values: fluid likes deformation
     // often: nu = mu / rho
     // mu, dynamic viscosity coefficient:
-    constexpr FloatPrecision rho0 = 1000.0; // rest density? according to Bridson: environmental pressure?, TODO: get correct base value
-    constexpr FloatPrecision color_relevant_normal_size = 0.1; // TODO: correct value
-    constexpr FloatPrecision color_sigma = 0.0; // surface tension, TODO: correct value
-    constexpr FloatPrecision mu = .03; // viscosity
-    constexpr FloatPrecision mu_boundary = .03; // viscosity towards wall
-    constexpr FloatPrecision visc_epsilon = 0.01;
-    constexpr FloatPrecision pressure_gamma = 7; // 1..7
+    FloatPrecision rho0 = scene.fluid->rest_density(); // rest density? according to Bridson: environmental pressure?, TODO: get correct base value
+    FloatPrecision color_sigma = scene.fluid->surface_tension(); // surface tension, TODO: correct value
+    FloatPrecision mu = scene.fluid->fluid_viscosity(); // viscosity
+    FloatPrecision mu_boundary = scene.fluid->boundary_viscosity(); // viscosity towards wall
+    FloatPrecision pressure_gamma = scene.fluid->pressure_gamma(); // 1..7
+    */
+    FloatPrecision K = 10000.0;
+    FloatPrecision rho0 = 1000.0; // rest density? according to Bridson: environmental pressure?, TODO: get correct base value
+    FloatPrecision color_sigma = 0.0; // surface tension, TODO: correct value
+    FloatPrecision mu = .03; // viscosity
+    FloatPrecision mu_boundary = .03; // viscosity towards wall
+    FloatPrecision pressure_gamma = 7; // 1..7
+
+    FloatPrecision color_relevant_normal_size = 0.1; // TODO: correct value
+    FloatPrecision visc_epsilon = 0.01;
     const int PN = pos.rows();
     // Müller et al., all equations we need:
     // density: rho(r_i) = sum_j m_j W(r_i - r_j, h)
@@ -91,7 +99,6 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     Coordinates2d jpos(1,2);
     Coordinates1d psi;
     bool consider_boundary = m_consider_boundary && scene.fluid->boundary_volume().rows() > 0;
-    consider_boundary = !false;
     if(consider_boundary){
         psi = rho0 * scene.fluid->boundary_volume();
         m_boundary_neighborhood->inRange(scene.fluid->particles_position(), scene.fluid->boundary_position(), h);
@@ -220,7 +227,10 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(is_finite(FViscosity));
     assert(is_finite(FSurface));
     //scene.fluid->particles_total_force() = FViscosity + FPressure + FSurface;
-    scene.fluid->particles_total_force() = FPressure + FViscosity + FSurface;
+    Coordinates2d FGravity(pos.rows(), 2);
+    FGravity.col(0) = scene.gravity[0] * rho;
+    FGravity.col(1) = scene.gravity[1] * rho;
+    scene.fluid->particles_total_force() = FPressure + FViscosity + FSurface + FGravity;
 }
 
 
@@ -240,7 +250,6 @@ void SSPH::advance(Scene& scene, TimeStep dt){
     a.resize(rho.rows(), 2);
     a.col(0) = Ftotal.col(0).array() / rho.array();
     a.col(1) = Ftotal.col(1).array() / rho.array();
-    a = a.rowwise() + scene.gravity;
     auto& pos = scene.fluid->particles_position();
     auto& vs = scene.fluid->particles_velocity();
     FloatPrecision damping = 1;
