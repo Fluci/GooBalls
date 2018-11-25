@@ -3,6 +3,8 @@
 #include "types.hpp"
 #include "fluid.hpp"
 #include "mesh.hpp"
+#include "room.hpp"
+
 #include <vector>
 #include <Box2D/Box2D.h>
 
@@ -16,6 +18,7 @@ struct Scene {
     std::vector<Mesh> meshes;
 	Gravity gravity = Gravity(0.0f, -9.81f);
 	b2World world = b2World(b2Vec2(0.0,0.0));
+    Room room;
 };
 
 } // Physics

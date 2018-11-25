@@ -52,21 +52,7 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
     }
     Coordinates2d Dv = -dx/dt;
     vs = vs + dt * a + Dv;
-    FloatPrecision floor = -0.4;
-    FloatPrecision left_wall = -1.0;
-    FloatPrecision right_wall = 1.0;
-    bool use_floor = true;
-    if(use_floor){
-        // floor: y = 0
-        for(int i = 0; i < vs.rows(); ++i){
-            if(pos(i, 1) < floor){
-                vs(i, 1) = std::abs(vs(i, 1));
-            }
-            if(pos(i, 0) < left_wall || pos(i, 0) > right_wall) {
-                vs(i, 0) = -vs(i, 0);
-            }
-        }
-    }
+    scene.room.restrictFluid(* scene.fluid);
     pos = pos + dt * vs;
 }
 

@@ -146,10 +146,10 @@ public:
             const auto& rho0 = m_physicsScene.fluid->rest_density();
             assert(col.rows() == ps.rows());
             col.col(0).array() = 1.0;
-            col.col(1) = 1.0 - ps.array()/(ps.maxCoeff()+0.1);
+            col.col(1) = 1.0/(1+0.01*(ps.array()).sqrt());
             col.col(2) = col.col(1);
             assert(rad.rows() == rho.rows());
-            rad = rho0/rho.array()*0.015;
+            rad = rho0/(rho.array())*0.015;
             //rad = rho0/rho.array().pow(.5)*0.0003;
         }
         /* Draw the user interface */

@@ -253,24 +253,9 @@ void SSPH::advance(Scene& scene, TimeStep dt){
     a.col(1) = Ftotal.col(1).array() / rho.array();
     auto& pos = scene.fluid->particles_position();
     auto& vs = scene.fluid->particles_velocity();
-    FloatPrecision damping = 1;
-    FloatPrecision floor = -0.6;
-    FloatPrecision left_wall = -1.0;
-    FloatPrecision right_wall = 1.0;
     bool use_floor = true;
     vs = vs + dt * a;
-    vs.array() *= damping;
-    if(use_floor){
-        // floor: y = 0
-        for(int i = 0; i < vs.rows(); ++i){
-            if(pos(i, 1) < floor){
-                vs(i, 1) = std::abs(vs(i, 1));
-            }
-            if(pos(i, 0) < left_wall || pos(i, 0) > right_wall) {
-                vs(i, 0) = -vs(i, 0);
-            }
-        }
-    }
+    scene.room.restrictFluid(* scene.fluid);
     pos = pos + dt * vs;
 }
 

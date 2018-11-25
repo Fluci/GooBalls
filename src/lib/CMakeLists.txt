@@ -21,6 +21,7 @@ set(source_files
     physics/2d/kernel_debrun_spiky.cpp
     physics/2d/kernel_poly6.cpp
     physics/2d/kernel_viscosity.cpp
+    physics/2d/room.cpp
     rendering/2d/disk_fluid.cpp
     rendering/2d/fluid.cpp
     rendering/2d/mesh.cpp
