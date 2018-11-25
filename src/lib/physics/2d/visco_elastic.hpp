@@ -8,7 +8,7 @@ namespace d2 {
 
 namespace Physics {
 
-/// This class wraps another Fluid solver and
+/// This class wraps another Fluid solver and adds velocity correction based on particle positions
 class ViscoElastic : public FluidSolver {
 public:
     ViscoElastic();
