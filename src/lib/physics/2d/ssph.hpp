@@ -25,8 +25,10 @@ private:
     std::unique_ptr<Kernel> m_kernelPressure;
     std::unique_ptr<Kernel> m_kernelViscosity;
     bool m_consider_boundary = true;
-    /// force from fluid to boundary particles
-    Coordinates2d m_boundary_force;
+    Coordinates2d FPressure;
+    Coordinates2d FViscosity;
+    Coordinates2d FSurface;
+    Coordinates2d FGravity;
 public:
     SSPH();
     virtual ~SSPH() = default;

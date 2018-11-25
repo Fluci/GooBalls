@@ -38,6 +38,13 @@ Coordinates1d& Fluid::particles_mass() {
     return m_particles_mass;
 }
 
+const Coordinates1d& Fluid::particles_pressure() const {
+    return m_particles_pressure;
+}
+Coordinates1d& Fluid::particles_pressure() {
+    return m_particles_pressure;
+}
+
 const Coordinates1d& Fluid::particles_density() const {
     return m_particles_density;
 }
@@ -96,6 +103,14 @@ Coordinates1d& Fluid::boundary_volume() {
     return m_boundary_volume;
 }
 
+const Coordinates2d& Fluid::boundary_force() const {
+    return m_boundary_force;
+}
+
+Coordinates2d& Fluid::boundary_force() {
+    return m_boundary_force;
+}
+
 CoordinatePrecision Fluid::h() const {
     return m_h;
 }
@@ -141,7 +156,7 @@ void Fluid::boundary_viscosity(FloatPrecision mu_boundary) {
 }
 
 FloatPrecision Fluid::pressure_gamma() const {
-    m_pressure_gamma;
+    return m_pressure_gamma;
 }
 void Fluid::pressure_gamma(FloatPrecision gamma) {
     m_pressure_gamma = gamma;

@@ -36,6 +36,9 @@ public:
     const Coordinates1d& particles_mass() const;
     Coordinates1d& particles_mass();
 
+    const Coordinates1d& particles_pressure() const;
+    Coordinates1d& particles_pressure();
+
     const Coordinates1d& particles_density() const;
     Coordinates1d& particles_density();
 
@@ -59,6 +62,7 @@ public:
 
     /// Total force that the fluid particles apply to each of the boundary particles
     const Coordinates2d& boundary_force() const;
+    Coordinates2d& boundary_force();
     /**
      * Checks invariants of the fluid
      * */
@@ -83,7 +87,7 @@ public:
     FloatPrecision boundary_viscosity() const;
     void boundary_viscosity(FloatPrecision mu);
 
-    /// Pressure is commonly computed as p = K/(gamma * rho0) *((rho/rho0)^gamma - 1);
+    /// Pressure is commonly computed as p = rho0*K/gamma *((rho/rho0)^gamma - 1);
     FloatPrecision pressure_gamma() const;
     void pressure_gamma(FloatPrecision gamma);
 
@@ -94,6 +98,7 @@ private:
     Coordinates1d m_particles_density;
     Coordinates2d m_particles_external_force;
     Coordinates2d m_particles_total_force;
+    Coordinates1d m_particles_pressure;
     std::shared_ptr<Coordinates2d> m_boundary_position;
     Coordinates2d m_boundary_velocity;
     Coordinates1d m_boundary_volume;

@@ -8,6 +8,8 @@
 #include "rendering/2d/disk_fluid.hpp"
 #include "physics/2d/engine.hpp"
 #include "physics/2d/fluid.hpp"
+#include "physics/2d/ssph.hpp"
+#include "physics/2d/visco_elastic.hpp"
 #include "loader/scene_loader.hpp"
 
 #include "ui/ui.h"
@@ -54,6 +56,12 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     // compute the mass from rho*V = m
     fluidPhys->particles_mass().array() = 100;
     fluidPhys->h(h);
+    fluidPhys->K(10*1000);
+    fluidPhys->rest_density(1000.0);
+    fluidPhys->surface_tension(0.0);
+    fluidPhys->fluid_viscosity(.03);
+    fluidPhys->boundary_viscosity(.03);
+    fluidPhys->pressure_gamma(7);
     physScene.fluid = std::move(fluidPhys);
     /*
     Physics::Mesh physMesh(verts, triangles);
@@ -119,6 +127,8 @@ int main(int argc, char **argv) {
     Render::Scene renderScene;
     createRandomScene(physicsScene, renderScene);
     SceneLoader::loadScene(physicsScene, renderScene, "../examples/scenes/scene0.json");
+    physicsEngine.fluidSolver(std::make_unique<Physics::SSPH>());
+    //physicsEngine.fluidSolver(std::make_unique<Physics::ViscoElastic>());
     physicsEngine.initScene(physicsScene);
     std::cout << "Starting gui" << std::endl;
     try {

@@ -155,7 +155,6 @@ void Mesh::create_particles(FloatPrecision h) {
             }
         }
     }
-    m_particles_volume.resize(0, Eigen::NoChange);
 }
 
 void Mesh::compute_particles_volume(FloatPrecision h) {
