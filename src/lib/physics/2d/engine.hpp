@@ -26,6 +26,8 @@ public:
     /// Box2D's position iteration count
     int position_iterations = 2;
 
+    void fluidSolver(std::unique_ptr<FluidSolver>&& solver);
+
     void BeginContact(b2Contact* contact);
     void EndContact(b2Contact* contact);
     void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);

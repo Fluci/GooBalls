@@ -1,8 +1,6 @@
 #include "engine.hpp"
 #include "box2dmessages.hpp"
-#include "ssph.hpp"
 #include "visco_elastic.hpp"
-#include "no_sph.hpp"
 #include "spatial/2d/neighborhood_spatial_hashing.hpp"
 
 #include <Eigen/Core>
@@ -15,9 +13,11 @@ namespace Physics {
 using namespace Spatial;
 
 Engine::Engine() {
-    //m_fluidSolver = std::make_unique<SSPH>();
     m_fluidSolver = std::make_unique<ViscoElastic>();
-    //m_fluidSolver = std::make_unique<NoSph>();
+}
+
+void Engine::fluidSolver(std::unique_ptr<FluidSolver>&& solver){
+    m_fluidSolver = std::move(solver);
 }
 
 void Engine::initScene(Scene& scene){
