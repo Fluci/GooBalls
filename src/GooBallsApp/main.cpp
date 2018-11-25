@@ -33,7 +33,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     auto boundaryCoords = std::make_shared<Coordinates2d>();
     (*particleCoordinates) = (*particleCoordinates) * 0.032;
     particleCoordinates->col(0).array() += -0.6;
-    particleCoordinates->col(1).array() += 0.2;
+    particleCoordinates->col(1).array() += -0.3;
     std::cout << "particles: \n";
     for(int i = 0; i < particleCoordinates->rows(); ++i){
         std::cout << (*particleCoordinates)(i,0) << " " << (*particleCoordinates)(i,1) << std::endl;

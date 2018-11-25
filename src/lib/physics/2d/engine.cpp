@@ -15,8 +15,8 @@ namespace Physics {
 using namespace Spatial;
 
 Engine::Engine() {
-    m_fluidSolver = std::make_unique<SSPH>();
-    //m_fluidSolver = std::make_unique<ViscoElastic>();
+    //m_fluidSolver = std::make_unique<SSPH>();
+    m_fluidSolver = std::make_unique<ViscoElastic>();
     //m_fluidSolver = std::make_unique<NoSph>();
 }
 
@@ -38,7 +38,7 @@ void Engine::initScene(Scene& scene){
     if(pos.rows() != conn.size()){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle connectivity set, setting to 1.5*h.";
         NeighborhoodSpatialHashing neigh;
-        neigh.inRange(pos, scene.fluid->h()*2);
+        neigh.inRange(pos, scene.fluid->h()*4);
         conn.resize(pos.rows());
         for(int i = 0; i < pos.rows(); ++i){
             const auto& index = neigh.indexes()[i];
@@ -46,14 +46,14 @@ void Engine::initScene(Scene& scene){
             for(size_t j = 0; j < index.size(); ++j){
                 int jj = index[j];
                 conn[i][j].partner = jj;
-                conn[i][j].rij = (pos.row(j) - pos.row(i)).norm();
+                conn[i][j].rij = (pos.row(i) - pos.row(jj)).norm();
             }
         }
     }
     if(pos.rows() != scene.fluid->particles_velocity_correction().rows()){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity correction coefficients set, setting to 1.";
         scene.fluid->particles_velocity_correction().resize(pos.rows(), Eigen::NoChange);
-        scene.fluid->particles_velocity_correction().setOnes();
+        scene.fluid->particles_velocity_correction().array() = 0.001;
     }
 
     // adjusted later down the road, just making sure the width is ok

@@ -58,7 +58,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     constexpr FloatPrecision color_relevant_normal_size = 0.1; // TODO: correct value
     constexpr FloatPrecision color_sigma = 0.0; // surface tension, TODO: correct value
     constexpr FloatPrecision mu = .03; // viscosity
-    constexpr FloatPrecision mu_boundary = .0; // viscosity towards wall
+    constexpr FloatPrecision mu_boundary = .03; // viscosity towards wall
     constexpr FloatPrecision visc_epsilon = 0.01;
     constexpr FloatPrecision pressure_gamma = 7; // 1..7
     const int PN = pos.rows();
@@ -248,25 +248,18 @@ void SSPH::advance(Scene& scene, TimeStep dt){
     FloatPrecision left_wall = -1.0;
     FloatPrecision right_wall = 1.0;
     bool use_floor = true;
-    if(use_floor){
-    for(int i = 0; i < vs.rows(); ++i){
-        if(pos(i, 1) <= floor+0.001){
-            // a(i, 1) = 0.0;
-        }
-    }
-    }
     vs = vs + dt * a;
     vs.array() *= damping;
     if(use_floor){
-    // floor: y = 0
-    for(int i = 0; i < vs.rows(); ++i){
-        if(pos(i, 1) < floor){
-            vs(i, 1) = std::abs(vs(i, 1));
+        // floor: y = 0
+        for(int i = 0; i < vs.rows(); ++i){
+            if(pos(i, 1) < floor){
+                vs(i, 1) = std::abs(vs(i, 1));
+            }
+            if(pos(i, 0) < left_wall || pos(i, 0) > right_wall) {
+                vs(i, 0) = -vs(i, 0);
+            }
         }
-        if(pos(i, 0) < left_wall || pos(i, 0) > right_wall) {
-            vs(i, 0) = -vs(i, 0);
-        }
-    }
     }
     pos = pos + dt * vs;
 }
