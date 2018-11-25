@@ -11,6 +11,10 @@ ViscoElastic::ViscoElastic(){
     m_solver = std::make_unique<SSPH>();
 }
 
+void ViscoElastic::base(std::unique_ptr<FluidSolver>&& b) {
+    m_solver = std::move(b);
+}
+
 void ViscoElastic::advance(Scene& scene, TimeStep dt){
     if(scene.fluid.get() == nullptr){
         return;

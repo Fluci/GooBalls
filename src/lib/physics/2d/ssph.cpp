@@ -23,10 +23,20 @@ inline bool is_finite(const Eigen::MatrixBase<Derived>& x)
 SSPH::SSPH(){
     m_neighborhood = std::make_unique<NeighborhoodSpatialHashing>();
     m_boundary_neighborhood = std::make_unique<NeighborhoodSpatialHashing>();
+    // Decent defaults
     m_kernelDensity = std::make_unique<Poly6>();
     m_kernelPressure = std::make_unique<DebrunSpiky>();
     m_kernelViscosity = std::make_unique<Viscosity>();
-    //m_kernel = std::make_unique<Poly6>();
+}
+
+void SSPH::densityKernel(std::unique_ptr<Kernel>&& k) {
+    m_kernelDensity = std::move(k);
+}
+void SSPH::pressureKernel(std::unique_ptr<Kernel>&& k) {
+    m_kernelPressure = std::move(k);
+}
+void SSPH::viscosityKernel(std::unique_ptr<Kernel>&& k) {
+    m_kernelViscosity = std::move(k);
 }
 
 typedef Eigen::Matrix<FloatPrecision, 1, 2> RowVec;
