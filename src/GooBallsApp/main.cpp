@@ -22,7 +22,7 @@ using namespace d2;
 void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     //physScene.gravity.array() *= 0.0;
     constexpr int PN_X = 10;
-    int PN_Y = 20;
+    int PN_Y = 200;
     int PN = PN_Y * PN_X;
 
     // some example data to allow first testing with rendering
@@ -56,7 +56,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     // compute the mass from rho*V = m
     fluidPhys->particles_mass().array() = 100;
     fluidPhys->h(h);
-    fluidPhys->K(10*1000);
+    fluidPhys->K(1000);
     fluidPhys->rest_density(1000.0);
     fluidPhys->surface_tension(0.0);
     fluidPhys->fluid_viscosity(.03);

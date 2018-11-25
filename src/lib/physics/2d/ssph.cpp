@@ -254,7 +254,7 @@ void SSPH::advance(Scene& scene, TimeStep dt){
     auto& pos = scene.fluid->particles_position();
     auto& vs = scene.fluid->particles_velocity();
     FloatPrecision damping = 1;
-    FloatPrecision floor = -0.4;
+    FloatPrecision floor = -0.6;
     FloatPrecision left_wall = -1.0;
     FloatPrecision right_wall = 1.0;
     bool use_floor = true;

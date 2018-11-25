@@ -26,7 +26,7 @@ public:
 // typedefs
     typedef Coordinates2d Coordinates;
     typedef ColorsFloatRGB Colors;
-    typedef Eigen::VectorXf Radii;
+    typedef Coordinates1d Radii;
     // constructor
     Fluid();
     Fluid(std::shared_ptr<Coordinates> ptr, std::shared_ptr<Coordinates> boundary = nullptr);

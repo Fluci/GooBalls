@@ -130,10 +130,10 @@ public:
 
     virtual void draw(NVGcontext *ctx) {
         /// seconds per frame: TODO get from measurments or so
-        double target = 1/100.0;
+        double target = 1/200.0;
         /// dt: largest possible timestep, for which the simulation stays
         /// stable
-        double dt = 0.0001;
+        double dt = 0.0005;
         int n = std::max(1.0, target/dt);
         for(int i = 0; i < n; ++i){
             m_physicsEngine.advance(m_physicsScene, dt);
@@ -141,11 +141,16 @@ public:
         if(!m_renderScene.fluids.empty()){
             auto& col = m_renderScene.fluids[0]->particles_color();
             const auto& ps = m_physicsScene.fluid->particles_pressure();
-            assert(col.cols() == 3);
+            auto& rad = m_renderScene.fluids[0]->particles_radius();
+            const auto& rho = m_physicsScene.fluid->particles_density();
+            const auto& rho0 = m_physicsScene.fluid->rest_density();
             assert(col.rows() == ps.rows());
             col.col(0).array() = 1.0;
-            col.col(1) = ps/(ps.maxCoeff()+0.1);
+            col.col(1) = 1.0 - ps.array()/(ps.maxCoeff()+0.1);
             col.col(2) = col.col(1);
+            assert(rad.rows() == rho.rows());
+            rad = rho0/rho.array()*0.015;
+            //rad = rho0/rho.array().pow(.5)*0.0003;
         }
         /* Draw the user interface */
         Screen::draw(ctx);
