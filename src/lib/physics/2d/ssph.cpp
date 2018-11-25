@@ -48,7 +48,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(is_finite(pos));
     assert(is_finite(vs));
     assert(is_finite(ms));
-    FloatPrecision K = 8000.0; // gas constant dependent on temperature, TODO: correct value?
+    FloatPrecision K = 10000.0; // gas constant dependent on temperature, TODO: correct value?
     // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3
     // p, pressure: force per unit area
     // nu, kinematic viscosity: high values: fluid doesn't like to deform, low values: fluid likes deformation
@@ -57,9 +57,9 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     constexpr FloatPrecision rho0 = 1000.0; // rest density? according to Bridson: environmental pressure?, TODO: get correct base value
     constexpr FloatPrecision color_relevant_normal_size = 0.1; // TODO: correct value
     constexpr FloatPrecision color_sigma = 0.0; // surface tension, TODO: correct value
-    constexpr FloatPrecision mu = 0.03; // viscosity
-    constexpr FloatPrecision mu_boundary = 0.0001; // viscosity towards wall
-    constexpr FloatPrecision visc_epsilon = 0.00001;
+    constexpr FloatPrecision mu = .03; // viscosity
+    constexpr FloatPrecision mu_boundary = .0; // viscosity towards wall
+    constexpr FloatPrecision visc_epsilon = 0.01;
     constexpr FloatPrecision pressure_gamma = 7; // 1..7
     const int PN = pos.rows();
     // Müller et al., all equations we need:
@@ -91,7 +91,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     Coordinates2d jpos(1,2);
     Coordinates1d psi;
     bool consider_boundary = m_consider_boundary && scene.fluid->boundary_volume().rows() > 0;
-    consider_boundary = false;
+    consider_boundary = !false;
     if(consider_boundary){
         psi = rho0 * scene.fluid->boundary_volume();
         m_boundary_neighborhood->inRange(scene.fluid->particles_position(), scene.fluid->boundary_position(), h);
@@ -206,7 +206,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
                 int jj = index[j];
                 TranslationVector vij = vs.row(i) - scene.fluid->boundary_velocity().row(jj);
                 jPress.row(j) = psi[jj] * ps[i]/(rho[i] * rho[i]) * jGrad.row(j);
-                FloatPrecision PI = h * std::max(vij.dot(xik.row(j)), 0.0)/(xik.squaredNorm() + visc_epsilon + h*h);
+                FloatPrecision PI = h * std::max(vij.dot(xik.row(j)), 0.0)/(xik.squaredNorm() + visc_epsilon*h*h);
                 jVisc.row(j) = psi[jj] * PI/rho[i] * vij * jLap[j];
                 m_boundary_force.row(jj) = m_boundary_force.row(jj) - (jPress.row(j) + jVisc.row(j));
             }
