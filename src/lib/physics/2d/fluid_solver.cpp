@@ -29,6 +29,15 @@ void FluidSolver::advance(Scene& scene, TimeStep dt){
     pos = pos + dt * vs;
 }
 
+Coordinates2d FluidSolver::gravityForce(const Scene& scene) const {
+    const auto& pos = scene.fluid->particles_position();
+    const auto& rho = scene.fluid->particles_density();
+    Coordinates2d FGravity(pos.rows(), 2);
+    FGravity.col(0) = scene.gravity[0] * rho;
+    FGravity.col(1) = scene.gravity[1] * rho;
+    return FGravity;
+}
+
 } // Physics
 
 } // d2

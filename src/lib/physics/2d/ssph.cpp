@@ -45,6 +45,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     if(scene.fluid.get() == nullptr){
         return;
     }
+    assert(m_kernelDensity.get() != nullptr);
     assert(m_kernelPressure.get() != nullptr);
     assert(m_kernelViscosity.get() != nullptr);
     assert(scene.fluid->sanity_check());
@@ -125,8 +126,8 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     }
     // pressure: p = k (rho - rho_0)
     Coordinates1d ps;
-    ps = K * (rho.array() - rho0);
-    //ps = (K / pressure_gamma * rho0) * ((rho.array()/rho0).array().pow(pressure_gamma) - 1.0);
+    //ps = K * (rho.array() - rho0);
+    ps = (K / pressure_gamma * rho0) * ((rho.array()/rho0).array().pow(pressure_gamma) - 1.0);
     ps = ps.array().max(0);
     Coordinates2d FPressure (PN, 2);
     Coordinates2d FViscosity (PN, 2);
@@ -193,7 +194,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
             }
             rho[i] += jW.sum();
         }
-        ps = K * (rho.array() - rho0);
+        ps = (K / pressure_gamma * rho0) * ((rho.array()/rho0).array().pow(pressure_gamma) - 1.0);
         ps = ps.array().max(0);
     }
     if(consider_boundary){
@@ -229,10 +230,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(is_finite(FPressure));
     assert(is_finite(FViscosity));
     assert(is_finite(FSurface));
-    //scene.fluid->particles_total_force() = FViscosity + FPressure + FSurface;
-    Coordinates2d FGravity(pos.rows(), 2);
-    FGravity.col(0) = scene.gravity[0] * rho;
-    FGravity.col(1) = scene.gravity[1] * rho;
+    auto FGravity = gravityForce(scene);
     scene.fluid->particles_total_force() = FPressure + FViscosity + FSurface + FGravity;
 }
 

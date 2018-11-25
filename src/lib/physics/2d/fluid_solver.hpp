@@ -21,7 +21,10 @@ public:
     * The total force is stored in `scene.fluid`
     **/
     virtual void computeTotalForce(Scene& scene, TimeStep dt) = 0;
+
+    virtual Coordinates2d gravityForce(const Scene& scene) const;
 };
+
 
 } // Physics
 
