@@ -22,7 +22,7 @@ private:
     std::unique_ptr<Kernel> m_kernelDensity;
     std::unique_ptr<Kernel> m_kernelPressure;
     std::unique_ptr<Kernel> m_kernelViscosity;
-    bool m_consider_boundary = false;
+    bool m_consider_boundary = true;
 public:
     SSPH();
     virtual ~SSPH() = default;

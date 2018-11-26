@@ -63,7 +63,7 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
     predictAdvection(scene, dt, *m_kernelDensity);
     pressureSolve(scene, dt, *m_kernelDensity);
     computeMomentumPreservingPressureForce(scene, *m_kernelDensity);
-
+    //computeStandardPressureForce(scene, *m_kernelDensity);
 
     FPressure = FPressure.array().min(100*K).max(-100*K);
     FViscosity = FViscosity.array().min(100*K).max(-100*K);

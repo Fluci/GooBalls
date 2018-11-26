@@ -114,7 +114,8 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
 
     computeFluidPressure(scene);
     computeStandardViscosityForce(scene, *m_kernelViscosity);
-    computeStandardPressureForce(scene, *m_kernelPressure);
+    //computeStandardPressureForce(scene, *m_kernelPressure);
+    computeMomentumPreservingPressureForce(scene, *m_kernelPressure);
     computeStandardSurfaceTensionForce(scene, *m_kernelPressure, color_relevant_normal_size);
 
     if(consider_boundary){
