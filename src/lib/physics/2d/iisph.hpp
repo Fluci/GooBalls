@@ -19,8 +19,13 @@ private:
     std::unique_ptr<Kernel> m_kernelDensity;
     std::unique_ptr<Kernel> m_kernelPressure;
     std::unique_ptr<Kernel> m_kernelViscosity;
-    void predictAdvection(Scene& scene, TimeStep dt);
-    void pressureSolve(Scene& scene, TimeStep dt);
+    Coordinates1d rhoAdv;
+    Coordinates1d p0;
+    Coordinates1d aii;
+    Coordinates2d dii;
+
+    void predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel);
+    void pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel);
 public:
     IISPH();
     virtual ~IISPH() = default;

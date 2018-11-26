@@ -73,8 +73,8 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
 
     scene.fluid->fluid_neighborhood->inRange(pos, h);
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
-    predictAdvection(scene, dt);
-    pressureSolve(scene, dt);
+    predictAdvection(scene, dt, *m_kernelDensity);
+    pressureSolve(scene, dt, *m_kernelDensity);
 
 
     FPressure = FPressure.array().min(100*K).max(-100*K);
@@ -86,9 +86,14 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
 }
 
 
-void IISPH::predictAdvection(Scene& scene, TimeStep dt) {
+void IISPH::predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel) {
+    const auto& pos = scene.fluid->particles_position();
     const auto& vs = scene.fluid->particles_velocity();
+    const auto& ps = scene.fluid->particles_density();
     const auto& ms = scene.fluid->particles_mass();
+    const auto& rho = scene.fluid->particles_density();
+    const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
+    int PN = vs.rows();
     // for all particle i do
     //     compute rho_i(t) = sum_j m_j W_ij
     addFluidDensity(scene, *m_kernelDensity);
@@ -98,23 +103,132 @@ void IISPH::predictAdvection(Scene& scene, TimeStep dt) {
     // TODO: computeSurfaceTensionForce();
     auto Fadv = FGravity + FViscosity;
     //     predict v^adv_i = v_i + dt F^adv_i / m_i
-    //auto Vadv = vs + dt * Fadv.array() / ms.array();
+    Coordinates2d da = Fadv.array().colwise() / ms.array();
+    Coordinates2d Vadv = vs + dt*da;
     //     d_ii = - dt^2 sum_j m_j/rho_i^2 \nabbla W_ij
+    dii.resize(PN, 2);
+    auto dt2 = dt*dt;
+    for(int i = 0; i < PN; ++i){
+        const auto& index = fluid_index[i];
+        Coordinates2d diis(index.size(), 2);
+        Coordinates2d jpos;
+        Coordinates2d wGrad;
+        pickRows(pos, index, jpos);
+        auto xij = -(jpos.rowwise() - pos.row(i));
+        kernel.compute(xij, nullptr, &wGrad, nullptr);
+        for(int j = 0; j < index.size(); ++j){
+            int jj = index[jj];
+            diis.row(j) = ms[jj] * wGrad.row(j);
+        }
+        dii.row(i) = - dt2/(rho[i]*rho[i]) * diis.colwise().sum();
+    }
 
     // for all particle i do
     // rho^adv_i = rho_i + dt sum_j m_j * v^adv_ij * \nabbla W_ij
+    rhoAdv.resize(PN, 1);
+    // initializing pi is a bit of an art
+    // these are possibilities, last chosen by paper:
+    // p^0_i = 0
+    // p^0_i = p_i(t-dt).
     // p^0_i = 0.5 p_i(t - dt)
-    // compute a_ij = sum_j m_j (d_ii - d_ji) nabbla W_ij
+    p0 = 0.5* ps;
+    aii.resize(PN, 1);
+    for(int i = 0; i < PN; ++i){
+        const auto& index = fluid_index[i];
+        Coordinates1d rhos(index.size(), 2);
+        Coordinates2d jpos;
+        Coordinates2d wGrad;
+        pickRows(pos, index, jpos);
+        auto xij = -(jpos.rowwise() - pos.row(i));
+        kernel.compute(xij, nullptr, &wGrad, nullptr);
+        for(int j = 0; j < index.size(); ++j){
+            int jj = index[j];
+            rhos[j] = ms[jj] * (Vadv.row(i) - Vadv.row(jj)).dot(wGrad.row(j));
+        }
+        rhoAdv[i] = rho[i] + dt*rhos.sum();
+        // compute a_ii = sum_j m_j (d_ii - d_ji) nabbla W_ij
+        Coordinates1d aiis (index.size(), 1);
+        for(int j = 0; j < index.size(); ++j){
+            int jj = index[j];
+            // d_ij = - dt^2 * m_j / rho_j^2 \nabbla W_ij
+            TranslationVector dji = -dt2 * ms[jj] / (rho[jj]*rho[jj]) * wGrad.row(j);
+            aiis[j] = ms[jj] * (dii.row(i) - dji).dot(wGrad.row(j));
+        }
+        aii[i] = aiis.sum();
+    }
 }
 
-void IISPH::pressureSolve(Scene& scene, TimeStep dt) {
+void IISPH::pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel) {
+    // rho^l_avg = 1/n * sum_i rho^l_i
     // l = 0
-    // while rho^l_avg - rho0 > eta AND l < s do
-    // for all particle i do: sum_j d_ij p^l_j = dt^2 sum_j - m_j / rho_j^2 p^l_j \nabbla _Wij
+    int l = 0;
+    // while rho^l_avg - rho0 > eta OR l < 2 do
+    // for all particle i do:
+    //    sum_j d_ij p^l_j = dt^2 sum_j - m_j / rho_j^2 p^l_j \nabbla _Wij
     // for all particle i do:
     //    comptue p^(l+1)_i = (1 - omega) p^l_i + omega/a_ii ( rho0 - rho^adv_i - sum_j m_j (sum_j d_ij p^l_j - d_jj p^l_j - sum_{k!= i} d_ji p^l_k ) \nabbla W_ij)
     //    p_i(t) = p_i^l
     // l = l + 1
+    const auto& ms = scene.fluid->particles_mass();
+    const auto& rho = scene.fluid->particles_density();
+    const auto& pos = scene.fluid->particles_position();
+    auto& ps = scene.fluid->particles_pressure();
+    auto rho0 = scene.fluid->rest_density();
+    auto PN = pos.rows();
+    const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
+    FloatPrecision rhoAvg;
+    FloatPrecision eta = 0.01*rho0;
+    Coordinates1d p1;
+    Coordinates1d rhol;
+    Coordinates2d dp; // sum_j dij p^l_j, for given i
+    p1.resize(PN, 1);
+    rhol.resize(PN, 1);
+    dp.resize(PN, 2);
+    FloatPrecision omega = 0.99; // relaxation factor
+    do {
+        //    sum_j d_ij p^l_j = - dt^2 sum_j m_j / rho_j^2 p^l_j \nabbla _Wij
+        for(int i = 0; i < PN; ++i){
+            const auto& index = fluid_index[i];
+            Coordinates2d jpos;
+            pickRows(pos, index, jpos);
+            Coordinates2d wGrad;
+            Coordinates2d xij = -(jpos.rowwise() - pos.row(i));
+            kernel.compute(xij, nullptr, &wGrad, nullptr);
+            Coordinates2d dps(index.size(), 2);
+            for(int j = 0; j < PN; ++j){
+                int jj = index[j];
+                dps.row(j) = ms[jj] / (rho[jj] * rho[jj]) * p0[jj] * wGrad.row(j);
+            }
+            dp.row(i) = -dt*dt * dps.colwise().sum();
+        }
+        //    comptue p^(l+1)_i = (1 - omega) p^l_i + omega/a_ii (rho0 - rho^adv_i - A_i)
+        //         A_i = sum_j m_j (dp_i - d_jj p^l_j - dpp_j ) \nabbla W_ij
+        //             dp_i = sum_j d_ij p^l_j
+        //             dpp_j = sum_{k!= i} d_jk p^l_k = sum_k d_jk p_k^l - d_ji p_i^l
+        //             sum_k d_jk p_k^l = dp.row(j)
+        //             d_ij = -dt^2 m_j / rho_j^2 \nabbla W_ij
+        // compute A_j and store in p1[i]
+        for(int i = 0; i < PN; ++i){
+            const auto& indexI = fluid_index[i];
+            Coordinates2d jpos;
+            pickRows(pos, indexI, jpos);
+            Coordinates2d wGradI;
+            Coordinates2d xij = -(jpos.rowwise() - pos.row(i));
+            kernel.compute(xij, nullptr, &wGradI, nullptr);
+            Coordinates1d Ais(indexI.size());
+            for(int j = 0; j < indexI.size(); ++j){
+                int jj = indexI[j];
+                TranslationVector dppj = dp.row(jj) - (-dt*dt*ms[jj]/(rho[jj]*rho[jj]) * wGradI.row(j) * p0[i]);
+                Ais[i] = ms[jj]*(dp.row(i) - dii.row(jj)*p0[jj] - dppj).dot(wGradI.row(j));
+            }
+            p1[i] = Ais.sum();
+        }
+        p1 = (1.0 - omega) * p0.array() + omega/aii.array() * (rho0 - rhoAdv.array() - p1.array());
+        std::swap(p0, p1);
+        l++;
+    } while (rhol.mean() - rho0 > eta || l < 2);
+    //    p_i(t) = p_i^(l+1)
+    ps = p0;
 }
 
 void IISPH::advance(Scene& scene, TimeStep dt){

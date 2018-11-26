@@ -89,6 +89,31 @@ void AbstractSph::computeStandardPressureForce(const Scene& scene, const Kernel&
     }
 }
 
+void AbstractSph::computeMomentumPreservingPressureForce(const Scene& scene, const Kernel& pressureKernel) {
+    const auto& pos = scene.fluid->particles_position();
+    const auto& ms = scene.fluid->particles_mass();
+    const auto& rho = scene.fluid->particles_density();
+    const auto& ps = scene.fluid->particles_pressure();
+    int PN = pos.rows();
+    const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
+    FPressure.resize(PN, 2);
+    for(int i = 0; i < PN; ++i){
+        const auto& index = fluid_index[i];
+        Coordinates2d jpos, jGrad;
+        pickRows(pos, index, jpos);
+        Coordinates2d jPress(index.size(), 2);
+        auto xij = -(jpos.rowwise() - pos.row(i));
+        pressureKernel.compute(xij, nullptr, &jGrad, nullptr);
+        for(int j = 0; j < index.size(); ++j){
+            int jj = index[j];
+            jPress.row(j) = ms[jj] * (ps[i]/(rho[i] * rho[i]) + ps[jj]/(rho[jj]*rho[jj])) * jGrad.row(j);
+        }
+        // f_i^pressure = - m_i * sum_j m_j*(p_i/rho_i^2 + p_j/rho_j^2) \nabla W(r_i - r_j, h)
+        FPressure.row(i) = - ms[i] * jPress.colwise().sum();
+    }
+}
+
+
 void AbstractSph::computeStandardViscosityForce(const Scene& scene, const Kernel& viscosityKernel) {
     const auto& pos = scene.fluid->particles_position();
     const auto& ms = scene.fluid->particles_mass();
