@@ -13,7 +13,6 @@ void pickRows(
         ) {
     out.resize(indexes.size(), data.cols());
     for(size_t i = 0; i < indexes.size(); ++i){
-        assert(i < out.rows());
         assert(indexes[i] < data.rows());
         out.row(i) = data.row(indexes[i]);
     }

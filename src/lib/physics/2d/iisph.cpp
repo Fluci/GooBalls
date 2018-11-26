@@ -47,22 +47,10 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
     auto& pos = scene.fluid->particles_position();
     auto& vs = scene.fluid->particles_velocity();
     auto& ms = scene.fluid->particles_mass();
-    auto& ps = scene.fluid->particles_pressure();
     assert(is_finite(pos));
     assert(is_finite(vs));
     assert(is_finite(ms));
     FloatPrecision K = scene.fluid->K(); // gas constant dependent on temperature, TODO: correct value?
-    // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3
-    // p, pressure: force per unit area
-    // nu, kinematic viscosity: high values: fluid doesn't like to deform, low values: fluid likes deformation
-    // often: nu = mu / rho
-    // mu, dynamic viscosity coefficient:
-    FloatPrecision rho0 = scene.fluid->rest_density(); // rest density? according to Bridson: environmental pressure?, TODO: get correct base value
-    FloatPrecision color_sigma = scene.fluid->surface_tension(); // surface tension, TODO: correct value
-    FloatPrecision mu = scene.fluid->fluid_viscosity(); // viscosity
-    FloatPrecision mu_boundary = scene.fluid->boundary_viscosity(); // viscosity towards wall
-    FloatPrecision pressure_gamma = scene.fluid->pressure_gamma(); // 1..7
-
 
     // p_i = k rho0 / gamma ((rho_i/rho0)^gamma - 1)
     // F^p_i = m_i sum_j m_j ( p_i / rho_i^2 + p_j / rho_j^2) \nabbla W_ij
@@ -72,9 +60,9 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
     // sum_j a_ij p_j = b_i = rho_0 - rho^adv_i
 
     scene.fluid->fluid_neighborhood->inRange(pos, h);
-    const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
     predictAdvection(scene, dt, *m_kernelDensity);
     pressureSolve(scene, dt, *m_kernelDensity);
+    computeMomentumPreservingPressureForce(scene, *m_kernelDensity);
 
 
     FPressure = FPressure.array().min(100*K).max(-100*K);
@@ -82,7 +70,7 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(is_finite(FPressure));
     assert(is_finite(FViscosity));
     assert(is_finite(FSurface));
-    scene.fluid->particles_total_force();
+    scene.fluid->particles_total_force() = FPressure + FGravity + FViscosity;
 }
 
 
@@ -101,7 +89,7 @@ void IISPH::predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel) {
     computeGravityForce(scene);
     computeStandardViscosityForce(scene, *m_kernelViscosity);
     // TODO: computeSurfaceTensionForce();
-    auto Fadv = FGravity + FViscosity;
+    const auto Fadv = FGravity + FViscosity;
     //     predict v^adv_i = v_i + dt F^adv_i / m_i
     Coordinates2d da = Fadv.array().colwise() / ms.array();
     Coordinates2d Vadv = vs + dt*da;
@@ -116,8 +104,8 @@ void IISPH::predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel) {
         pickRows(pos, index, jpos);
         auto xij = -(jpos.rowwise() - pos.row(i));
         kernel.compute(xij, nullptr, &wGrad, nullptr);
-        for(int j = 0; j < index.size(); ++j){
-            int jj = index[jj];
+        for(size_t j = 0; j < index.size(); ++j){
+            int jj = index[j];
             diis.row(j) = ms[jj] * wGrad.row(j);
         }
         dii.row(i) = - dt2/(rho[i]*rho[i]) * diis.colwise().sum();
@@ -135,20 +123,20 @@ void IISPH::predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel) {
     aii.resize(PN, 1);
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
-        Coordinates1d rhos(index.size(), 2);
+        Coordinates1d rhos(index.size(), 1);
         Coordinates2d jpos;
         Coordinates2d wGrad;
         pickRows(pos, index, jpos);
         auto xij = -(jpos.rowwise() - pos.row(i));
         kernel.compute(xij, nullptr, &wGrad, nullptr);
-        for(int j = 0; j < index.size(); ++j){
+        for(size_t j = 0; j < index.size(); ++j){
             int jj = index[j];
             rhos[j] = ms[jj] * (Vadv.row(i) - Vadv.row(jj)).dot(wGrad.row(j));
         }
         rhoAdv[i] = rho[i] + dt*rhos.sum();
         // compute a_ii = sum_j m_j (d_ii - d_ji) nabbla W_ij
         Coordinates1d aiis (index.size(), 1);
-        for(int j = 0; j < index.size(); ++j){
+        for(size_t j = 0; j < index.size(); ++j){
             int jj = index[j];
             // d_ij = - dt^2 * m_j / rho_j^2 \nabbla W_ij
             TranslationVector dji = -dt2 * ms[jj] / (rho[jj]*rho[jj]) * wGrad.row(j);
@@ -176,7 +164,6 @@ void IISPH::pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel) {
     auto rho0 = scene.fluid->rest_density();
     auto PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
-    FloatPrecision rhoAvg;
     FloatPrecision eta = 0.01*rho0;
     Coordinates1d p1;
     Coordinates1d rhol;
@@ -195,7 +182,7 @@ void IISPH::pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel) {
             Coordinates2d xij = -(jpos.rowwise() - pos.row(i));
             kernel.compute(xij, nullptr, &wGrad, nullptr);
             Coordinates2d dps(index.size(), 2);
-            for(int j = 0; j < PN; ++j){
+            for(size_t j = 0; j < index.size(); ++j){
                 int jj = index[j];
                 dps.row(j) = ms[jj] / (rho[jj] * rho[jj]) * p0[jj] * wGrad.row(j);
             }
@@ -216,10 +203,10 @@ void IISPH::pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel) {
             Coordinates2d xij = -(jpos.rowwise() - pos.row(i));
             kernel.compute(xij, nullptr, &wGradI, nullptr);
             Coordinates1d Ais(indexI.size());
-            for(int j = 0; j < indexI.size(); ++j){
+            for(size_t j = 0; j < indexI.size(); ++j){
                 int jj = indexI[j];
                 TranslationVector dppj = dp.row(jj) - (-dt*dt*ms[jj]/(rho[jj]*rho[jj]) * wGradI.row(j) * p0[i]);
-                Ais[i] = ms[jj]*(dp.row(i) - dii.row(jj)*p0[jj] - dppj).dot(wGradI.row(j));
+                Ais[j] = ms[jj]*(dp.row(i) - dii.row(jj)*p0[jj] - dppj).dot(wGradI.row(j));
             }
             p1[i] = Ais.sum();
         }
@@ -242,7 +229,6 @@ void IISPH::advance(Scene& scene, TimeStep dt){
     Coordinates2d a;
     // a_i = f_i / rho_i
     const auto& rho = scene.fluid->particles_density();
-    const auto& ms = scene.fluid->particles_mass();
     const auto& Ftotal = scene.fluid->particles_total_force();
     a.resize(rho.rows(), 2);
     a.col(0) = Ftotal.col(0).array() / rho.array();
