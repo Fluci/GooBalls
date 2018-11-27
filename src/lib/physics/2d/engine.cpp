@@ -1,36 +1,95 @@
 #include "engine.hpp"
 #include "box2dmessages.hpp"
+#include "visco_elastic.hpp"
+#include "spatial/2d/neighborhood_spatial_hashing.hpp"
+
 #include <Eigen/Core>
-#include <Eigen/Geometry>
+
+#include <boost/log/trivial.hpp>
 
 namespace GooBalls {
 namespace d2 {
 namespace Physics {
+using namespace Spatial;
+
+Engine::Engine() {
+    m_fluidSolver = std::make_unique<ViscoElastic>();
+}
+
+void Engine::fluidSolver(std::unique_ptr<FluidSolver>&& solver){
+    m_fluidSolver = std::move(solver);
+}
+
+void Engine::initScene(Scene& scene){
+    for(auto& mesh : scene.meshes){
+        mesh.prepare(scene.fluid->h());
+    }
+    const auto& pos = scene.fluid->particles_position();
+    if(pos.rows() != scene.fluid->particles_velocity().rows()){
+        // by default, give the particles no speed
+        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity set, setting to zero.";
+        scene.fluid->particles_velocity().setOnes(pos.rows(), Eigen::NoChange);
+    }
+    if(pos.rows() != scene.fluid->particles_mass().rows()){
+        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle mass set, setting to ones.";
+        scene.fluid->particles_mass().setOnes(pos.rows());
+    }
+    auto& conn = scene.fluid->particles_connectivity();
+    if(pos.rows() != conn.size()){
+        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle connectivity set, setting to 1.5*h.";
+        NeighborhoodSpatialHashing neigh;
+        neigh.inRange(pos, scene.fluid->h()*4);
+        conn.resize(pos.rows());
+        for(int i = 0; i < pos.rows(); ++i){
+            const auto& index = neigh.indexes()[i];
+            conn[i].resize(index.size());
+            for(size_t j = 0; j < index.size(); ++j){
+                int jj = index[j];
+                conn[i][j].partner = jj;
+                conn[i][j].rij = (pos.row(i) - pos.row(jj)).norm();
+            }
+        }
+    }
+    if(pos.rows() != scene.fluid->particles_velocity_correction().rows()){
+        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity correction coefficients set, setting to 1.";
+        scene.fluid->particles_velocity_correction().resize(pos.rows(), Eigen::NoChange);
+        scene.fluid->particles_velocity_correction().array() = 0.0001;
+    }
+
+    // adjusted later down the road, just making sure the width is ok
+    scene.fluid->particles_density().resize(1, Eigen::NoChange);
+    scene.fluid->particles_total_force().resize(1, Eigen::NoChange);
+}
 
 void Engine::advance(Scene& scene, TimeStep dt) {
     scene.world.Step(dt, velocity_iterations, position_iterations);
-    return;
     // The rigid bodies moved: use their transform to compute the local meshes
+    int boundaryParticles = 0;
     for(auto& mesh : scene.meshes){
-        Eigen::Matrix<FloatPrecision, 1, 2> dx(1,2);
-        dx[0] = mesh.body->GetPosition().x;
-        dx[1] = mesh.body->GetPosition().y;
-        FloatPrecision radianAngle = mesh.body->GetAngle();
-        // eigen convention: counter-clockwise rotation in radians
-        // box2d convention: not clear, only hint is in chapter 8.6 Revolute Joint of the manual -> test
-        // TODO: test rotation direction of Box2d
-        Eigen::Rotation2D<FloatPrecision> rot(radianAngle);
-        Eigen::Matrix<FloatPrecision, 2, 2> rotM = rot.toRotationMatrix();
-        const auto& loc = mesh.vertices_position_local();
-        auto& glob = mesh.vertices_position_global();
-        // TODO: it is not clear, if rotM needs to be transposed here -> test
-        rotM.transpose();
-        glob = loc * rotM;
-        glob = glob.rowwise() + dx;
+        mesh.update_from_rigid_body();
+        boundaryParticles += mesh.particles_position_local().rows();
     }
-    if(scene.fluid.get() != nullptr){
-        scene.fluid->particles_position() += scene.fluid->particles_velocity()*dt;
+    if(boundaryParticles > 0){
+        // transfer rigid body particles to fluid
+        auto& boundary = scene.fluid->boundary_position();
+        auto& volume = scene.fluid->boundary_volume();
+        auto& velocity = scene.fluid->boundary_velocity();
+        boundary.resize(boundaryParticles, Eigen::NoChange);
+        volume.resize(boundaryParticles, Eigen::NoChange);
+        velocity.resize(boundaryParticles, Eigen::NoChange);
+        int s = 0;
+        for(auto& mesh : scene.meshes){
+            const auto& local = mesh.particles_position_local();
+            boundary.block(s, 0, local.rows(), 2) = local.rowwise() + mesh.translation();//(local * mesh.rotation().transpose()).rowwise() + mesh.translation(); // TODO: check order of arguments
+            volume.block(s, 0, local.rows(), 1) = mesh.particles_volume();
+            velocity.block(s, 0, local.rows(), 2) = mesh.particles_velocity();
+            s += local.rows();
+        }
     }
+    // solve fluid
+    m_fluidSolver->advance(scene, dt);
+
+    // TODO: transfer forces of boundary particles back
 }
 
 void Engine::BeginContact(b2Contact* contact) {

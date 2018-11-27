@@ -61,8 +61,8 @@ void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::stri
 			// iterate through the object's vertices
 			for (int i = 0; i < vertexCount; i++) {
 				std::string i_str = std::to_string(i);
-				vertices(i, 0) = (scale * obj["objects"][obj_index_str]["vertices"][i_str][0].asDouble()) + transl_x;
-				vertices(i, 1) = (scale * obj["objects"][obj_index_str]["vertices"][i_str][1].asDouble()) + transl_y;
+                vertices(i, 0) = (scale * obj["objects"][obj_index_str]["vertices"][i_str][0].asDouble()) + transl_x;
+                vertices(i, 1) = (scale * obj["objects"][obj_index_str]["vertices"][i_str][1].asDouble()) + transl_y;
 			}
 
 			// iterate through the object's faces
@@ -98,8 +98,9 @@ void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::stri
 
 			// create a body for box2d
 			b2BodyDef bodyDefinition;
-			bodyDefinition.position.Set(min_x + half_width, min_y + half_width); // the center of the body
-			physMesh.body = physScene.world.CreateBody(&bodyDefinition); // attach the body to the mesh
+            //bodyDefinition.position.Set(min_x + half_width, min_y + half_width); // the center of the body
+            bodyDefinition.position.Set(0, 0);
+            physMesh.body = physScene.world.CreateBody(&bodyDefinition); // attach the body to the mesh
 
 			// create a bounding box for box2d
 			// temporarily just using axis aligned bounding boxes

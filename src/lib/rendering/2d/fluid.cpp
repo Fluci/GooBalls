@@ -8,7 +8,7 @@ namespace Render {
 Fluid::Fluid() : m_particles_position(new Coordinates()){
     // Empty
 }
-Fluid::Fluid(std::shared_ptr<Coordinates> ptr) : m_particles_position(ptr){
+Fluid::Fluid(std::shared_ptr<Coordinates> ptr,  std::shared_ptr<Coordinates> boundary) : m_particles_position(ptr), m_boundary_position(boundary){
 	// Empty
 }
 
@@ -39,6 +39,33 @@ const Fluid::Radii& Fluid::particles_radius() const {
 Fluid::Radii& Fluid::particles_radius() {
 	return m_particles_radius;
 }
+
+const Fluid::Coordinates& Fluid::boundary_position() const {
+    assert(m_boundary_position.get() != nullptr);
+    return *m_boundary_position;
+}
+
+Fluid::Coordinates& Fluid::boundary_position() {
+    assert(m_boundary_position.get() != nullptr);
+    return *m_boundary_position;
+}
+
+const Fluid::Colors& Fluid::boundary_color() const {
+    return m_boundary_color;
+}
+
+Fluid::Colors& Fluid::boundary_color() {
+    return m_boundary_color;
+}
+
+const Fluid::Radii& Fluid::boundary_radius() const {
+    return m_boundary_radius;
+}
+
+Fluid::Radii& Fluid::boundary_radius() {
+    return m_boundary_radius;
+}
+
 
 } // Render
 } // d2

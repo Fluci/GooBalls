@@ -69,7 +69,8 @@ find_package( Box2D REQUIRED )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -Wextra")
 
 add_subdirectory(src/lib)
 add_subdirectory(src/GooBallsApp)
+add_subdirectory(src/benchmark_neighborhood)

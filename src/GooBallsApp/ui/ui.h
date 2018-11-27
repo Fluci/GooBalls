@@ -93,7 +93,7 @@ class ExampleApplication : public nanogui::Screen {
 public:
     ExampleApplication(Physics::Engine& physicsEngine, Render::Engine& renderEngine,
             Physics::Scene& physicsScene, Render::Scene& renderScene) 
-            : nanogui::Screen(Eigen::Vector2i(600, 650), "NanoGUI Test", false),
+            : nanogui::Screen(Eigen::Vector2i(900, 900), "NanoGUI Test", false),
             m_physicsEngine(physicsEngine), m_renderEngine(renderEngine),
             m_physicsScene(physicsScene), m_renderScene(renderScene) {
         using namespace nanogui;
@@ -103,8 +103,8 @@ public:
         window->setLayout(new GroupLayout());
 
         mCanvas = new MyGLCanvas(window, m_renderEngine, m_renderScene);
-        mCanvas->setBackgroundColor({80, 80, 100, 255});
-        mCanvas->setSize({500, 500});
+        mCanvas->setBackgroundColor({190, 190, 255, 255});
+        mCanvas->setSize({800, 800});
 
         Widget *tools = new Widget(window);
         tools->setLayout(new BoxLayout(Orientation::Horizontal,
@@ -129,7 +129,29 @@ public:
     }
 
     virtual void draw(NVGcontext *ctx) {
-        m_physicsEngine.advance(m_physicsScene, 0.1);
+        /// seconds per frame: TODO get from measurments or so
+        double target = 1/200.0;
+        /// dt: largest possible timestep, for which the simulation stays
+        /// stable
+        double dt = 0.0005;
+        int n = std::max(1.0, target/dt);
+        for(int i = 0; i < n; ++i){
+            m_physicsEngine.advance(m_physicsScene, dt);
+        }
+        if(!m_renderScene.fluids.empty()){
+            auto& col = m_renderScene.fluids[0]->particles_color();
+            const auto& ps = m_physicsScene.fluid->particles_pressure();
+            auto& rad = m_renderScene.fluids[0]->particles_radius();
+            const auto& rho = m_physicsScene.fluid->particles_density();
+            const auto& rho0 = m_physicsScene.fluid->rest_density();
+            assert(col.rows() == ps.rows());
+            col.col(0).array() = 1.0;
+            col.col(1) = 1.0/(1+0.01*(ps.array()).sqrt());
+            col.col(2) = col.col(1);
+            assert(rad.rows() == rho.rows());
+            rad = rho0/(rho.array())*0.015;
+            //rad = rho0/rho.array().pow(.5)*0.0003;
+        }
         /* Draw the user interface */
         Screen::draw(ctx);
     }
