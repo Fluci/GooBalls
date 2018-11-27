@@ -166,7 +166,7 @@ void Mesh::compute_particles_volume(FloatPrecision h) {
     kernel.setH(h);
     neighbor.inRange(m_particles_position_local, h);
     const auto& indexes = neighbor.indexes();
-    for(int i = 0; i < indexes.size(); ++i){
+    for(size_t i = 0; i < indexes.size(); ++i){
         Coordinates2d jpos;
         Coordinates1d W;
         pickRows(m_particles_position_local, indexes[i], jpos);

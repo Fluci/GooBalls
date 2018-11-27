@@ -82,7 +82,6 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
         prepareBoundary(scene);
     }
     auto& rho = scene.fluid->particles_density();
-    const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
     const auto& boundary_index = scene.fluid->boundary_neighborhood->indexes();
 
     const Coordinates1d& psi = scene.fluid->boundary_psi();
@@ -104,7 +103,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
             //
             auto xik = -(jpos.rowwise() - pos.row(i));
             m_kernelDensity->compute(xik, &jW, nullptr, nullptr);
-            for(int j = 0; j < index.size(); ++j){
+            for(size_t j = 0; j < index.size(); ++j){
                 int jj = index[j];
                 jW[j] *= psi[jj];
             }
@@ -136,7 +135,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
             Coordinates2d xik = -(jpos.rowwise() - pos.row(i));
             m_kernelPressure->compute(xik, nullptr, &jGrad, nullptr);
             m_kernelViscosity->compute(xik, nullptr, nullptr, &jLap);
-            for(int j = 0; j < index.size(); ++j){
+            for(size_t j = 0; j < index.size(); ++j){
                 int jj = index[j];
                 TranslationVector vij = scene.fluid->boundary_velocity().row(jj) - vs.row(i);
                 jPress.row(j) = -ms[i] * psi[jj] * ps[i]/(rho[i] * rho[i]) * jGrad.row(j);
@@ -169,7 +168,6 @@ void SSPH::advance(Scene& scene, TimeStep dt){
     Coordinates2d a;
     // a_i = f_i / rho_i
     const auto& rho = scene.fluid->particles_density();
-    const auto& ms = scene.fluid->particles_mass();
     const auto& Ftotal = scene.fluid->particles_total_force();
     a.resize(rho.rows(), 2);
     a.col(0) = Ftotal.col(0).array() / rho.array();

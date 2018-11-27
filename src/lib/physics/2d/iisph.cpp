@@ -77,7 +77,6 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
 void IISPH::predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel) {
     const auto& pos = scene.fluid->particles_position();
     const auto& vs = scene.fluid->particles_velocity();
-    const auto& ps = scene.fluid->particles_density();
     const auto& ms = scene.fluid->particles_mass();
     const auto& rho = scene.fluid->particles_density();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();

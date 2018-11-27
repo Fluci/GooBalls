@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(spatial_hashing_self_inRange){
         std::sort(e.begin(), e.end());
     }
     BOOST_CHECK_EQUAL(expected.size(), indexes.size());
-    for(int i = 0; i < expected.size(); ++i){
+    for(size_t i = 0; i < expected.size(); ++i){
         BOOST_CHECK_EQUAL_COLLECTIONS(expected[i].begin(), expected[i].end(), indexes[i].begin(), indexes[i].end());
     }
 }
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(spatial_hashing_self_inrange_random) {
     test.inRange(testPoints, h);
 
     BOOST_CHECK_EQUAL(truth.indexes().size(), test.indexes().size()); 
-    for(int i = 0; i < truth.indexes().size(); ++i){
+    for(size_t i = 0; i < truth.indexes().size(); ++i){
         std::sort(truth.indexes()[i].begin(), truth.indexes()[i].end());
         std::sort(test.indexes()[i].begin(), test.indexes()[i].end());
 	BOOST_CHECK_EQUAL_COLLECTIONS(truth.indexes()[i].begin(), truth.indexes()[i].end(), test.indexes()[i].begin(), test.indexes()[i].end());
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(spatial_hashing_query_target_inrange) {
     test.inRange(queryPoints, targetPoints, h);
 
     BOOST_CHECK_EQUAL(truth.indexes().size(), test.indexes().size()); 
-    for(int i = 0; i < truth.indexes().size(); ++i){
+    for(size_t i = 0; i < truth.indexes().size(); ++i){
         std::sort(truth.indexes()[i].begin(), truth.indexes()[i].end());
         std::sort(test.indexes()[i].begin(), test.indexes()[i].end());
 	BOOST_CHECK_EQUAL_COLLECTIONS(truth.indexes()[i].begin(), truth.indexes()[i].end(), test.indexes()[i].begin(), test.indexes()[i].end());

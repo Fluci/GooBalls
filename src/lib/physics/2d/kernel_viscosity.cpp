@@ -58,7 +58,7 @@ void Viscosity::compute(
         // total:
         // -3x |r|/(2h^3) + 2 x/h^2 - h x /(2 r^3)
         // x (-3 |r|/(2h^3) + 2/h^2 - h/(2r^3)
-        auto r32 = sqNorm.array();
+        //auto r32 = sqNorm.array();
         Coordinates1d comm = (-3.0/2.0/h3) * norm.array() - (m_h/2.0)/(norm.array().pow(3.0) + epsilon);
         comm = comm.unaryExpr([](auto v){return std::isfinite(v) ? v : 0.0;});
         comm = m_A*2.0/h2 + m_A*comm.array();

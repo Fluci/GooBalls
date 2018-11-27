@@ -80,7 +80,7 @@ void AbstractSph::computeStandardPressureForce(const Scene& scene, const Kernel&
         Coordinates2d jPress(index.size(), 2);
         auto xij = -(jpos.rowwise() - pos.row(i));
         pressureKernel.compute(xij, nullptr, &jGrad, nullptr);
-        for(int j = 0; j < index.size(); ++j){
+        for(size_t j = 0; j < index.size(); ++j){
             int jj = index[j];
             jPress.row(j) = ms[jj] / rho[jj] * (ps[jj] + ps[i]) * jGrad.row(j);
         }
@@ -104,7 +104,7 @@ void AbstractSph::computeMomentumPreservingPressureForce(const Scene& scene, con
         Coordinates2d jPress(index.size(), 2);
         auto xij = -(jpos.rowwise() - pos.row(i));
         pressureKernel.compute(xij, nullptr, &jGrad, nullptr);
-        for(int j = 0; j < index.size(); ++j){
+        for(size_t j = 0; j < index.size(); ++j){
             int jj = index[j];
             jPress.row(j) = ms[jj] * (ps[i]/(rho[i] * rho[i]) + ps[jj]/(rho[jj]*rho[jj])) * jGrad.row(j);
         }
@@ -131,7 +131,7 @@ void AbstractSph::computeStandardViscosityForce(const Scene& scene, const Kernel
         Coordinates2d jVisc(index.size(), 2);
         auto xij = -(jpos.rowwise() - pos.row(i));
         viscosityKernel.compute(xij, nullptr, nullptr, &jLap);
-        for(int j = 0; j < index.size(); ++j){
+        for(size_t j = 0; j < index.size(); ++j){
             int jj = index[j];
             jVisc.row(j) = ms[jj] / rho[jj] * (vs.row(jj) - vs.row(i)) * jLap[j];
         }
@@ -143,8 +143,6 @@ void AbstractSph::computeStandardViscosityForce(const Scene& scene, const Kernel
 void AbstractSph::computeStandardSurfaceTensionForce(const Scene& scene, const Kernel& kernel, FloatPrecision color_relevant_normal_size) {
     const auto& pos = scene.fluid->particles_position();
     const auto& ms = scene.fluid->particles_mass();
-    const auto& vs = scene.fluid->particles_velocity();
-    const auto sigma = scene.fluid->fluid_viscosity();
     const auto& rho = scene.fluid->particles_density();
     auto color_sigma = scene.fluid->surface_tension();
     int PN = pos.rows();
@@ -161,7 +159,7 @@ void AbstractSph::computeStandardSurfaceTensionForce(const Scene& scene, const K
         // c_s(r_i) = sum_j m_j/rho-j W(r_i - r_j, h)
         auto xij = -(jpos.rowwise() - pos.row(i));
         kernel.compute(xij, nullptr, &jGrad, &jCLap);
-        for(int j = 0; j < index.size(); ++j){
+        for(size_t j = 0; j < index.size(); ++j){
             int jj = index[j];
             FloatPrecision a = ms[jj] / rho[jj];
             jColGrad.row(j) = a * jGrad.row(j);
@@ -193,7 +191,6 @@ void AbstractSph::addFluidDensity(Scene& scene, const Kernel& densityKernel) con
     const auto& ms = scene.fluid->particles_mass();
     auto& rho = scene.fluid->particles_density();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
-    const auto& boundary_index = scene.fluid->boundary_neighborhood->indexes();
     for(int i = 0; i < PN; ++i){
         Coordinates1d jW;
         Coordinates2d jpos;
@@ -205,7 +202,7 @@ void AbstractSph::addFluidDensity(Scene& scene, const Kernel& densityKernel) con
         pickRows(pos, index, jpos);
         auto xij = -(jpos.rowwise() - pos.row(i));
         densityKernel.compute(xij, &jW, nullptr, nullptr);
-        for(int j = 0; j < index.size(); ++j){
+        for(size_t j = 0; j < index.size(); ++j){
             int jj = index[j];
             jW[j] *= ms[jj];
         }

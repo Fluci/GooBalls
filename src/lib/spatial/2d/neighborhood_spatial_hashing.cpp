@@ -69,7 +69,7 @@ void NeighborhoodSpatialHashing::computeInRange(
         }
         Coordinates2d neighbors(candidates.size(), 2); 
         // copy coordinates for eigen math
-        for(int j = 0; j < candidates.size(); ++j){
+        for(size_t j = 0; j < candidates.size(); ++j){
             neighbors.row(j) = target.row(candidates[j]);
         }
         // we now have the coordinates of all candidates

@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(brute_force_self_inRange){
         std::sort(e.begin(), e.end());
     }
     BOOST_CHECK_EQUAL(expected.size(), indexes.size()); 
-    for(int i = 0; i < expected.size(); ++i){
+    for(size_t i = 0; i < expected.size(); ++i){
         BOOST_CHECK_EQUAL_COLLECTIONS(expected[i].begin(), expected[i].end(), indexes[i].begin(), indexes[i].end());
     }
 }
