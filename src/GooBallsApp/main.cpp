@@ -128,8 +128,8 @@ int main(int argc, char **argv) {
     Render::Scene renderScene;
     createRandomScene(physicsScene, renderScene);
     SceneLoader::loadScene(physicsScene, renderScene, "../examples/scenes/scene0.json");
-    physicsEngine.fluidSolver(std::make_unique<Physics::SSPH>());
-    //physicsEngine.fluidSolver(std::make_unique<Physics::IISPH>());
+    //physicsEngine.fluidSolver(std::make_unique<Physics::SSPH>());
+    physicsEngine.fluidSolver(std::make_unique<Physics::IISPH>());
     //physicsEngine.fluidSolver(std::make_unique<Physics::ViscoElastic>());
     physicsEngine.initScene(physicsScene);
     std::cout << "Starting gui" << std::endl;

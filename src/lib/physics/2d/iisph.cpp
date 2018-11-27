@@ -62,7 +62,7 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
     scene.fluid->fluid_neighborhood->inRange(pos, h);
     predictAdvection(scene, dt, *m_kernelDensity);
     pressureSolve(scene, dt, *m_kernelDensity);
-    computeMomentumPreservingPressureForce(scene, *m_kernelDensity);
+    //computeMomentumPreservingPressureForce(scene, *m_kernelDensity);
     //computeStandardPressureForce(scene, *m_kernelDensity);
 
     FPressure = FPressure.array().min(100*K).max(-100*K);
@@ -113,13 +113,14 @@ void IISPH::predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel) {
 
     // for all particle i do
     // rho^adv_i = rho_i + dt sum_j m_j * v^adv_ij * \nabbla W_ij
-    rhoAdv.resize(PN, 1);
+    rhoAdv = rho;
     // initializing pi is a bit of an art
     // these are possibilities, last chosen by paper:
     // p^0_i = 0
     // p^0_i = p_i(t-dt).
     // p^0_i = 0.5 p_i(t - dt)
-    p0 = 0.5* ps;
+    //p0 = 0.5* ps; // TODO: upgrade to this
+    p0.setZero(PN, 1);
     aii.resize(PN, 1);
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
@@ -133,7 +134,7 @@ void IISPH::predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel) {
             int jj = index[j];
             rhos[j] = ms[jj] * (Vadv.row(i) - Vadv.row(jj)).dot(wGrad.row(j));
         }
-        rhoAdv[i] = rho[i] + dt*rhos.sum();
+        rhoAdv[i] += dt*rhos.sum();
         // compute a_ii = sum_j m_j (d_ii - d_ji) nabbla W_ij
         Coordinates1d aiis (index.size(), 1);
         for(size_t j = 0; j < index.size(); ++j){
@@ -149,7 +150,6 @@ void IISPH::predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel) {
 void IISPH::pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel) {
     // rho^l_avg = 1/n * sum_i rho^l_i
     // l = 0
-    int l = 0;
     // while rho^l_avg - rho0 > eta OR l < 2 do
     // for all particle i do:
     //    sum_j d_ij p^l_j = dt^2 sum_j - m_j / rho_j^2 p^l_j \nabbla _Wij
@@ -169,9 +169,10 @@ void IISPH::pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel) {
     Coordinates1d rhol;
     Coordinates2d dp; // sum_j dij p^l_j, for given i
     p1.resize(PN, 1);
-    rhol.resize(PN, 1);
+    rhol.setZero(PN, 1);
     dp.resize(PN, 2);
-    FloatPrecision omega = 0.99; // relaxation factor
+    FloatPrecision omega = 0.5; // relaxation factor
+    int l = 0;
     do {
         //    sum_j d_ij p^l_j = - dt^2 sum_j m_j / rho_j^2 p^l_j \nabbla _Wij
         for(int i = 0; i < PN; ++i){
@@ -203,19 +204,43 @@ void IISPH::pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel) {
             Coordinates2d xij = -(jpos.rowwise() - pos.row(i));
             kernel.compute(xij, nullptr, &wGradI, nullptr);
             Coordinates1d Ais(indexI.size());
+            Coordinates2d wGradJ;
             for(size_t j = 0; j < indexI.size(); ++j){
                 int jj = indexI[j];
-                TranslationVector dppj = dp.row(jj) - (-dt*dt*ms[jj]/(rho[jj]*rho[jj]) * wGradI.row(j) * p0[i]);
+                kernel.compute(-xij.row(j), nullptr, &wGradJ, nullptr);
+                TranslationVector dppj = dp.row(jj) - (-dt*dt*ms[i]/(rho[i]*rho[i]) * wGradJ * p0[i]);
                 Ais[j] = ms[jj]*(dp.row(i) - dii.row(jj)*p0[jj] - dppj).dot(wGradI.row(j));
             }
             p1[i] = Ais.sum();
         }
         p1 = (1.0 - omega) * p0.array() + omega/aii.array() * (rho0 - rhoAdv.array() - p1.array());
         std::swap(p0, p1);
+        ps = p0;
+        std::cout << p0.mean() << "\n";
+        computeMomentumPreservingPressureForce(scene, *m_kernelDensity);
+        Coordinates2d dv = dt*(FPressure.array().colwise() / ms.array());
+        assert(is_finite(dv));
+        for(int i = 0; i < PN; ++i){
+            const auto& index = fluid_index[i];
+            Coordinates2d jpos;
+            pickRows(pos, index, jpos);
+            Coordinates2d wGrad;
+            Coordinates2d xij = -(jpos.rowwise() - pos.row(i));
+            kernel.compute(xij, nullptr, &wGrad, nullptr);
+            assert(is_finite(wGrad));
+            rhol[i] = 0.0;
+            for(size_t j = 0; j < index.size(); ++j){
+                int jj = index[j];
+                rhol[i] += ms[jj] * (dv.row(i) - dv.row(jj)).dot(wGrad.row(j));
+            }
+            rhol[i] *= dt;
+        }
         l++;
-    } while (rhol.mean() - rho0 > eta || l < 2);
+        assert(is_finite(ps));
+        assert(is_finite(rhol));
+    } while ((rhoAdv + rhol).mean() - rho0 > eta || l < 2);
     //    p_i(t) = p_i^(l+1)
-    ps = p0;
+    std::cout << l << ", " << ps.mean() << "; " << rho.mean() << " + " << rhoAdv.mean() << " + " << rhol.mean() << " - " << rho0 << "\n";
 }
 
 void IISPH::advance(Scene& scene, TimeStep dt){
