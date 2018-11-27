@@ -142,7 +142,7 @@ public:
         double target = 1/200.0;
         /// dt: largest possible timestep, for which the simulation stays
         /// stable
-        double dt = 0.0005;
+        double dt = 0.001;
         int n = std::max(1.0, target/dt);
         for(int i = 0; i < n; ++i){
             m_physicsEngine.advance(m_physicsScene, dt);

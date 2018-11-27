@@ -4,8 +4,10 @@
 #include "kernel_poly6.hpp"
 #include "kernel_viscosity.hpp"
 #include "pick_rows.hpp"
-#include <iostream>
 #include "generic/is_finite.hpp"
+
+#include <iostream>
+#include <boost/log/trivial.hpp>
 
 namespace GooBalls {
 
@@ -77,6 +79,7 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
 void IISPH::predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel) {
     const auto& pos = scene.fluid->particles_position();
     const auto& vs = scene.fluid->particles_velocity();
+    const auto& ps = scene.fluid->particles_pressure();
     const auto& ms = scene.fluid->particles_mass();
     const auto& rho = scene.fluid->particles_density();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
@@ -118,8 +121,8 @@ void IISPH::predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel) {
     // p^0_i = 0
     // p^0_i = p_i(t-dt).
     // p^0_i = 0.5 p_i(t - dt)
-    //p0 = 0.5* ps; // TODO: upgrade to this
-    p0.setZero(PN, 1);
+    p0 = 0.5* ps;
+    //p0.setZero(PN, 1);
     aii.resize(PN, 1);
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
@@ -237,10 +240,12 @@ void IISPH::pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel) {
         l++;
         assert(is_finite(ps));
         assert(is_finite(rhol));
-        if(l > 100){break;}
+        if(l > 200){
+            BOOST_LOG_TRIVIAL(info) << "reached maximum number of iterations with rhol=" << rhol.maxCoeff() << " avg: " << rhol.mean() << ", eta: " << eta;
+            break;
+        }
     } while (rhol.mean() > eta || l < 2);
     //    p_i(t) = p_i^(l+1)
-    //std::cout << l << ", " << ps.mean() << "; " << rho.mean() << " + " << rhoAdv.mean() << " + " << rhol.mean() << " - " << rho0 << "\n";
 }
 
 void IISPH::advance(Scene& scene, TimeStep dt){

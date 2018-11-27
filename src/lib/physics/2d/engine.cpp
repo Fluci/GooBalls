@@ -63,6 +63,7 @@ void Engine::initScene(Scene& scene){
     // adjusted later down the road, just making sure the width is ok
     scene.fluid->particles_density().resize(1, Eigen::NoChange);
     scene.fluid->particles_total_force().resize(1, Eigen::NoChange);
+    scene.fluid->particles_pressure().resize(1, Eigen::NoChange);
 }
 
 void Engine::advance(Scene& scene, TimeStep dt) {
