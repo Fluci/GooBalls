@@ -128,10 +128,11 @@ public:
         if (key == GLFW_KEY_A && action) {
             m_physicsScene.fluid->particles_external_force().col(0).array() = -10000;
             m_physicsScene.fluid->particles_external_force().col(1).array() = 0;
-        }
-        if (key == GLFW_KEY_D) {
+        } else if (key == GLFW_KEY_D) {
             m_physicsScene.fluid->particles_external_force().col(0).array() = 10000;
             m_physicsScene.fluid->particles_external_force().col(1).array() = 0;
+        } else {
+            m_physicsScene.fluid->particles_external_force().array() = 0;
         }
         return false;
     }

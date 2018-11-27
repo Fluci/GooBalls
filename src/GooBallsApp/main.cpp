@@ -23,7 +23,7 @@ using namespace d2;
 void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     //physScene.gravity.array() *= 0.0;
     constexpr int PN_X = 10;
-    int PN_Y = 20;
+    int PN_Y = 200;
     int PN = PN_Y * PN_X;
 
     // some example data to allow first testing with rendering
@@ -129,8 +129,8 @@ int main(int argc, char **argv) {
     createRandomScene(physicsScene, renderScene);
     SceneLoader::loadScene(physicsScene, renderScene, "../examples/scenes/scene0.json");
     //physicsEngine.fluidSolver(std::make_unique<Physics::SSPH>());
-    //physicsEngine.fluidSolver(std::make_unique<Physics::IISPH>());
-    physicsEngine.fluidSolver(std::make_unique<Physics::ViscoElastic>());
+    physicsEngine.fluidSolver(std::make_unique<Physics::IISPH>());
+    //physicsEngine.fluidSolver(std::make_unique<Physics::ViscoElastic>());
     physicsEngine.initScene(physicsScene);
     std::cout << "Starting gui" << std::endl;
     try {

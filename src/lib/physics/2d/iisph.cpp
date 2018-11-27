@@ -139,7 +139,7 @@ void IISPH::predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel) {
         for(size_t j = 0; j < index.size(); ++j){
             int jj = index[j];
             // d_ij = - dt^2 * m_j / rho_j^2 \nabbla W_ij
-            TranslationVector dji = -dt2 * ms[jj] / (rho[jj]*rho[jj]) * wGrad.row(j);
+            TranslationVector dji = dt2 * ms[i] / (rho[i]*rho[i]) * wGrad.row(j);
             aiis[j] = ms[jj] * (dii.row(i) - dji).dot(wGrad.row(j));
         }
         aii[i] = aiis.sum();
@@ -215,7 +215,7 @@ void IISPH::pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel) {
         p1 = (1.0 - omega) * p0.array() + omega/aii.array() * (rho0 - rhoAdv.array() - p1.array());
         std::swap(p0, p1);
         ps = p0;
-        std::cout << p0.mean() << "\n";
+        //std::cout << p0.mean() << "\n";
         computeMomentumPreservingPressureForce(scene, *m_kernelDensity);
         Coordinates2d dv = dt*(FPressure.array().colwise() / ms.array());
         assert(is_finite(dv));
@@ -237,9 +237,10 @@ void IISPH::pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel) {
         l++;
         assert(is_finite(ps));
         assert(is_finite(rhol));
-    } while ((rhoAdv + rhol).mean() - rho0 > eta || l < 2);
+        if(l > 100){break;}
+    } while (rhol.mean() > eta || l < 2);
     //    p_i(t) = p_i^(l+1)
-    std::cout << l << ", " << ps.mean() << "; " << rho.mean() << " + " << rhoAdv.mean() << " + " << rhol.mean() << " - " << rho0 << "\n";
+    //std::cout << l << ", " << ps.mean() << "; " << rho.mean() << " + " << rhoAdv.mean() << " + " << rhol.mean() << " - " << rho0 << "\n";
 }
 
 void IISPH::advance(Scene& scene, TimeStep dt){
