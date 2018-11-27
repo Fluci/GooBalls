@@ -149,7 +149,7 @@ void AbstractSph::computeStandardSurfaceTensionForce(const Scene& scene, const K
     auto color_sigma = scene.fluid->surface_tension();
     int PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
-    FSurface.resize(PN, 2);
+    FSurface.setZero(PN, 2);
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
         Coordinates2d jpos;
