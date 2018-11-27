@@ -55,6 +55,10 @@ void Engine::initScene(Scene& scene){
         scene.fluid->particles_velocity_correction().resize(pos.rows(), Eigen::NoChange);
         scene.fluid->particles_velocity_correction().array() = 0.0001;
     }
+    if(pos.rows() != scene.fluid->particles_external_force().rows()){
+        BOOST_LOG_TRIVIAL(warning) << "No proper external particle force set, setting zero.";
+        scene.fluid->particles_external_force().setZero(pos.rows(), 2);
+    }
 
     // adjusted later down the road, just making sure the width is ok
     scene.fluid->particles_density().resize(1, Eigen::NoChange);

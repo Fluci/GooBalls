@@ -153,7 +153,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(is_finite(FViscosity));
     assert(is_finite(FSurface));
     computeGravityForce(scene);
-    scene.fluid->particles_total_force() = FPressure + FViscosity + FSurface + FGravity;
+    scene.fluid->particles_total_force() = FPressure + FViscosity + FSurface + FGravity + scene.fluid->particles_external_force();
 }
 
 

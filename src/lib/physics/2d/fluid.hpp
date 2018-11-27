@@ -45,6 +45,9 @@ public:
     const Coordinates1d& particles_density() const;
     Coordinates1d& particles_density();
 
+    const Coordinates2d& particles_external_force() const;
+    Coordinates2d& particles_external_force();
+
     const Coordinates2d& particles_total_force() const;
     Coordinates2d& particles_total_force();
 

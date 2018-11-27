@@ -59,6 +59,14 @@ Coordinates1d& Fluid::particles_density(){
     return m_particles_density;
 }
 
+const Coordinates2d& Fluid::particles_external_force() const {
+    return m_particles_external_force;
+}
+
+Coordinates2d& Fluid::particles_external_force() {
+    return m_particles_external_force;
+}
+
 const Coordinates2d& Fluid::particles_total_force() const {
     return m_particles_total_force;
 }
