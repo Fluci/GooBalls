@@ -136,7 +136,7 @@ void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::stri
             b2Verts[3].x = min_x;
             b2Verts[3].y = max_y;
             boundingBox.Set(b2Verts, 4);
-            physMesh.body->CreateFixture(&boundingBox, 1.0f); // attach the bounding box to the body
+            physMesh.body->CreateFixture(&boundingBox, 10000.0f); // attach the bounding box to the body
 
 			// insert the box2d mesh into the scene (including body and bounding box)
 			physScene.meshes.push_back(std::move(physMesh));

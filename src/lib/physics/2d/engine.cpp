@@ -96,6 +96,15 @@ void Engine::advance(Scene& scene, TimeStep dt) {
     m_fluidSolver->advance(scene, dt);
 
     // TODO: transfer forces of boundary particles back
+    if(boundaryParticles > 0){
+        int s = 0;
+        for(auto& mesh : scene.meshes){
+            const auto& local = mesh.particles_position_local();
+            auto Frigid = scene.fluid->boundary_force().block(s, 0, local.rows(), 2).colwise().sum();
+            mesh.body->ApplyForce(b2Vec2(Frigid[0], Frigid[1]), mesh.body->GetWorldCenter(), true);
+            s += local.rows();
+        }
+    }
 }
 
 void Engine::BeginContact(b2Contact* contact) {

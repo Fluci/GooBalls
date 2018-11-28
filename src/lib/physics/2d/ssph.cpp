@@ -125,8 +125,8 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     //computeStandardPressureForce(scene, *m_kernelPressure);
     computeMomentumPreservingPressureForce(scene, *m_kernelPressure);
     computeStandardSurfaceTensionForce(scene, *m_kernelPressure, color_relevant_normal_size);
-
     if(consider_boundary){
+        scene.fluid->boundary_force().setZero();
         for(int i = 0; i < PN; ++i){
             // pressure: makes sure stuff doesn't enter the rigid body
             // F^pressure = - m_i sum_k psi_k(rho_0) p_i / (rho_i * rho_k) nabla W_ik
@@ -150,7 +150,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
                 jPress.row(j) = -ms[i] * psi[jj] * ps[i]/(rho[i] * rho[i]) * jGrad.row(j);
                 FloatPrecision PI = h * std::max(vij.dot(xik.row(j)), 0.0)/(xik.squaredNorm() + visc_epsilon*h*h);
                 jVisc.row(j) = mu_boundary * psi[jj] * PI/rho[i] * vij * jLap[j];
-                scene.fluid->boundary_force().row(jj) += scene.fluid->boundary_force().row(jj) - (jPress.row(j) + jVisc.row(j));
+                scene.fluid->boundary_force().row(jj) = scene.fluid->boundary_force().row(jj) - (jPress.row(j) + jVisc.row(j));
             }
             FPressure.row(i) += jPress.colwise().sum();
             FViscosity.row(i) += jVisc.colwise().sum();
