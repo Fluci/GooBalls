@@ -38,39 +38,37 @@ void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::stri
 		std::cout << "Error on opening scene file!" << std::endl;
 	} else {
 		Json::Reader reader;
-		Json::Value obj;
-		reader.parse(ifs, obj);
-		if (showDebugOutput) std::cout << "Loading Scene: " << obj["name"].asString() << std::endl;
-		double scale = obj["scale"].asDouble();
-		double transl_x = obj["translation"][0].asDouble();
-		double transl_y = obj["translation"][1].asDouble();
+        Json::Value scene;
+        reader.parse(ifs, scene);
+        if (showDebugOutput) std::cout << "Loading Scene: " << scene["name"].asString() << std::endl;
+        double scale = scene["scale"].asDouble();
+        double transl_x = scene["translation"][0].asDouble();
+        double transl_y = scene["translation"][1].asDouble();
 	
 		// iterate through the scene's objects
-		int objectCount = obj["objects"]["count"].asInt();
-		for (int objIndex = 0; objIndex < objectCount; objIndex++) {
+        //int objectCount = obj["objects"]["count"].asInt();
+        for (int objIndex = 0; objIndex < scene["objects"].size(); objIndex++) {
+            const auto& obj = scene["objects"][objIndex];
 
-			std::string obj_index_str = std::to_string(objIndex);
-			int vertexCount = obj["objects"][obj_index_str]["vertices"]["count"].asInt();
-			int faceCount = obj["objects"][obj_index_str]["faces"]["count"].asInt();
+            const auto& vertex = obj["vertices"];
+            int faceCount = obj["faces"].size();
 
-			Coordinates2d vertices(vertexCount, 2);
+            Coordinates2d vertices(vertex.size(), 2);
 			TriangleList faces(faceCount, 3);
 
-			if (showDebugOutput) std::cout << std::endl << "OBJECT " << objIndex << ": " << obj["objects"][obj_index_str]["name"] << std::endl << "-----------" << std::endl;
+            if (showDebugOutput) std::cout << std::endl << "OBJECT " << objIndex << ": " << obj["name"] << std::endl << "-----------" << std::endl;
 
 			// iterate through the object's vertices
-			for (int i = 0; i < vertexCount; i++) {
-				std::string i_str = std::to_string(i);
-                vertices(i, 0) = (scale * obj["objects"][obj_index_str]["vertices"][i_str][0].asDouble()) + transl_x;
-                vertices(i, 1) = (scale * obj["objects"][obj_index_str]["vertices"][i_str][1].asDouble()) + transl_y;
+            for (int i = 0; i < vertex.size(); i++) {
+                vertices(i, 0) = (scale * vertex[i][0].asDouble()) + transl_x;
+                vertices(i, 1) = (scale * vertex[i][1].asDouble()) + transl_y;
 			}
 
 			// iterate through the object's faces
-			for (int i = 0; i < faceCount; i++) {
-				std::string i_str = std::to_string(i);
-				faces(i, 0) = obj["objects"][obj_index_str]["faces"][i_str][0].asInt();
-				faces(i, 1) = obj["objects"][obj_index_str]["faces"][i_str][1].asInt();
-				faces(i, 2) = obj["objects"][obj_index_str]["faces"][i_str][2].asInt();
+            for (int i = 0; i < faceCount; i++) {
+                faces(i, 0) = obj["faces"][i][0].asInt();
+                faces(i, 1) = obj["faces"][i][1].asInt();
+                faces(i, 2) = obj["faces"][i][2].asInt();
 			}
 
 			if (showDebugOutput) {
@@ -99,7 +97,25 @@ void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::stri
 			// create a body for box2d
 			b2BodyDef bodyDefinition;
             //bodyDefinition.position.Set(min_x + half_width, min_y + half_width); // the center of the body
-            bodyDefinition.position.Set(0, 0);
+            double posx = 0, posy = 0;
+            if(obj.isMember("position")){
+                posx = scale*obj["position"][0].asDouble();
+                posy = scale*obj["position"][1].asDouble();
+            }
+            bodyDefinition.position.Set(posx, posy);
+            if(obj.isMember("dynamic") && obj["dynamic"].asBool()){
+                bodyDefinition.type = b2_dynamicBody;
+                /*
+                // create collision object (a polygon shape) -> bounding box
+                // create a fixture:
+                // this defines physical properties of the collision shape
+                b2FixtureDef fixtureDef;
+                fixtureDef.shape = &dynamicBox;
+                fixtureDef.density = 1.0f;
+                fixtureDef.friction = 0.3f;
+                physScene.meshes[1].body = physScene.world.CreateBody(&bodyDef);
+                physScene.meshes[1].body->CreateFixture(&fixtureDef);*/
+            }
             physMesh.body = physScene.world.CreateBody(&bodyDefinition); // attach the body to the mesh
 
 			// create a bounding box for box2d
@@ -109,8 +125,18 @@ void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::stri
 			// And either define by hand (counter clockwise) ordering of vertices on the convex hull -> scene.json
 			// or maybe use CGAL or smth for this.
 			b2PolygonShape boundingBox;
-			boundingBox.SetAsBox(half_width, half_height);
-			physMesh.body->CreateFixture(&boundingBox, 0.0f); // attach the bounding box to the body
+            //boundingBox.SetAsBox(half_width, half_height, b2Vec2(min_x+half_width, min_y+half_height), 0.0);
+            b2Vec2 b2Verts[4];
+            b2Verts[0].x = min_x;
+            b2Verts[0].y = min_y;
+            b2Verts[1].x = max_x;
+            b2Verts[1].y = min_y;
+            b2Verts[2].x = max_x;
+            b2Verts[2].y = max_y;
+            b2Verts[3].x = min_x;
+            b2Verts[3].y = max_y;
+            boundingBox.Set(b2Verts, 4);
+            physMesh.body->CreateFixture(&boundingBox, 1.0f); // attach the bounding box to the body
 
 			// insert the box2d mesh into the scene (including body and bounding box)
 			physScene.meshes.push_back(std::move(physMesh));
@@ -118,7 +144,7 @@ void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::stri
 	
 			// insert the mesh into the scene's rendering
 			auto mesh = std::make_unique<Render::Mesh>(vertex_ptr, face_ptr);
-			mesh->vertices_color() = Eigen::MatrixXd::Zero(vertexCount, 3);
+            mesh->vertices_color() = Eigen::MatrixXd::Zero(vertex.size(), 3);
 			mesh->vertices_color().array() += 0.5; // grey
 			aRenderScene.meshes.push_back(std::move(mesh));
 		}

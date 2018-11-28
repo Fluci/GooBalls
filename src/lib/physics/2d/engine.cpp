@@ -64,6 +64,7 @@ void Engine::initScene(Scene& scene){
     scene.fluid->particles_density().resize(1, Eigen::NoChange);
     scene.fluid->particles_total_force().resize(1, Eigen::NoChange);
     scene.fluid->particles_pressure().resize(1, Eigen::NoChange);
+    scene.world.SetGravity(b2Vec2(scene.gravity[0], scene.gravity[1]));
 }
 
 void Engine::advance(Scene& scene, TimeStep dt) {

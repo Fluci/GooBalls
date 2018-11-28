@@ -128,10 +128,10 @@ public:
         if (key == GLFW_KEY_A && action != GLFW_RELEASE) {
             m_physicsScene.fluid->particles_external_force().col(0).array() = -10000;
             m_physicsScene.fluid->particles_external_force().col(1).array() = 0;
-        } else if (key == GLFW_KEY_D != GLFW_RELEASE) {
+        } else if (key == GLFW_KEY_D && action != GLFW_RELEASE) {
             m_physicsScene.fluid->particles_external_force().col(0).array() = 10000;
             m_physicsScene.fluid->particles_external_force().col(1).array() = 0;
-        } else if (key == GLFW_KEY_W != GLFW_RELEASE) {
+        } else if (key == GLFW_KEY_W && action != GLFW_RELEASE) {
             m_physicsScene.fluid->particles_external_force().col(0).array() = 0;
             m_physicsScene.fluid->particles_external_force().col(1).array() = 10000;
         } else {

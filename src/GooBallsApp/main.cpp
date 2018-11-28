@@ -67,8 +67,6 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     /*
     Physics::Mesh physMesh(verts, triangles);
     physScene.meshes.push_back(std::move(physMesh));
-    Physics::Mesh physMesh2(verts, triangles);
-    physScene.meshes.push_back(std::move(physMesh2));
 
 
     // create scene floor
@@ -79,6 +77,10 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     b2Body* groundBody = physScene.world.CreateBody(&groundBodyDef);
     groundBody->CreateFixture(&groundBox, 0.0f);
     physScene.meshes[0].body = groundBody;
+    //*/
+/*
+    Physics::Mesh physMesh2(verts, triangles);
+    physScene.meshes.push_back(std::move(physMesh2));
 
     // create first dynamic body
     b2BodyDef bodyDef;
@@ -89,16 +91,19 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     dynamicBox.SetAsBox(0.2f, 0.2f);
     // create a fixture: 
     // this defines physical properties of the collision shape
+
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &dynamicBox;
     fixtureDef.density = 1.0f;
     fixtureDef.friction = 0.3f;
+
     // attach to body
-    physScene.world.SetGravity(b2Vec2(physScene.gravity[0], physScene.gravity[1]));
     // store pointer to Rigid Body in our Scene-Mesh
-    physScene.meshes[1].body = physScene.world.CreateBody(&bodyDef);
-    physScene.meshes[1].body->CreateFixture(&fixtureDef);
-    // */
+    physScene.meshes.back().body = physScene.world.CreateBody(&bodyDef);
+    //physScene.meshes.back().body->CreateFixture(&fixtureDef);
+    physScene.meshes.back().body->CreateFixture(&dynamicBox, 1.0);
+        // */
+    //physScene.world.SetGravity(b2Vec2(physScene.gravity[0], physScene.gravity[1]));
     // create data for rendering
     std::unique_ptr<Render::DiskFluid> fluid = std::make_unique<Render::DiskFluid>(particleCoordinates, boundaryCoords);
     fluid->particles_color().resize(PN, 3);
@@ -127,7 +132,7 @@ int main(int argc, char **argv) {
     Render::Engine renderEngine;
     Render::Scene renderScene;
     createRandomScene(physicsScene, renderScene);
-    SceneLoader::loadScene(physicsScene, renderScene, "../examples/scenes/scene0.json");
+    SceneLoader::loadScene(physicsScene, renderScene, "../examples/scenes/falling_box.json");
     //auto tmp = std::make_unique<Physics::SSPH>();
     //auto tmp = std::make_unique<Physics::IISPH>();
     auto tmp = std::make_unique<Physics::ViscoElastic>();
