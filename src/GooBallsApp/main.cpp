@@ -36,8 +36,8 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     }
     auto boundaryCoords = std::make_shared<Coordinates2d>();
     (*particleCoordinates) = (*particleCoordinates) * 0.032;
-    particleCoordinates->col(0).array() += -0.6;
-    particleCoordinates->col(1).array() += -0.3;
+    particleCoordinates->col(0).array() += 0.27;
+    particleCoordinates->col(1).array() += 0.7;
     std::cout << "particles: \n";
     for(int i = 0; i < particleCoordinates->rows(); ++i){
         std::cout << (*particleCoordinates)(i,0) << " " << (*particleCoordinates)(i,1) << std::endl;
@@ -57,7 +57,7 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
     // compute the mass from rho*V = m
     fluidPhys->particles_mass().array() = 100;
     fluidPhys->h(h);
-    fluidPhys->K(1000);
+    fluidPhys->stiffnessConstant(10000);
     fluidPhys->rest_density(1000.0);
     fluidPhys->surface_tension(0.0);
     fluidPhys->fluid_viscosity(.03);
@@ -128,9 +128,11 @@ int main(int argc, char **argv) {
     Render::Scene renderScene;
     createRandomScene(physicsScene, renderScene);
     SceneLoader::loadScene(physicsScene, renderScene, "../examples/scenes/scene0.json");
-    //physicsEngine.fluidSolver(std::make_unique<Physics::SSPH>());
-    //physicsEngine.fluidSolver(std::make_unique<Physics::IISPH>());
-    physicsEngine.fluidSolver(std::make_unique<Physics::ViscoElastic>());
+    //auto tmp = std::make_unique<Physics::SSPH>();
+    //auto tmp = std::make_unique<Physics::IISPH>();
+    auto tmp = std::make_unique<Physics::ViscoElastic>();
+    tmp->considerBoundary(true);
+    physicsEngine.fluidSolver(std::move(tmp));
     physicsEngine.initScene(physicsScene);
     std::cout << "Starting gui" << std::endl;
     try {

@@ -141,10 +141,10 @@ void Fluid::h(CoordinatePrecision h) {
     m_h = h;
 }
 
-FloatPrecision Fluid::K() const {
+FloatPrecision Fluid::stiffnessConstant() const {
     return m_K;
 }
-void Fluid::K(FloatPrecision k) {
+void Fluid::stiffnessConstant(FloatPrecision k) {
     m_K = k;
 }
 

@@ -14,6 +14,8 @@ public:
     ViscoElastic();
     virtual void advance(Scene& scene, TimeStep dt);
     virtual void computeTotalForce(Scene& scene, TimeStep dt);
+    virtual bool considerBoundary(bool consider);
+    virtual bool considerBoundary() const;
     /// Set the fluid solver responsible for the core physics
     void base(std::unique_ptr<FluidSolver>&& b);
 private:

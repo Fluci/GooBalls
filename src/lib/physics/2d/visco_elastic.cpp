@@ -15,6 +15,15 @@ void ViscoElastic::base(std::unique_ptr<FluidSolver>&& b) {
     m_solver = std::move(b);
 }
 
+bool ViscoElastic::considerBoundary(bool consider) {
+    return m_solver->considerBoundary(consider);
+}
+
+bool ViscoElastic::considerBoundary() const {
+    return m_solver->considerBoundary();
+}
+
+
 void ViscoElastic::advance(Scene& scene, TimeStep dt){
     if(scene.fluid.get() == nullptr){
         return;

@@ -83,8 +83,9 @@ public:
     CoordinatePrecision h() const;
     void h(CoordinatePrecision h);
 
-    FloatPrecision K() const;
-    void K(FloatPrecision k);
+    /// in papers often K, the higher, the less the fluid likes to be squished
+    FloatPrecision stiffnessConstant() const;
+    void stiffnessConstant(FloatPrecision k);
 
     FloatPrecision rest_density() const;
     void rest_density(FloatPrecision rho0);

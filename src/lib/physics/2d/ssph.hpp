@@ -28,6 +28,8 @@ public:
     virtual ~SSPH() = default;
     virtual void advance(Scene& scene, TimeStep dt);
     virtual void computeTotalForce(Scene& scene, TimeStep dt);
+    virtual bool considerBoundary(bool consider);
+    virtual bool considerBoundary() const;
     void densityKernel(std::unique_ptr<Kernel>&& k);
     void pressureKernel(std::unique_ptr<Kernel>&& k);
     void viscosityKernel(std::unique_ptr<Kernel>&& k);

@@ -125,12 +125,15 @@ public:
             setVisible(false);
             return true;
         }
-        if (key == GLFW_KEY_A && action) {
+        if (key == GLFW_KEY_A && action != GLFW_RELEASE) {
             m_physicsScene.fluid->particles_external_force().col(0).array() = -10000;
             m_physicsScene.fluid->particles_external_force().col(1).array() = 0;
-        } else if (key == GLFW_KEY_D) {
+        } else if (key == GLFW_KEY_D != GLFW_RELEASE) {
             m_physicsScene.fluid->particles_external_force().col(0).array() = 10000;
             m_physicsScene.fluid->particles_external_force().col(1).array() = 0;
+        } else if (key == GLFW_KEY_W != GLFW_RELEASE) {
+            m_physicsScene.fluid->particles_external_force().col(0).array() = 0;
+            m_physicsScene.fluid->particles_external_force().col(1).array() = 10000;
         } else {
             m_physicsScene.fluid->particles_external_force().array() = 0;
         }

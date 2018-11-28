@@ -22,6 +22,10 @@ public:
     **/
     virtual void computeTotalForce(Scene& scene, TimeStep dt) = 0;
 
+    /// Returns true, if it supports boundaries
+    virtual bool considerBoundary(bool consider);
+    virtual bool considerBoundary() const;
+
 };
 
 

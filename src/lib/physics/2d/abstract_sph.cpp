@@ -59,7 +59,7 @@ void AbstractSph::computeFluidPressure(Scene& scene) const {
     auto pressure_gamma = scene.fluid->pressure_gamma();
     const auto& rho = scene.fluid->particles_density();
     auto& ps = scene.fluid->particles_pressure();
-    auto K = scene.fluid->K();
+    auto K = scene.fluid->stiffnessConstant();
     //ps = K * (rho.array() - rho0);
     ps = K * rho0 / pressure_gamma * ((rho.array()/rho0).pow(pressure_gamma) - 1.0);
     ps = ps.array().max(0);

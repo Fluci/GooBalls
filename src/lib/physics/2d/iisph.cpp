@@ -52,7 +52,7 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(is_finite(pos));
     assert(is_finite(vs));
     assert(is_finite(ms));
-    FloatPrecision K = scene.fluid->K(); // gas constant dependent on temperature, TODO: correct value?
+    FloatPrecision K = scene.fluid->stiffnessConstant(); // gas constant dependent on temperature, TODO: correct value?
 
     // p_i = k rho0 / gamma ((rho_i/rho0)^gamma - 1)
     // F^p_i = m_i sum_j m_j ( p_i / rho_i^2 + p_j / rho_j^2) \nabbla W_ij

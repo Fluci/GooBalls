@@ -29,6 +29,15 @@ void SSPH::viscosityKernel(std::unique_ptr<Kernel>&& k) {
     m_kernelViscosity = std::move(k);
 }
 
+bool SSPH::considerBoundary(bool consider) {
+    m_consider_boundary = consider;
+    return true;
+}
+
+bool SSPH::considerBoundary() const {
+    return m_consider_boundary;
+}
+
 void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     if(scene.fluid.get() == nullptr){
         return;
@@ -45,7 +54,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     auto& vs = scene.fluid->particles_velocity();
     auto& ms = scene.fluid->particles_mass();
     auto& ps = scene.fluid->particles_pressure();
-    FloatPrecision K = scene.fluid->K(); // gas constant dependent on temperature, TODO: correct value?
+    FloatPrecision K = scene.fluid->stiffnessConstant(); // gas constant dependent on temperature, TODO: correct value?
     // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3
     // p, pressure: force per unit area
     // nu, kinematic viscosity: high values: fluid doesn't like to deform, low values: fluid likes deformation

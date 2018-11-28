@@ -6,7 +6,15 @@ namespace d2 {
 
 namespace Physics {
 
-// empty
+
+bool FluidSolver::considerBoundary(bool consider) {
+    return false;
+}
+
+bool FluidSolver::considerBoundary() const {
+    return false;
+}
+
 
 } // Physics
 
