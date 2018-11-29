@@ -7,7 +7,6 @@ namespace GooBalls {
 namespace d2 {
 namespace Physics {
 
-typedef double FloatPrecision;
 typedef double TimeStep;
 
 } // Physics

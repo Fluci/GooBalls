@@ -10,9 +10,9 @@ namespace d2 {
 namespace Render {
 
 struct Background {
-	ColorFloatPrecision r;
-	ColorFloatPrecision g;
-	ColorFloatPrecision b;
+	ColorFloat r;
+	ColorFloat g;
+	ColorFloat b;
 };
 
 /**
@@ -22,10 +22,10 @@ struct Background {
  * (0,0) is located at the lower left corner
  */
 struct Camera {
-	CoordinatePrecision x;
-	CoordinatePrecision y;
-	CoordinatePrecision width;
-	CoordinatePrecision height;
+	Float x;
+	Float y;
+	Float width;
+	Float height;
 };
 
 /**

@@ -13,7 +13,7 @@ namespace d2 {
 namespace Physics {
 
 struct Scene {
-    typedef Eigen::Matrix<FloatPrecision, 1, 2> Gravity;
+    typedef Eigen::Matrix<Float, 1, 2> Gravity;
     std::unique_ptr<Fluid> fluid;
     std::vector<Mesh> meshes;
 	Gravity gravity = Gravity(0.0f, -9.81f);

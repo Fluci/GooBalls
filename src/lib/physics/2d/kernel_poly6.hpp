@@ -16,10 +16,10 @@ namespace Physics {
  * */
 class Poly6: public Kernel {
 private:
-    FloatPrecision m_h;
-    FloatPrecision m_A;
+    Float m_h;
+    Float m_A;
 public:
-    virtual void setH(FloatPrecision h);
+    virtual void setH(Float h);
     virtual void compute(
             const Coordinates2d& rs,
             Coordinates1d* W,

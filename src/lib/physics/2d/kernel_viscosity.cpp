@@ -6,7 +6,7 @@ namespace d2 {
 namespace Physics {
 
 
-void Viscosity::setH(FloatPrecision h) {
+void Viscosity::setH(Float h) {
     m_h = h;
     // only very rough
     // TODO: get proper formula
@@ -20,7 +20,7 @@ void Viscosity::compute(
         Coordinates1d* wResult, 
         Coordinates2d* gradientResult, 
         Coordinates1d* laplacianResult) const {
-    FloatPrecision epsilon = 0.000001;
+    Float epsilon = 0.000001;
     Coordinates1d sqNorm = rs.rowwise().squaredNorm();
     assert(sqNorm.maxCoeff() <= m_h*m_h*1.01);
     Coordinates1d norm = sqNorm.array().sqrt();
@@ -28,8 +28,8 @@ void Viscosity::compute(
     Coordinates1d diffH2 = diffH.array() * diffH.array();
     assert(diffH.rows() == rs.rows());
     assert(diffH2.rows() == rs.rows());
-    FloatPrecision h2 = m_h*m_h;
-    FloatPrecision h3 = m_h*h2;
+    Float h2 = m_h*m_h;
+    Float h3 = m_h*h2;
     if(wResult != nullptr){
         // 15.0/(2*pi*h^3) * (-r^3 / (2h^3) + r^2 / h^2 + h / (2r) - 1)
         // ((-(x^2 + y^2)^(3/2) / (2h^3) + (x^2 + y^2) / h^2 + h/2 * (x^2 + y^2)^(-1/2)) - 1))

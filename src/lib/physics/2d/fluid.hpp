@@ -17,7 +17,7 @@ struct Connection {
     /// index of other particle
     int partner;
     /// ||r_j - r_i||
-    CoordinatePrecision rij;
+    Float rij;
 };
 
 
@@ -80,28 +80,28 @@ public:
     bool sanity_check() const;
 
     /// Sphere of influence for each particle
-    CoordinatePrecision h() const;
-    void h(CoordinatePrecision h);
+    Float h() const;
+    void h(Float h);
 
     /// in papers often K, the higher, the less the fluid likes to be squished
-    FloatPrecision stiffnessConstant() const;
-    void stiffnessConstant(FloatPrecision k);
+    Float stiffnessConstant() const;
+    void stiffnessConstant(Float k);
 
-    FloatPrecision rest_density() const;
-    void rest_density(FloatPrecision rho0);
+    Float rest_density() const;
+    void rest_density(Float rho0);
 
-    FloatPrecision surface_tension() const;
-    void surface_tension(FloatPrecision sigma);
+    Float surface_tension() const;
+    void surface_tension(Float sigma);
 
-    FloatPrecision fluid_viscosity() const;
-    void fluid_viscosity(FloatPrecision mu);
+    Float fluid_viscosity() const;
+    void fluid_viscosity(Float mu);
 
-    FloatPrecision boundary_viscosity() const;
-    void boundary_viscosity(FloatPrecision mu);
+    Float boundary_viscosity() const;
+    void boundary_viscosity(Float mu);
 
     /// Pressure is commonly computed as p = rho0*K/gamma *((rho/rho0)^gamma - 1);
-    FloatPrecision pressure_gamma() const;
-    void pressure_gamma(FloatPrecision gamma);
+    Float pressure_gamma() const;
+    void pressure_gamma(Float gamma);
 
     std::unique_ptr<Neighborhood> fluid_neighborhood;
     std::unique_ptr<Neighborhood> boundary_neighborhood;
@@ -119,22 +119,22 @@ private:
     Coordinates1d m_boundary_volume;
     Coordinates2d m_boundary_force;
     Coordinates1d m_boundary_psi;
-    CoordinatePrecision m_h = 0.05;
+    Float m_h = 0.05;
     std::vector<std::vector<Connection>> m_connectivity;
     /// c_i: velocity correction coefficient
     Coordinates1d m_velocity_correction;
 
-    FloatPrecision m_K = 10000.0; // gas constant dependent on temperature, good values 1000-100'000
+    Float m_K = 10000.0; // gas constant dependent on temperature, good values 1000-100'000
     // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3
     // p, pressure: force per unit area
     // nu, kinematic viscosity: high values: fluid doesn't like to deform, low values: fluid likes deformation
     // often: nu = mu / rho
     // mu, dynamic viscosity coefficient:
-    FloatPrecision m_rho0 = 1000.0; // rest density? according to Bridson: environmental pressure?, TODO: get correct base value
-    FloatPrecision m_color_sigma = 0.0; // surface tension, TODO: correct value
-    FloatPrecision m_mu = .03; // viscosity
-    FloatPrecision m_boundary_mu = .03; // viscosity towards wall
-    FloatPrecision m_pressure_gamma = 7; // 1..7
+    Float m_rho0 = 1000.0; // rest density? according to Bridson: environmental pressure?, TODO: get correct base value
+    Float m_color_sigma = 0.0; // surface tension, TODO: correct value
+    Float m_mu = .03; // viscosity
+    Float m_boundary_mu = .03; // viscosity towards wall
+    Float m_pressure_gamma = 7; // 1..7
 };
 
 

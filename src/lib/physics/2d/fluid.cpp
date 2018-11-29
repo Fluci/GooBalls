@@ -133,54 +133,54 @@ Coordinates1d& Fluid::boundary_psi() {
     return m_boundary_psi;
 }
 
-CoordinatePrecision Fluid::h() const {
+Float Fluid::h() const {
     return m_h;
 }
 
-void Fluid::h(CoordinatePrecision h) {
+void Fluid::h(Float h) {
     m_h = h;
 }
 
-FloatPrecision Fluid::stiffnessConstant() const {
+Float Fluid::stiffnessConstant() const {
     return m_K;
 }
-void Fluid::stiffnessConstant(FloatPrecision k) {
+void Fluid::stiffnessConstant(Float k) {
     m_K = k;
 }
 
-FloatPrecision Fluid::rest_density() const{
+Float Fluid::rest_density() const{
     return m_rho0;
 }
 
-void Fluid::rest_density(FloatPrecision rho) {
+void Fluid::rest_density(Float rho) {
     m_rho0 = rho;
 }
 
-FloatPrecision Fluid::surface_tension() const {
+Float Fluid::surface_tension() const {
     return m_color_sigma;
 }
-void Fluid::surface_tension(FloatPrecision sigma) {
+void Fluid::surface_tension(Float sigma) {
     m_color_sigma = sigma;
 }
 
-FloatPrecision Fluid::fluid_viscosity() const {
+Float Fluid::fluid_viscosity() const {
     return m_mu;
 }
-void Fluid::fluid_viscosity(FloatPrecision m){
+void Fluid::fluid_viscosity(Float m){
     m_mu = m;
 }
 
-FloatPrecision Fluid::boundary_viscosity() const{
+Float Fluid::boundary_viscosity() const{
     return m_boundary_mu;
 }
-void Fluid::boundary_viscosity(FloatPrecision mu_boundary) {
+void Fluid::boundary_viscosity(Float mu_boundary) {
     m_boundary_mu = mu_boundary;
 }
 
-FloatPrecision Fluid::pressure_gamma() const {
+Float Fluid::pressure_gamma() const {
     return m_pressure_gamma;
 }
-void Fluid::pressure_gamma(FloatPrecision gamma) {
+void Fluid::pressure_gamma(Float gamma) {
     m_pressure_gamma = gamma;
 }
 

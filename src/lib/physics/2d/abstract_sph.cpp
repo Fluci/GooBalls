@@ -140,7 +140,7 @@ void AbstractSph::computeStandardViscosityForce(const Scene& scene, const Kernel
     }
 }
 
-void AbstractSph::computeStandardSurfaceTensionForce(const Scene& scene, const Kernel& kernel, FloatPrecision color_relevant_normal_size) {
+void AbstractSph::computeStandardSurfaceTensionForce(const Scene& scene, const Kernel& kernel, Float color_relevant_normal_size) {
     const auto& pos = scene.fluid->particles_position();
     const auto& ms = scene.fluid->particles_mass();
     const auto& rho = scene.fluid->particles_density();
@@ -161,15 +161,15 @@ void AbstractSph::computeStandardSurfaceTensionForce(const Scene& scene, const K
         kernel.compute(xij, nullptr, &jGrad, &jCLap);
         for(size_t j = 0; j < index.size(); ++j){
             int jj = index[j];
-            FloatPrecision a = ms[jj] / rho[jj];
+            Float a = ms[jj] / rho[jj];
             jColGrad.row(j) = a * jGrad.row(j);
             jColLap[j] = a * jCLap[j];
         }
         TranslationVector colorN = jColGrad.colwise().sum();
-        FloatPrecision colorLap = jColLap.sum();
-        FloatPrecision colorNNorm = colorN.norm();
+        Float colorLap = jColLap.sum();
+        Float colorNNorm = colorN.norm();
         if(colorNNorm > color_relevant_normal_size){
-            FloatPrecision aa = (-color_sigma * colorLap / colorNNorm);
+            Float aa = (-color_sigma * colorLap / colorNNorm);
             FSurface.row(i) = aa * colorN;
         }
     }
@@ -177,7 +177,7 @@ void AbstractSph::computeStandardSurfaceTensionForce(const Scene& scene, const K
 
 void AbstractSph::prepareBoundary(Scene& scene) const {
     Coordinates1d& psi = scene.fluid->boundary_psi();
-    FloatPrecision rho0 = scene.fluid->rest_density();
+    Float rho0 = scene.fluid->rest_density();
     psi = rho0 * scene.fluid->boundary_volume();
     auto h = scene.fluid->h();
     scene.fluid->boundary_neighborhood->inRange(scene.fluid->particles_position(), scene.fluid->boundary_position(), h);

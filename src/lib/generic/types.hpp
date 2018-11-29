@@ -8,46 +8,46 @@ namespace GooBalls {
  * A bunch of typedef for general use.
  * */
 
-typedef double CoordinatePrecision;
-typedef Eigen::Matrix<CoordinatePrecision, Eigen::Dynamic, 1, Eigen::ColMajor> Coordinates1d;
+typedef double Float;
+typedef Eigen::Matrix<Float, Eigen::Dynamic, 1, Eigen::ColMajor> Coordinates1d;
 /// Each row is a coordinate tuple: (x,y)
-typedef Eigen::Matrix<CoordinatePrecision, Eigen::Dynamic, 2, Eigen::RowMajor> Coordinates2d;
+typedef Eigen::Matrix<Float, Eigen::Dynamic, 2, Eigen::RowMajor> Coordinates2d;
 /// Each row is a coordiante tuple: (x,y,z)
-typedef Eigen::Matrix<CoordinatePrecision, Eigen::Dynamic, 3, Eigen::RowMajor> Coordinates3d;
+typedef Eigen::Matrix<Float, Eigen::Dynamic, 3, Eigen::RowMajor> Coordinates3d;
 
-typedef Eigen::Matrix<CoordinatePrecision, 2, 2, Eigen::RowMajor> RotationMatrix;
-typedef Eigen::Matrix<CoordinatePrecision, 1, 2, Eigen::RowMajor> TranslationVector;
+typedef Eigen::Matrix<Float, 2, 2, Eigen::RowMajor> RotationMatrix;
+typedef Eigen::Matrix<Float, 1, 2, Eigen::RowMajor> TranslationVector;
 
 /// Colors in the range [0,1]
-typedef double ColorFloatPrecision;
+typedef double ColorFloat;
 
 /// Holds a list of intensity values
-typedef Eigen::Matrix<ColorFloatPrecision, Eigen::Dynamic, 1, Eigen::RowMajor> ColorsFloatGrey;
+typedef Eigen::Matrix<ColorFloat, Eigen::Dynamic, 1, Eigen::RowMajor> ColorsFloatGrey;
 
 /// Holds a list of (intensity, alpha) values 
-typedef Eigen::Matrix<ColorFloatPrecision, Eigen::Dynamic, 2, Eigen::RowMajor> ColorsFloatGreyA;
+typedef Eigen::Matrix<ColorFloat, Eigen::Dynamic, 2, Eigen::RowMajor> ColorsFloatGreyA;
 
 /// Holds a list of (red, green, blue) values
-typedef Eigen::Matrix<ColorFloatPrecision, Eigen::Dynamic, 3, Eigen::RowMajor> ColorsFloatRGB;
+typedef Eigen::Matrix<ColorFloat, Eigen::Dynamic, 3, Eigen::RowMajor> ColorsFloatRGB;
 
 /// Holds a list of (red, green, blue, alpha) values
-typedef Eigen::Matrix<ColorFloatPrecision, Eigen::Dynamic, 4, Eigen::RowMajor> ColorsFloatRGBA;
+typedef Eigen::Matrix<ColorFloat, Eigen::Dynamic, 4, Eigen::RowMajor> ColorsFloatRGBA;
 
 
 /// Colors in the range [0,255]
-typedef char ColorIntPrecision;
+typedef char ColorInt;
 
 /// Holds a list of intensity values
-typedef Eigen::Matrix<ColorIntPrecision, Eigen::Dynamic, 1, Eigen::RowMajor> ColorsIntGrey;
+typedef Eigen::Matrix<ColorInt, Eigen::Dynamic, 1, Eigen::RowMajor> ColorsIntGrey;
 
 /// Holds a list of (intensity, alpha) values 
-typedef Eigen::Matrix<ColorIntPrecision, Eigen::Dynamic, 2, Eigen::RowMajor> ColorsIntGreyA;
+typedef Eigen::Matrix<ColorInt, Eigen::Dynamic, 2, Eigen::RowMajor> ColorsIntGreyA;
 
 /// Holds a list of (red, green, blue) values
-typedef Eigen::Matrix<ColorIntPrecision, Eigen::Dynamic, 3, Eigen::RowMajor> ColorsIntRGB;
+typedef Eigen::Matrix<ColorInt, Eigen::Dynamic, 3, Eigen::RowMajor> ColorsIntRGB;
 
 /// Holds a list of (red, green, blue, alpha) values
-typedef Eigen::Matrix<ColorIntPrecision, Eigen::Dynamic, 4, Eigen::RowMajor> ColorsIntRGBA;
+typedef Eigen::Matrix<ColorInt, Eigen::Dynamic, 4, Eigen::RowMajor> ColorsIntRGBA;
 
 typedef int VertexIndex;
 typedef int TriangleIndex;

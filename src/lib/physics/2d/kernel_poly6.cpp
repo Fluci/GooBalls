@@ -5,7 +5,7 @@ namespace d2 {
 namespace Physics {
 
 
-void Poly6::setH(FloatPrecision h) {
+void Poly6::setH(Float h) {
     m_h = h;
     m_A = 16.0/M_PI/std::pow(h, 6);
 }

@@ -109,7 +109,7 @@ void Engine::advance(Scene& scene, TimeStep dt) {
              * Cross product: a x b = (a2 b3 - a3b2, a3b1 - a1b3, a1b2 - a2b1)
              * = (a2 * 0 - 0 * b2, 0 * b1 - a1 * b, a1 b2 - a2 b1)
             */
-            FloatPrecision torque = (centered.col(0)*Frigid[1] - centered.col(1) * Frigid[0]).sum();
+            Float torque = (centered.col(0)*Frigid[1] - centered.col(1) * Frigid[0]).sum();
             mesh.body->ApplyTorque(torque, true);
             s += local.rows();
         }

@@ -25,7 +25,7 @@ public:
     /**
      * Gives the kernel the chance to precompute things.
      * */
-    virtual void setH(FloatPrecision h) = 0;
+    virtual void setH(Float h) = 0;
 };
 
 

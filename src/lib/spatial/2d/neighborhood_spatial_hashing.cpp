@@ -23,7 +23,7 @@ namespace GooBalls {
 namespace Spatial {
 
 
-void NeighborhoodSpatialHashing::inRange(const Coordinates2d& points, CoordinatePrecision h){
+void NeighborhoodSpatialHashing::inRange(const Coordinates2d& points, Float h){
     // compute
     /// We use a grid of size h and a hash table for near linear complexity
     GridCoordinates queryGridCoords = (points.array()/h).floor().cast<int>();
@@ -34,7 +34,7 @@ void NeighborhoodSpatialHashing::inRange(const Coordinates2d& points, Coordinate
     }
 }
 
-void NeighborhoodSpatialHashing::inRange(const Coordinates2d& query, const Coordinates2d& target, CoordinatePrecision h){
+void NeighborhoodSpatialHashing::inRange(const Coordinates2d& query, const Coordinates2d& target, Float h){
     // compute
     /// We use a grid of size h and a hash table for near linear complexity
     GridCoordinates queryGridCoords = (query.array()/h).floor().cast<int>();
@@ -46,7 +46,7 @@ void NeighborhoodSpatialHashing::inRange(const Coordinates2d& query, const Coord
 void NeighborhoodSpatialHashing::computeInRange(
     const Coordinates2d& query, const Coordinates2d& target, 
     const GridCoordinates& queryGrid, const GridCoordinates& targetGrid, 
-    CoordinatePrecision h) {
+    Float h) {
     // reset output member members
     resetIndexes(query.rows());
     std::unordered_map<GridCoord, std::vector<Index>> grid;
@@ -56,7 +56,7 @@ void NeighborhoodSpatialHashing::computeInRange(
     }   
     // guarantee: the indices in the per grid lists are sorted in ascending order (we get that for free)
     // for each point, find all neighbors in the ball with radius h
-    CoordinatePrecision h2 = h*h;
+    Float h2 = h*h;
     std::vector<Index> candidates;
     for(int i = 0; i < query.rows(); ++i){
         candidates.clear();
@@ -78,7 +78,7 @@ void NeighborhoodSpatialHashing::computeInRange(
         auto squared = difference.array() * difference.array();
         Coordinates1d squaredDistance = squared.rowwise().sum().eval();
         for(int j = 0; j < squaredDistance.rows(); ++j){
-            CoordinatePrecision d2 = squaredDistance[j];
+            Float d2 = squaredDistance[j];
             if(d2 <= h2){
                 m_indexes[i].push_back(candidates[j]);
             }

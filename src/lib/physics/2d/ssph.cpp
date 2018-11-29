@@ -46,7 +46,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(m_kernelDensity.get() != nullptr);
     assert(m_kernelPressure.get() != nullptr);
     assert(m_kernelViscosity.get() != nullptr);
-    const CoordinatePrecision h = scene.fluid->h();
+    const Float h = scene.fluid->h();
     m_kernelDensity->setH(h);
     m_kernelPressure->setH(h);
     m_kernelViscosity->setH(h);
@@ -54,16 +54,16 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
     auto& vs = scene.fluid->particles_velocity();
     auto& ms = scene.fluid->particles_mass();
     auto& ps = scene.fluid->particles_pressure();
-    FloatPrecision K = scene.fluid->stiffnessConstant(); // gas constant dependent on temperature, TODO: correct value?
+    Float K = scene.fluid->stiffnessConstant(); // gas constant dependent on temperature, TODO: correct value?
     // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3
     // p, pressure: force per unit area
     // nu, kinematic viscosity: high values: fluid doesn't like to deform, low values: fluid likes deformation
     // often: nu = mu / rho
     // mu, dynamic viscosity coefficient:
-    FloatPrecision mu_boundary = scene.fluid->boundary_viscosity(); // viscosity towards wall
+    Float mu_boundary = scene.fluid->boundary_viscosity(); // viscosity towards wall
 
-    FloatPrecision color_relevant_normal_size = 0.1; // TODO: correct value
-    FloatPrecision visc_epsilon = 0.01;
+    Float color_relevant_normal_size = 0.1; // TODO: correct value
+    Float visc_epsilon = 0.01;
     const int PN = pos.rows();
     // Müller et al., all equations we need:
     // density: rho(r_i) = sum_j m_j W(r_i - r_j, h)
@@ -148,7 +148,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
                 int jj = index[j];
                 TranslationVector vij = scene.fluid->boundary_velocity().row(jj) - vs.row(i);
                 jPress.row(j) = -ms[i] * psi[jj] * ps[i]/(rho[i] * rho[i]) * jGrad.row(j);
-                FloatPrecision PI = h * std::max(vij.dot(xik.row(j)), 0.0)/(xik.squaredNorm() + visc_epsilon*h*h);
+                Float PI = h * std::max(vij.dot(xik.row(j)), 0.0)/(xik.squaredNorm() + visc_epsilon*h*h);
                 jVisc.row(j) = mu_boundary * psi[jj] * PI/rho[i] * vij * jLap[j];
                 scene.fluid->boundary_force().row(jj) = scene.fluid->boundary_force().row(jj) - (jPress.row(j) + jVisc.row(j));
             }

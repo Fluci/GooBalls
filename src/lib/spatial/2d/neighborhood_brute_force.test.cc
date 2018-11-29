@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(brute_force_self_inRange){
     pts(8,0) = 0.6;
     pts(9,0) = 0.8;
 
-    CoordinatePrecision h = 0.25;
+    Float h = 0.25;
 
     test.inRange(pts, h);
 

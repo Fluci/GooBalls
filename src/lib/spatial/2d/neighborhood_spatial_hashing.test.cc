@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE(spatial_hashing_self_inRange){
     pts(8,0) = 0.6;
     pts(9,0) = 0.8;
 
-    CoordinatePrecision h = 0.25;
+    Float h = 0.25;
 
     test.inRange(pts, h);
 
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(spatial_hashing_self_inrange_random) {
     Coordinates2d testPoints;
     testPoints.setRandom(100, 2);
 
-    CoordinatePrecision h = 0.05;
+    Float h = 0.05;
 
     truth.inRange(testPoints, h);
     test.inRange(testPoints, h);
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(spatial_hashing_query_target_inrange) {
     Coordinates2d targetPoints;
     targetPoints.setRandom(100, 2);
 
-    CoordinatePrecision h = 0.05;
+    Float h = 0.05;
 
     truth.inRange(queryPoints, targetPoints, h);
     test.inRange(queryPoints, targetPoints, h);

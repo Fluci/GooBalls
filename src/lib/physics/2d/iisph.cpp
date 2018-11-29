@@ -42,7 +42,7 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(m_kernelDensity.get() != nullptr);
     assert(m_kernelPressure.get() != nullptr);
     assert(m_kernelViscosity.get() != nullptr);
-    const CoordinatePrecision h = scene.fluid->h();
+    const Float h = scene.fluid->h();
     m_kernelDensity->setH(h);
     m_kernelPressure->setH(h);
     m_kernelViscosity->setH(h);
@@ -52,7 +52,7 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
     assert(is_finite(pos));
     assert(is_finite(vs));
     assert(is_finite(ms));
-    FloatPrecision K = scene.fluid->stiffnessConstant(); // gas constant dependent on temperature, TODO: correct value?
+    Float K = scene.fluid->stiffnessConstant(); // gas constant dependent on temperature, TODO: correct value?
 
     // p_i = k rho0 / gamma ((rho_i/rho0)^gamma - 1)
     // F^p_i = m_i sum_j m_j ( p_i / rho_i^2 + p_j / rho_j^2) \nabbla W_ij
@@ -166,14 +166,14 @@ void IISPH::pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel) {
     auto rho0 = scene.fluid->rest_density();
     auto PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
-    FloatPrecision eta = 0.01*rho0;
+    Float eta = 0.01*rho0;
     Coordinates1d p1;
     Coordinates1d rhol;
     Coordinates2d dp; // sum_j dij p^l_j, for given i
     p1.resize(PN, 1);
     rhol.setZero(PN, 1);
     dp.resize(PN, 2);
-    FloatPrecision omega = 0.5; // relaxation factor
+    Float omega = 0.5; // relaxation factor
     int l = 0;
     do {
         //    sum_j d_ij p^l_j = - dt^2 sum_j m_j / rho_j^2 p^l_j \nabbla _Wij

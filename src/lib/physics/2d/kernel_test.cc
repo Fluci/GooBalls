@@ -30,8 +30,8 @@ Coordinates2d randomUnitDisk(int samples){
     return Xs;
 }
 
-std::vector<FloatPrecision> getHs(){
-    std::vector<FloatPrecision> hs;
+std::vector<Float> getHs(){
+    std::vector<Float> hs;
     hs.push_back(0.1);
     hs.push_back(0.5);
     hs.push_back(1.0);
@@ -45,16 +45,16 @@ std::vector<FloatPrecision> getHs(){
 void testRadialSymmetry(Kernel& k, int experiments){
     int radiusSamples = std::sqrt(experiments);
     int angleSamples = radiusSamples;
-    FloatPrecision h = 1.0;
+    Float h = 1.0;
     k.setH(h);
     Coordinates2d Xs(angleSamples, 2);
     Coordinates1d w, wgradN, wlap;
     Coordinates2d wgrad;
     Coordinates2d dirs(angleSamples, 2);
     for(int i = 0; i < radiusSamples; ++i){
-        FloatPrecision radius = i/double(radiusSamples) * h;
+        Float radius = i/double(radiusSamples) * h;
         for(int j = 0; j < angleSamples; ++j){
-            FloatPrecision angle = i/double(angleSamples) * 2*M_PI;
+            Float angle = i/double(angleSamples) * 2*M_PI;
             dirs(j, 0) = std::sin(angle);
             dirs(j, 1) = std::cos(angle);
         }
@@ -114,7 +114,7 @@ void testNonNegativity(Kernel& k, int experiments){
 void testMonotonicity(Kernel& k, int experiments){
     Coordinates2d Xs(experiments, 2);
     Xs.setZero();
-    FloatPrecision h = 1.0;
+    Float h = 1.0;
     for(int i = 0; i < experiments; ++i){
         Xs(i, 0) = i/double(experiments-1)*h;
     }
@@ -130,7 +130,7 @@ void testGradientFiniteDifference(Kernel& k, int experiments){
     const Coordinates2d Xorig = randomUnitDisk(experiments);
     auto hs = getHs();
     for(auto h : hs){
-        FloatPrecision dx = h * 0.00000001;
+        Float dx = h * 0.00000001;
         k.setH(h);
         Coordinates2d Xs = 0.99 * h * Xorig;
         Coordinates2d Xsx = Xs;
@@ -156,7 +156,7 @@ void testLaplacianFromGradientFiniteDifferences(Kernel& k, int experiments){
     const Coordinates2d Xorig = randomUnitDisk(experiments);
     auto hs = getHs();
     for(auto h : hs){
-        FloatPrecision dx = h * 0.000001;
+        Float dx = h * 0.000001;
         k.setH(h);
         Coordinates2d Xs = 0.99*h*Xorig;
         Coordinates2d Xsx, Xsy;
@@ -179,7 +179,7 @@ void testLaplacianFiniteDifference(Kernel& k, int experiments){
     const Coordinates2d Xorig = randomUnitDisk(experiments);
     auto hs = getHs();
     for(auto h : hs){
-        FloatPrecision dx = h * 0.00001;
+        Float dx = h * 0.00001;
         k.setH(h);
         Coordinates2d Xs = 0.99 * h * Xorig;
         Coordinates2d Xsx1, Xsx2, Xsy1, Xsy2;
@@ -221,12 +221,12 @@ void testNormalization(Kernel& k, int experiments){
             }
         }
         Xs.conservativeResize(inserted, Eigen::NoChange);
-        FloatPrecision dA;
+        Float dA;
         dA = 1.0/(n*n); // area of one test square
         Coordinates1d W;
         k.setH(h);
         k.compute(Xs, &W, nullptr, nullptr);
-        FloatPrecision totalWeight = W.sum()*dA;
+        Float totalWeight = W.sum()*dA;
         BOOST_TEST(totalWeight == 1.0);
     }
 }

@@ -61,11 +61,11 @@ const Coordinates1d& Mesh::particles_volume() const {
 }
 
 RotationMatrix Mesh::rotation() const {
-    FloatPrecision radianAngle = body->GetAngle();
+    Float radianAngle = body->GetAngle();
     // eigen convention: counter-clockwise rotation in radians
     // box2d convention: not clear, only hint is in chapter 8.6 Revolute Joint of the manual -> test
     // TODO: test rotation direction of Box2d
-    Eigen::Rotation2D<FloatPrecision> rot(radianAngle);
+    Eigen::Rotation2D<Float> rot(radianAngle);
     RotationMatrix rotM = rot.toRotationMatrix();
     return rotM;
 }
@@ -87,8 +87,8 @@ TranslationVector Mesh::linear_velocity() const {
 RotationMatrix Mesh::angular_velocity() const {
     // box2d: radians/second
     RotationMatrix r;
-    FloatPrecision v = body->GetAngularVelocity();
-    Eigen::Rotation2D<FloatPrecision> rot(v);
+    Float v = body->GetAngularVelocity();
+    Eigen::Rotation2D<Float> rot(v);
     RotationMatrix rotM = rot.toRotationMatrix();
     // TODO: it is not clear, if rotM needs to be transposed here -> test
     return rotM;
@@ -113,13 +113,13 @@ void Mesh::update_from_rigid_body() {
     }
 }
 
-void Mesh::prepare(FloatPrecision h){
+void Mesh::prepare(Float h){
     update_from_rigid_body();
     create_particles(h);
     compute_particles_volume(h);
 
 }
-void Mesh::create_particles(FloatPrecision h) {
+void Mesh::create_particles(Float h) {
     // most basic particle generation algorithm:
     // for each triangle
     // - add three particles for each corner
@@ -157,7 +157,7 @@ void Mesh::create_particles(FloatPrecision h) {
     }
 }
 
-void Mesh::compute_particles_volume(FloatPrecision h) {
+void Mesh::compute_particles_volume(Float h) {
     // occupied volume according to Versatile Rigid-Fluid Coupling for Incompressible SPH, Akinci et. al
     // V_bi = 1/sum_k W_ik, W: is a kernel
     m_particles_volume.resize(m_particles_position_local.rows(), Eigen::NoChange);

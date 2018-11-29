@@ -23,9 +23,9 @@ public:
 /// It computes for each point i a list of points within radius `h` (index i is not contained) and returns this list
 /// the per point index lists are not sorted
 /// the list of a point i contains the point i itself
-    virtual void inRange(const Coordinates2d& points, CoordinatePrecision h) = 0;
+    virtual void inRange(const Coordinates2d& points, Float h) = 0;
 /// Takes a list of query points a nd target points. For each query point, the index of the target points in radius `h` is returned.
-    virtual void inRange(const Coordinates2d& query, const Coordinates2d& target_points, CoordinatePrecision h) = 0;
+    virtual void inRange(const Coordinates2d& query, const Coordinates2d& target_points, Float h) = 0;
 };
 
 } // Spatial

@@ -13,10 +13,10 @@ namespace Spatial {
 class NeighborhoodSpatialHashing: public Neighborhood {
     typedef Eigen::Matrix<int, Eigen::Dynamic, 2, Eigen::RowMajor> GridCoordinates;
     typedef std::pair<int, int> GridCoord;
-    void computeInRange(const Coordinates2d& query, const Coordinates2d& target, const GridCoordinates& queryGrid, const GridCoordinates& targetGrid, CoordinatePrecision h);
+    void computeInRange(const Coordinates2d& query, const Coordinates2d& target, const GridCoordinates& queryGrid, const GridCoordinates& targetGrid, Float h);
 public:
-    virtual void inRange(const Coordinates2d& points, CoordinatePrecision h);
-    virtual void inRange(const Coordinates2d& query, const Coordinates2d& target_points, CoordinatePrecision h);
+    virtual void inRange(const Coordinates2d& points, Float h);
+    virtual void inRange(const Coordinates2d& query, const Coordinates2d& target_points, Float h);
 };
 
 } // Spatial

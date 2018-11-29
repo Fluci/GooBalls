@@ -29,7 +29,7 @@ public:
     void update_from_rigid_body();
     /// Computes everything to make the object ready for the run loop
     /// `h` needs to be known, as the boundary particles are pre-computed as much as possible
-    void prepare(FloatPrecision h);
+    void prepare(Float h);
     const Coordinates2d& particles_position_local() const;
     const Coordinates2d& particles_velocity() const;
     const Coordinates1d& particles_volume() const;
@@ -48,9 +48,9 @@ private:
     Coordinates m_particles_velocity;
     Coordinates1d m_particles_volume;
     /// Create fixed particles
-    void create_particles(FloatPrecision h);
+    void create_particles(Float h);
     /// Compute weight for particles
-    void compute_particles_volume(FloatPrecision h);
+    void compute_particles_volume(Float h);
 };
 
 } // Physics

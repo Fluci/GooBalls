@@ -38,7 +38,7 @@ protected:
     /// As described in Mueller et al. 2003
     void computeStandardPressureForce(const Scene& scene, const Kernel& pressureKernel);
     /// As described in Mueller et al. 2003
-    void computeStandardSurfaceTensionForce(const Scene& scene, const Kernel& kernel, FloatPrecision color_relevant_normal_size);
+    void computeStandardSurfaceTensionForce(const Scene& scene, const Kernel& kernel, Float color_relevant_normal_size);
     /// As described in Monaghan, 1992
     void computeMomentumPreservingPressureForce(const Scene& scene, const Kernel& pressureKernel);
 public:

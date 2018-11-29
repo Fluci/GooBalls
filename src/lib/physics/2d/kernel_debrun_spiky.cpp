@@ -6,9 +6,9 @@ namespace GooBalls {
 namespace d2 {
 namespace Physics {
 
-FloatPrecision epsilon = 0.000001;
+Float epsilon = 0.000001;
 
-void DebrunSpiky::setH(FloatPrecision h) {
+void DebrunSpiky::setH(Float h) {
     m_h = h;
     m_A = 40.0/M_PI/std::pow(h, 3);
 }

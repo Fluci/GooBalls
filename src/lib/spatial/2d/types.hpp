@@ -6,7 +6,7 @@ namespace GooBalls {
 
 namespace Spatial {
 
-    typedef CoordinatePrecision Float;
+// empty
 }
 
 } // GooBalls
