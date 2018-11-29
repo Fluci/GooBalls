@@ -85,23 +85,25 @@ void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::stri
 			max_y = maxCoords(0, 1);
 			double half_width = (max_x - min_x) / 2.0;
 			double half_height = (max_y - min_y) / 2.0;
-            vertices.resize(4,2);
-            vertices(0,0) = min_x;
-            vertices(0,1) = min_y;
-            vertices(1,0) = max_x;
-            vertices(1,1) = min_y;
-            vertices(2,0) = max_x;
-            vertices(2,1) = max_y;
-            vertices(3,0) = min_x;
-            vertices(3,1) = max_y;
-            faces.resize(2,3);
-            faces(0,0) = 0;
-            faces(0,1) = 1;
-            faces(0,2) = 2;
-            faces(1,0) = 2;
-            faces(1,1) = 3;
-            faces(1,2) = 0;
-
+            bool meshToBoundingBox = false;
+            if(meshToBoundingBox){
+                vertices.resize(4,2);
+                vertices(0,0) = min_x;
+                vertices(0,1) = min_y;
+                vertices(1,0) = max_x;
+                vertices(1,1) = min_y;
+                vertices(2,0) = max_x;
+                vertices(2,1) = max_y;
+                vertices(3,0) = min_x;
+                vertices(3,1) = max_y;
+                faces.resize(2,3);
+                faces(0,0) = 0;
+                faces(0,1) = 1;
+                faces(0,2) = 2;
+                faces(1,0) = 2;
+                faces(1,1) = 3;
+                faces(1,2) = 0;
+            }
 			if (showDebugOutput) std::cout << "Bounding Box at (" << min_x << ", " << min_y << "), (" << max_x << ", " << max_y << ")" << std::endl;
 
 
