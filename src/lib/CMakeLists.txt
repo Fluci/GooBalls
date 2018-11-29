@@ -29,6 +29,7 @@ set(source_files
     rendering/2d/mesh.cpp
     rendering/2d/engine.cpp
     rendering/2d/scene.cpp
+    spatial/2d/convex_hull.cpp
     spatial/2d/neighborhood.cpp
     spatial/2d/neighborhood_brute_force.cpp
     spatial/2d/neighborhood_spatial_hashing.cpp
@@ -76,6 +77,7 @@ set(test_files
     physics/2d/kernel_poly6.test.cc
     physics/2d/kernel_viscosity.test.cc
     observing/abstractSubject.test.cc
+    spatial/2d/convex_hull.test.cc
     spatial/2d/neighborhood_spatial_hashing.test.cc
     spatial/2d/neighborhood_brute_force.test.cc
     )

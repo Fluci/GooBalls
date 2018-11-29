@@ -1,4 +1,5 @@
 #include "scene_loader.hpp"
+#include "spatial/2d/convex_hull.hpp"
 
 /**
  * Loads a scene from a file <scenename>.json located in the scenes-folder.
@@ -144,16 +145,13 @@ void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::stri
 			// or maybe use CGAL or smth for this.
 			b2PolygonShape boundingBox;
             //boundingBox.SetAsBox(half_width, half_height, b2Vec2(min_x+half_width, min_y+half_height), 0.0);
-            b2Vec2 b2Verts[4];
-            b2Verts[0].x = min_x;
-            b2Verts[0].y = min_y;
-            b2Verts[1].x = max_x;
-            b2Verts[1].y = min_y;
-            b2Verts[2].x = max_x;
-            b2Verts[2].y = max_y;
-            b2Verts[3].x = min_x;
-            b2Verts[3].y = max_y;
-            boundingBox.Set(b2Verts, 4);
+            auto convexHull = Spatial::convex_hull(vertices);
+            b2Vec2 b2Verts[convexHull.rows()];
+            for(int i = 0; i < convexHull.rows(); ++i) {
+                b2Verts[i].x = convexHull(i, 0);
+                b2Verts[i].y = convexHull(i, 1);
+            }
+            boundingBox.Set(b2Verts, convexHull.rows());
             physMesh.body->CreateFixture(&boundingBox, 100000.0f); // attach the bounding box to the body
 
 			// insert the box2d mesh into the scene (including body and bounding box)

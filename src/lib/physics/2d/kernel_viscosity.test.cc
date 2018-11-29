@@ -12,7 +12,7 @@ namespace utf = boost::unit_test;
 
 typedef Viscosity KKernel;
 
-BOOST_AUTO_TEST_CASE(viscosity_zero_border, *utf::tolerance(0.0001)){
+BOOST_AUTO_TEST_CASE(viscosity_zero_border, *utf::tolerance(0.001)){
     KKernel k;
     testZeroBorder(k, 100);
 }
