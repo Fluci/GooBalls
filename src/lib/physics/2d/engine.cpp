@@ -4,6 +4,7 @@
 #include "spatial/2d/neighborhood_spatial_hashing.hpp"
 
 #include <Eigen/Core>
+#include <Eigen/Dense>
 
 #include <boost/log/trivial.hpp>
 
@@ -86,7 +87,7 @@ void Engine::advance(Scene& scene, TimeStep dt) {
         int s = 0;
         for(auto& mesh : scene.meshes){
             const auto& local = mesh.particles_position_local();
-            boundary.block(s, 0, local.rows(), 2) = local.rowwise() + mesh.translation();//(local * mesh.rotation().transpose()).rowwise() + mesh.translation(); // TODO: check order of arguments
+            boundary.block(s, 0, local.rows(), 2) = (local * mesh.rotation().transpose()).rowwise() + mesh.translation();//(local * mesh.rotation().transpose()).rowwise() + mesh.translation(); // TODO: check order of arguments
             volume.block(s, 0, local.rows(), 1) = mesh.particles_volume();
             velocity.block(s, 0, local.rows(), 2) = mesh.particles_velocity();
             s += local.rows();
@@ -100,8 +101,16 @@ void Engine::advance(Scene& scene, TimeStep dt) {
         int s = 0;
         for(auto& mesh : scene.meshes){
             const auto& local = mesh.particles_position_local();
-            auto Frigid = scene.fluid->boundary_force().block(s, 0, local.rows(), 2).colwise().sum();
-            mesh.body->ApplyForce(b2Vec2(Frigid[0], Frigid[1]), mesh.body->GetWorldCenter(), true);
+            const auto& part = scene.fluid->boundary_force().block(s, 0, local.rows(), 2);
+            TranslationVector Frigid = part.colwise().sum();
+            mesh.body->ApplyForce(b2Vec2(Frigid[0], Frigid[1]), mesh.body->GetWorldCenter(), false);
+            Coordinates2d centered = (part.rowwise() - part.colwise().mean());
+            /*
+             * Cross product: a x b = (a2 b3 - a3b2, a3b1 - a1b3, a1b2 - a2b1)
+             * = (a2 * 0 - 0 * b2, 0 * b1 - a1 * b, a1 b2 - a2 b1)
+            */
+            FloatPrecision torque = (centered.col(0)*Frigid[1] - centered.col(1) * Frigid[0]).sum();
+            mesh.body->ApplyTorque(torque, true);
             s += local.rows();
         }
     }
