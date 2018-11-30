@@ -19,6 +19,7 @@ public:
     virtual bool considerBoundary(bool consider);
     virtual bool considerBoundary() const;
     void updateVelocityCorrectionCoefficients(Scene& scene, TimeStep dt);
+    void controlConnections(Scene& scene);
     /// Set the fluid solver responsible for the core physics
     void base(std::unique_ptr<FluidSolver>&& b);
 private:

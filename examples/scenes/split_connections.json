@@ -1,0 +1,46 @@
+{
+	"name":"Falling Box",
+    "includes": ["world_border.json"],
+	"scale": 0.035,
+	"translation": [-1, -.5],
+        "fluid": {
+        "particles": {
+            "type": "grid",
+            "gridWidth": 40,
+            "gridHeight": 10,
+            "gridSpacing": 0.9
+        },
+        "position": [15, 40],
+        "kernelRadius": 1.42,
+        "mass": 100,
+        "initialVelocity": [0, 0],
+        "stiffnessConstant": 10000,
+        "restDensity": 1000,
+        "surfaceTension": 0,
+        "fluidViscosity": 0.03,
+        "boundaryViscosity": 0.03,
+        "pressureGamma": 7.0,
+        "color": [0.6, 0.6, 1.0],
+        "radius": 0.23,
+        "velocityCorrectionCoefficient": 0.05,
+        "velocityCorrectionCoefficientMin": 0.00000,
+        "weakeningSpeed": 0.0,
+        "yieldCriterion": 0.00000001,
+        "mergeThreshold": 1,
+        "splitThreshold": 1.2
+    },
+	"objects": [
+        {
+            "name": "triangleOfDoom",
+            "position": [25, 20],
+            "vertices": [
+				[-6, 0],
+				[6, 0],
+				[0, 8]
+            ],
+            "faces": [
+                [0,1,2]
+            ]
+        }
+    ]
+}

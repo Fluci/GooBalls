@@ -182,6 +182,10 @@ void SceneLoader::readFluid(Physics::Scene& physScene, Render::Scene& renderScen
         fluidPhys->particles_weakening_speed() = fluid["weakeningSpeed"].asDouble();
     if(fluid.isMember("yieldCriterion"))
         fluidPhys->particles_yield_criterion() = fluid["yieldCriterion"].asDouble();
+    if(fluid.isMember("mergeThreshold"))
+        fluidPhys->merge_threshold() = fluid["mergeThreshold"].asDouble();
+    if(fluid.isMember("splitThreshold"))
+        fluidPhys->split_threshold() = fluid["splitThreshold"].asDouble();
 
     fluidRender->particles_color().setOnes(pn, 3);
     if(fluid.isMember("color")){

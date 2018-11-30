@@ -35,22 +35,6 @@ void Engine::initScene(Scene& scene){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle mass set, setting to ones.";
         scene.fluid->particles_mass().setOnes(pos.rows());
     }
-    auto& conn = scene.fluid->particles_connectivity();
-    if((long) pos.rows() != (long)conn.size()){
-        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle connectivity set, setting to 1.5*h.";
-        NeighborhoodSpatialHashing neigh;
-        neigh.inRange(pos, scene.fluid->h()*4);
-        conn.resize(pos.rows());
-        for(int i = 0; i < pos.rows(); ++i){
-            const auto& index = neigh.indexes()[i];
-            conn[i].resize(index.size());
-            for(size_t j = 0; j < index.size(); ++j){
-                int jj = index[j];
-                conn[i][j].partner = jj;
-                conn[i][j].rij = (pos.row(i) - pos.row(jj)).norm();
-            }
-        }
-    }
     if(pos.rows() != scene.fluid->particles_velocity_correction().rows()){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity correction coefficients set, setting to 1.";
         scene.fluid->particles_velocity_correction().resize(pos.rows(), Eigen::NoChange);

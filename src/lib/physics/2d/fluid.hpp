@@ -66,6 +66,12 @@ public:
     Float& particles_yield_criterion();
     const Float& particles_yield_criterion() const;
 
+    Float& merge_threshold();
+    const Float& merge_threshold() const;
+
+    Float& split_threshold();
+    const Float& split_threshold() const;
+
     const Coordinates2d& boundary_position() const;
     Coordinates2d& boundary_position();
 
@@ -137,6 +143,8 @@ private:
     Float m_weakening_speed = 0.0;
     /// Roughly: if a paritle pair is further than h*gamma, it get's weakened
     Float m_yield_criterion = 1.5;
+    Float m_merge_threshold = 1.0;
+    Float m_split_threshold = 3.0;
 
     Float m_K = 10000.0; // gas constant dependent on temperature, good values 1000-100'000
     // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3

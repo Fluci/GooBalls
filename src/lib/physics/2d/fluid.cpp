@@ -115,6 +115,21 @@ const Float& Fluid::particles_yield_criterion() const {
     return m_yield_criterion;
 }
 
+Float& Fluid::merge_threshold() {
+    return m_merge_threshold;
+}
+
+const Float& Fluid::merge_threshold() const {
+    return m_merge_threshold;
+}
+
+Float& Fluid::split_threshold() {
+    return m_split_threshold;
+}
+
+const Float& Fluid::split_threshold() const {
+    return m_split_threshold;
+}
 
 const Coordinates2d& Fluid::boundary_position() const {
     assert(m_boundary_position.get() != nullptr);

@@ -29,6 +29,7 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
     if(scene.fluid.get() == nullptr){
         return;
     }
+    controlConnections(scene);
     computeTotalForce(scene, dt);
     Coordinates2d a;
     // a_i = f_i / rho_i
@@ -100,8 +101,62 @@ void ViscoElastic::updateVelocityCorrectionCoefficients(Scene& scene, TimeStep d
             BOOST_LOG_TRIVIAL(info) << cs[i];
         }
     }
-
 }
+
+void ViscoElastic::controlConnections(Scene& scene) {
+    // if ||x_ij|| < h * alpha -> new connection
+    // if ||x_ij|| > h * beta -> split
+    const auto alpha = scene.fluid->merge_threshold();
+    const auto beta = scene.fluid->split_threshold();
+    assert(alpha < beta);
+    const auto& pos = scene.fluid->particles_position();
+    const auto h = scene.fluid->h();
+    auto& cs = scene.fluid->particles_connectivity();
+    cs.resize(pos.rows());
+    // remove connections that are too large
+    Float hb2 = h*h*beta*beta;
+    int removed = 0;
+    for(int i = 0; i < pos.rows(); ++i){
+        int next = 0;
+        for(size_t j = 0; j < cs[i].size(); ++j){
+            TranslationVector xij = pos.row(i) - pos.row(cs[i][j].partner);
+            if(xij.squaredNorm() > hb2){
+                // remove
+                removed++;
+            } else {
+                // move to next
+                cs[i][next] = cs[i][j];
+                next++;
+            }
+        }
+        cs[i].resize(next);
+        std::sort(cs[i].begin(), cs[i].end(), [](auto a, auto b){return a.partner < b.partner;});
+    }
+    // add new connections
+    scene.fluid->fluid_neighborhood->inRange(pos, h*alpha);
+    const auto& indexes = scene.fluid->fluid_neighborhood->indexes();
+    int added = 0;
+    for(int i = 0; i < pos.rows(); ++i){
+        const auto& index = indexes[i];
+        for(size_t j = 0; j < index.size(); ++j){
+            int jj = index[j];
+            Connection newConnection;
+            newConnection.partner = jj;
+            auto candidate = std::lower_bound(cs[i].begin(), cs[i].end(), newConnection, [](const auto& a, const auto& b){return a.partner < b.partner;});
+            if(candidate != cs[i].end() && candidate->partner == jj){
+                // already exists
+                continue;
+            }
+            added++;
+            newConnection.rij = (pos.row(i) - pos.row(jj)).norm();
+            cs[i].push_back(std::move(newConnection));
+        }
+    }
+    if(removed != 0 || added != 0){
+        BOOST_LOG_TRIVIAL(trace) << "Connections removed: " << removed << ", added: " << added;
+    }
+}
+
 
 void ViscoElastic::computeTotalForce(Scene& scene, TimeStep dt){
     m_solver->computeTotalForce(scene, dt);
