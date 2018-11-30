@@ -31,6 +31,8 @@ public:
 */
 bool loadScene(Physics::Scene& physScene, Render::Scene& renderScene, std::string sceneName);
 
+void setEmptyFluid(Physics::Scene& physScene, Render::Scene& renderScene) const;
+
 void readFluid(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& fluid) const;
 
 void readObject(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& obj) const;

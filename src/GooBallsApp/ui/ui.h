@@ -150,7 +150,9 @@ public:
         for(int i = 0; i < n; ++i){
             m_physicsEngine.advance(m_physicsScene, dt);
         }
+        // for the moment only one fluid is supported
         if(!m_renderScene.fluids.empty()){
+            assert(m_renderScene.fluids.size() == 1);
             auto& col = m_renderScene.fluids[0]->particles_color();
             const auto& ps = m_physicsScene.fluid->particles_pressure();
             auto& rad = m_renderScene.fluids[0]->particles_radius();

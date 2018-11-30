@@ -14,6 +14,10 @@
 #include "loader/scene_loader.hpp"
 
 #include "ui/ui.h"
+#include "cli_options.hpp"
+
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
 
 using namespace GooBalls;
 using namespace d2;
@@ -125,15 +129,89 @@ void createRandomScene(Physics::Scene& physScene, Render::Scene& aRenderScene) {
 
 }
 
+namespace op = boost::program_options;
+/// Set global log level according to given string, valid values:
+/// none, trace, debug, info, warning, error, fatal
+/// Unknown values default to info
+void setLogLevel(const std::string &level) {
+    namespace log = boost::log::trivial;
+    if (level == "none") {
+        boost::log::core::get()->set_filter(log::severity > log::fatal);
+        return;
+    }
+    auto logFilter = log::info;
+    if (level == "trace") {
+        logFilter = log::trace;
+    } else if (level == "debug") {
+        logFilter = log::debug;
+    } else if (level == "info") {
+        logFilter = log::info;
+    } else if (level == "warning") {
+        logFilter = log::warning;
+    } else if (level == "error") {
+        logFilter = log::error;
+    } else if (level == "fatal") {
+        logFilter = log::fatal;
+    } else {
+    // empty: default for unknown entries
+    }
+    boost::log::core::get()->set_filter(log::severity >= logFilter);
+}
+
+/// Adds some additional settings to the command line options and parses the passed arguments.
+op::variables_map parseCli(int argc, char *argv[],
+                           const op::options_description &option_desc) {
+
+    op::positional_options_description pos_desc;
+    // allow to shorten "-src <path>" to "<path>"
+    pos_desc.add("src", -1);
+    op::command_line_parser parser{argc, argv};
+    parser.options(option_desc).positional(pos_desc).allow_unregistered();
+    op::parsed_options parsed_options = parser.run();
+    op::variables_map cli_options;
+    op::store(parsed_options, cli_options);
+    return cli_options;
+}
 
 int main(int argc, char **argv) {
+    op::options_description option_desc = cli_options();
+    op::variables_map cli_options;
+
+    try {
+      cli_options = parseCli(argc, argv, option_desc);
+    } catch (const std::string &e) {
+      std::cerr << "Exception caught while reading cli arguments: " << e
+                << std::endl;
+    } catch (const char *e) {
+      std::cerr << "Exception caught while reading cli arguments: " << e
+                << std::endl;
+    } catch (const int e) {
+      std::cerr << "Exception caught while reading cli arguments: " << e
+                << std::endl;
+    } catch (const std::exception &e) {
+      std::cerr << "Exception caught while reading cli arguments: " << e.what()
+                << std::endl;
+    }
+
+    if (cli_options.count("help")) {
+      std::cout << option_desc;
+      return 0;
+    }
+
+    setLogLevel(cli_options["log"].as<std::string>());
+
+    std::string scenePath = "../examples/scenes/falling_box.json";
+    if(cli_options.count("src")) {
+        scenePath = cli_options["src"].as<std::string>();
+    }
+
     Physics::Engine physicsEngine;
     Physics::Scene physicsScene;
     Render::Engine renderEngine;
     Render::Scene renderScene;
     //createRandomScene(physicsScene, renderScene);
     SceneLoader loader;
-    if(!loader.loadScene(physicsScene, renderScene, "../examples/scenes/falling_box.json")){
+    if(!loader.loadScene(physicsScene, renderScene, scenePath)){
         return 1;
     }
     //auto tmp = std::make_unique<Physics::SSPH>();

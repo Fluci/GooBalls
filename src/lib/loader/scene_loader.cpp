@@ -47,7 +47,7 @@ bool SceneLoader::loadScene(Physics::Scene& physScene, Render::Scene& renderScen
     BOOST_LOG_TRIVIAL(info) << "Loading Scene: " << scene["name"].asString() << std::endl;
     if(scene.isMember("includes")){
         const auto& includes = scene["includes"];
-        for(int i = 0; i < includes.size(); ++i){
+        for(unsigned int i = 0; i < includes.size(); ++i){
             auto includePath = boost::filesystem::path(includes[i].asString());
             if(includePath.is_absolute()){
                 loadScene(physScene, renderScene, includePath.string());
@@ -70,13 +70,15 @@ bool SceneLoader::loadScene(Physics::Scene& physScene, Render::Scene& renderScen
 
     // iterate through the scene's objects
     //int objectCount = obj["objects"]["count"].asInt();
-    for (int objIndex = 0; objIndex < scene["objects"].size(); objIndex++) {
+    for (unsigned int objIndex = 0; objIndex < scene["objects"].size(); objIndex++) {
         const auto& obj = scene["objects"][objIndex];
         readObject(physScene, renderScene, obj);
     }
 
     if(scene.isMember("fluid")){
         readFluid(physScene, renderScene, scene["fluid"]);
+    } else {
+        setEmptyFluid(physScene, renderScene);
     }
     return true;
 }
@@ -90,6 +92,7 @@ Coordinates2d SceneLoader::createGrid(int px, int py, Float gridSpacing) const {
             coords(i*py + j, 1) = j;
         }
     }
+    coords = gridSpacing * coords;
     return coords;
 }
 
@@ -99,6 +102,17 @@ Coordinates2d SceneLoader::readGrid(const Json::Value& grid) const {
     int py = grid["gridHeight"].asInt();
     Float distance = grid["gridSpacing"].asDouble();
     return createGrid(px, py, distance);
+}
+
+void SceneLoader::setEmptyFluid(Physics::Scene& physScene, Render::Scene& renderScene) const {
+    auto particleCoordinates = std::make_shared<Coordinates2d>();
+    auto boundaryCoords = std::make_shared<Coordinates2d>();
+    auto fluidPhys = std::make_unique<Physics::Fluid>(particleCoordinates, boundaryCoords);
+    auto fluidRender = std::make_unique<Render::DiskFluid>(particleCoordinates, boundaryCoords);
+
+    physScene.fluid = std::move(fluidPhys);
+    renderScene.fluids.resize(1);
+    renderScene.fluids[0] = std::move(fluidRender);
 }
 
 void SceneLoader::readFluid(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& fluid) const {
@@ -149,7 +163,6 @@ void SceneLoader::readFluid(Physics::Scene& physScene, Render::Scene& renderScen
     fluidPhys->fluid_viscosity(fluid["fluidViscosity"].asDouble());
     fluidPhys->boundary_viscosity(fluid["boundaryViscosity"].asDouble());
     fluidPhys->pressure_gamma(fluid["pressureGamma"].asDouble());
-    physScene.fluid = std::move(fluidPhys);
 
     fluidRender->particles_color().resize(pn, 3);
     fluidRender->particles_color().col(0).array() = fluid["color"][0].asDouble();
@@ -158,12 +171,15 @@ void SceneLoader::readFluid(Physics::Scene& physScene, Render::Scene& renderScen
     fluidRender->particles_radius().resize(pn);
     fluidRender->particles_radius().array() = fluid["radius"].asDouble();
 
-    renderScene.fluids.push_back(std::move(fluidRender));
+    physScene.fluid = std::move(fluidPhys);
+    // for the moment we only support one fluid at a time
+    renderScene.fluids.resize(1);
+    renderScene.fluids[0] = std::move(fluidRender);
 }
 
 Coordinates2d SceneLoader::readCoordinates(const Json::Value& coords) const {
     Coordinates2d vertices(coords.size(), 2);
-    for (int i = 0; i < coords.size(); i++) {
+    for (unsigned int i = 0; i < coords.size(); i++) {
         vertices(i, 0) = coords[i][0].asDouble();
         vertices(i, 1) = coords[i][1].asDouble();
     }
