@@ -1,6 +1,7 @@
 #include "scene_loader.hpp"
 #include "spatial/2d/convex_hull.hpp"
 #include <boost/log/trivial.hpp>
+#include <boost/filesystem.hpp>
 #include "rendering/2d/disk_fluid.hpp"
 
 /**
@@ -31,18 +32,31 @@ using namespace d2;
 
 bool showDebugOutput = true;
 
-bool SceneLoader::loadScene(Physics::Scene& physScene, Render::Scene& renderScene, std::string path) {
+bool SceneLoader::loadScene(Physics::Scene& physScene, Render::Scene& renderScene, std::string pathStr) {
 
-	std::ifstream ifs(path);
+    auto path = boost::filesystem::canonical(pathStr);
+    std::ifstream ifs(path.string());
 
     if (!ifs.is_open()) {
-        BOOST_LOG_TRIVIAL(error) << "Error on opening scene file!";
+        BOOST_LOG_TRIVIAL(error) << "Error on opening scene file: " + path.string();
         return false;
     }
     Json::Reader reader;
     Json::Value scene;
     reader.parse(ifs, scene);
     BOOST_LOG_TRIVIAL(info) << "Loading Scene: " << scene["name"].asString() << std::endl;
+    if(scene.isMember("includes")){
+        const auto& includes = scene["includes"];
+        for(int i = 0; i < includes.size(); ++i){
+            auto includePath = boost::filesystem::path(includes[i].asString());
+            if(includePath.is_absolute()){
+                loadScene(physScene, renderScene, includePath.string());
+            } else {
+                auto thisDir = path.parent_path();
+                loadScene(physScene, renderScene, (thisDir / includePath).string());
+            }
+        }
+    }
     scale = 1.0;
     transl_x = 0.0;
     transl_y = 0.0;
@@ -248,6 +262,16 @@ std::vector<b2Vec2> SceneLoader::computeAABB(const Coordinates2d& vertices) cons
     max_x = maxCoords(0, 0);
     max_y = maxCoords(0, 1);
     BOOST_LOG_TRIVIAL(info) << "Bounding Box at (" << min_x << ", " << min_y << "), (" << max_x << ", " << max_y << ")";
+    std::vector<b2Vec2> b2Verts(4);
+    b2Verts[0].x = min_x;
+    b2Verts[0].y = min_y;
+    b2Verts[1].x = max_x;
+    b2Verts[1].y = min_y;
+    b2Verts[2].x = max_x;
+    b2Verts[2].y = max_y;
+    b2Verts[3].x = min_x;
+    b2Verts[3].y = max_y;
+    return b2Verts;
 }
 
 void SceneLoader::convertMeshToBoundingBox(Coordinates2d vertices, TriangleList& faces) const {
