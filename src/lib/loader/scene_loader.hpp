@@ -11,6 +11,7 @@
 #include <Box2D/Box2D.h>
 #include <vector>
 
+#include "generic/types.hpp"
 #include "physics/2d/scene.hpp"
 #include "rendering/2d/scene.hpp"
 
@@ -28,11 +29,17 @@ public:
 /**
 * Loads a scene from the scenes folder. For more info, look at the .cpp file's description.
 */
-void loadScene(Physics::Scene& physScene, Render::Scene& aRenderScene, std::string sceneName);
+bool loadScene(Physics::Scene& physScene, Render::Scene& renderScene, std::string sceneName);
 
-void readFluid(Physics::Scene& physScene, Render::Scene& aRenderScene, const Json::Value& fluid) const;
+void readFluid(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& fluid) const;
 
-void readObject(Physics::Scene& physScene, Render::Scene& arenderScene, const Json::Value& obj) const;
+void readObject(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& obj) const;
+
+Coordinates2d readGrid(const Json::Value& grid) const;
+
+Coordinates2d createGrid(int px, int py, Float gridSpacing) const;
+
+Coordinates2d readCoordinates(const Json::Value& coords) const;
 
 std::vector<b2Vec2> computeConvexHull(const Coordinates2d& vertices) const;
 

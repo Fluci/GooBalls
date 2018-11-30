@@ -2,6 +2,26 @@
 	"name":"Scene0",
 	"scale": 0.035,
 	"translation": [-1, -.5],
+        "fluid": {
+        "particles": {
+            "type": "grid",
+            "gridWidth": 10,
+            "gridHeight": 20,
+            "gridSpacing": 1
+        },
+        "position": [35, 35],
+        "kernelRadius": 1.42,
+        "mass": 100,
+        "initialVelocity": [0, 1],
+        "stiffnessConstant": 10000,
+        "restDensity": 1000,
+        "surfaceTension": 0,
+        "fluidViscosity": 0.03,
+        "boundaryViscosity": 0.03,
+        "pressureGamma": 7.0,
+        "color": [0.6, 0.6, 1.0],
+        "radius": 0.23
+    },
 	"objects": [
 		{
 			"name": "left_wall",

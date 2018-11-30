@@ -1,6 +1,7 @@
 #include "scene_loader.hpp"
 #include "spatial/2d/convex_hull.hpp"
 #include <boost/log/trivial.hpp>
+#include "rendering/2d/disk_fluid.hpp"
 
 /**
  * Loads a scene from a file <scenename>.json located in the scenes-folder.
@@ -30,100 +31,144 @@ using namespace d2;
 
 bool showDebugOutput = true;
 
-void SceneLoader::loadScene(Physics::Scene& physScene, Render::Scene& renderScene, std::string path) {
+bool SceneLoader::loadScene(Physics::Scene& physScene, Render::Scene& renderScene, std::string path) {
 
 	std::ifstream ifs(path);
 
-	if (!ifs.is_open()) {
-		std::cout << "Error on opening scene file!" << std::endl;
-	} else {
-		Json::Reader reader;
-        Json::Value scene;
-        reader.parse(ifs, scene);
-        BOOST_LOG_TRIVIAL(info) << "Loading Scene: " << scene["name"].asString() << std::endl;
-        scale = 1.0;
-        transl_x = 0.0;
-        transl_y = 0.0;
-        if(scene.isMember("scale")){
-            scale = scene["scale"].asDouble();
-        }
-        if(scene.isMember("translation")){
-            transl_x = scene["translation"][0].asDouble();
-            transl_y = scene["translation"][1].asDouble();
-        }
+    if (!ifs.is_open()) {
+        BOOST_LOG_TRIVIAL(error) << "Error on opening scene file!";
+        return false;
+    }
+    Json::Reader reader;
+    Json::Value scene;
+    reader.parse(ifs, scene);
+    BOOST_LOG_TRIVIAL(info) << "Loading Scene: " << scene["name"].asString() << std::endl;
+    scale = 1.0;
+    transl_x = 0.0;
+    transl_y = 0.0;
+    if(scene.isMember("scale")){
+        scale = scene["scale"].asDouble();
+    }
+    if(scene.isMember("translation")){
+        transl_x = scene["translation"][0].asDouble();
+        transl_y = scene["translation"][1].asDouble();
+    }
 
-		// iterate through the scene's objects
-        //int objectCount = obj["objects"]["count"].asInt();
-        for (int objIndex = 0; objIndex < scene["objects"].size(); objIndex++) {
-            const auto& obj = scene["objects"][objIndex];
-            readObject(physScene, renderScene, obj);
-		}
-	}
+    // iterate through the scene's objects
+    //int objectCount = obj["objects"]["count"].asInt();
+    for (int objIndex = 0; objIndex < scene["objects"].size(); objIndex++) {
+        const auto& obj = scene["objects"][objIndex];
+        readObject(physScene, renderScene, obj);
+    }
+
+    if(scene.isMember("fluid")){
+        readFluid(physScene, renderScene, scene["fluid"]);
+    }
+    return true;
+}
+
+Coordinates2d SceneLoader::createGrid(int px, int py, Float gridSpacing) const {
+    Coordinates2d coords;
+    coords.setZero(px*py, 2);
+    for(int i = 0; i < px; ++i){
+        for(int j = 0; j < py; ++j){
+            coords(i*py + j, 0) = i;
+            coords(i*py + j, 1) = j;
+        }
+    }
+    return coords;
+}
+
+Coordinates2d SceneLoader::readGrid(const Json::Value& grid) const {
+    assert(grid["type"].asString() == "grid");
+    int px = grid["gridWidth"].asInt();
+    int py = grid["gridHeight"].asInt();
+    Float distance = grid["gridSpacing"].asDouble();
+    return createGrid(px, py, distance);
 }
 
 void SceneLoader::readFluid(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& fluid) const {
-    /*
-    //physScene.gravity.array() *= 0.0;
-    constexpr int PN_X = 10;
-    int PN_Y = 20;
-    int PN = PN_Y * PN_X;
-
-    // some example data to allow first testing with rendering
-    auto particleCoordinates = std::make_shared<Coordinates2d>(Coordinates2d::Random(PN, 2)/2.0);
-    for(int i = 0; i < PN_X; ++i){
-        for(int j = 0; j < PN_Y; ++j){
-            (*particleCoordinates)(i*PN_Y+j, 0) = i;
-            (*particleCoordinates)(i*PN_Y+j, 1) = j;
-        }
-    }
+    auto particleCoordinates = std::make_shared<Coordinates2d>();
     auto boundaryCoords = std::make_shared<Coordinates2d>();
-    (*particleCoordinates) = (*particleCoordinates) * 0.032;
-    particleCoordinates->col(0).array() += 0.27;
-    particleCoordinates->col(1).array() += 0.7;
-    std::cout << "particles: \n";
-    for(int i = 0; i < particleCoordinates->rows(); ++i){
-        std::cout << (*particleCoordinates)(i,0) << " " << (*particleCoordinates)(i,1) << std::endl;
+    auto fluidPhys = std::make_unique<Physics::Fluid>(particleCoordinates, boundaryCoords);
+    auto fluidRender = std::make_unique<Render::DiskFluid>(particleCoordinates, boundaryCoords);
+    const auto& parts = fluid["particles"];
+    if(parts["type"].asString() == "grid"){
+        *particleCoordinates = readGrid(parts);
+    } else if(parts["type"].asString() == "coordinates") {
+        *particleCoordinates = readCoordinates(parts["positions"]);
     }
-    int VN = 3*4; // number of verts, multiple of three
-    int TN = 2;
-    auto verts = std::make_shared<Coordinates2d>(Coordinates2d::Random(VN, 2)*0.5);
-    auto triangles = std::make_shared<TriangleList>(TriangleList::Random(TN, 3));
-    triangles->array() = triangles->unaryExpr([VN](const VertexIndex x) { return std::abs(x)%VN; });
-    double h = 0.05;
+    Float pos_x = 0;
+    Float pos_y = 0;
+    if(fluid.isMember("position")){
+        pos_x = fluid["position"][0].asDouble();
+        pos_y = fluid["position"][1].asDouble();
+    }
+    (*particleCoordinates) = (*particleCoordinates) * scale;
+    particleCoordinates->col(0).array() += transl_x + pos_x*scale;
+    particleCoordinates->col(1).array() += transl_y + pos_y*scale;
+    const int pn = particleCoordinates->rows();
+    Float h = fluid["kernelRadius"].asDouble() * scale;
 
     // create physics data
-    auto fluidPhys = std::make_unique<Physics::Fluid>(particleCoordinates, boundaryCoords);
-    fluidPhys->particles_velocity().setRandom(PN, 2);
-    fluidPhys->particles_velocity() *= 0.0;
-    fluidPhys->particles_mass().resize(PN);
-    // compute the mass from rho*V = m
-    fluidPhys->particles_mass().array() = 100;
+    fluidPhys->particles_velocity().setZero(pn, 2);
+    if(fluid.isMember("initialVelocity")){
+        const auto& vinit = fluid["initialVelocity"];
+        auto& vs = fluidPhys->particles_velocity();
+        if(vinit[0].isDouble()){
+            vs.col(0) = vs.col(0).array() + vinit[0].asDouble();
+            vs.col(1) = vs.col(1).array() + vinit[1].asDouble();
+        } else {
+            Coordinates2d v0 = readCoordinates(fluid["initialVelocity"]);
+            assert(vs.rows() == v0.rows());
+            vs = vs + scale*v0;
+        }
+    }
+    // TODO: compute the mass from rho*V = m
+    // TODO: check all known constraint equations (CLF)
+    fluidPhys->particles_mass().resize(pn);
+    fluidPhys->particles_mass().array() = fluid["mass"].asDouble();
     fluidPhys->h(h);
-    fluidPhys->stiffnessConstant(10000);
-    fluidPhys->rest_density(1000.0);
-    fluidPhys->surface_tension(0.0);
-    fluidPhys->fluid_viscosity(.03);
-    fluidPhys->boundary_viscosity(.03);
-    fluidPhys->pressure_gamma(7);
-    physScene.fluid = std::move(fluidPhys);*/
+    fluidPhys->stiffnessConstant(fluid["stiffnessConstant"].asDouble());
+    fluidPhys->rest_density(fluid["restDensity"].asDouble());
+    fluidPhys->surface_tension(fluid["surfaceTension"].asDouble());
+    fluidPhys->fluid_viscosity(fluid["fluidViscosity"].asDouble());
+    fluidPhys->boundary_viscosity(fluid["boundaryViscosity"].asDouble());
+    fluidPhys->pressure_gamma(fluid["pressureGamma"].asDouble());
+    physScene.fluid = std::move(fluidPhys);
+
+    fluidRender->particles_color().resize(pn, 3);
+    fluidRender->particles_color().col(0).array() = fluid["color"][0].asDouble();
+    fluidRender->particles_color().col(1).array() = fluid["color"][1].asDouble();
+    fluidRender->particles_color().col(2).array() = fluid["color"][2].asDouble();
+    fluidRender->particles_radius().resize(pn);
+    fluidRender->particles_radius().array() = fluid["radius"].asDouble();
+
+    renderScene.fluids.push_back(std::move(fluidRender));
+}
+
+Coordinates2d SceneLoader::readCoordinates(const Json::Value& coords) const {
+    Coordinates2d vertices(coords.size(), 2);
+    for (int i = 0; i < coords.size(); i++) {
+        vertices(i, 0) = coords[i][0].asDouble();
+        vertices(i, 1) = coords[i][1].asDouble();
+    }
+    return vertices;
 }
 
 void SceneLoader::readObject(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& obj) const {
     const auto& vertex = obj["vertices"];
     int faceCount = obj["faces"].size();
 
-    Coordinates2d vertices(vertex.size(), 2);
-    TriangleList faces(faceCount, 3);
-
     BOOST_LOG_TRIVIAL(info) << "OBJECT: " << obj["name"] << std::endl << "-----------";
 
     // iterate through the object's vertices
-    for (int i = 0; i < vertex.size(); i++) {
-        vertices(i, 0) = (scale * vertex[i][0].asDouble()) + transl_x;
-        vertices(i, 1) = (scale * vertex[i][1].asDouble()) + transl_y;
-    }
-
+    Coordinates2d vertices = readCoordinates(vertex);
+    vertices = vertices*scale;
+    vertices.col(0) = vertices.col(0).array() + transl_x;
+    vertices.col(1) = vertices.col(1).array() + transl_y;
     // iterate through the object's faces
+    TriangleList faces(faceCount, 3);
     for (int i = 0; i < faceCount; i++) {
         faces(i, 0) = obj["faces"][i][0].asInt();
         faces(i, 1) = obj["faces"][i][1].asInt();

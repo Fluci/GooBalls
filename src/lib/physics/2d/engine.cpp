@@ -96,7 +96,6 @@ void Engine::advance(Scene& scene, TimeStep dt) {
     // solve fluid
     m_fluidSolver->advance(scene, dt);
 
-    // TODO: transfer forces of boundary particles back
     if(boundaryParticles > 0){
         int s = 0;
         for(auto& mesh : scene.meshes){

@@ -131,9 +131,11 @@ int main(int argc, char **argv) {
     Physics::Scene physicsScene;
     Render::Engine renderEngine;
     Render::Scene renderScene;
-    createRandomScene(physicsScene, renderScene);
+    //createRandomScene(physicsScene, renderScene);
     SceneLoader loader;
-    loader.loadScene(physicsScene, renderScene, "../examples/scenes/falling_box.json");
+    if(!loader.loadScene(physicsScene, renderScene, "../examples/scenes/falling_box.json")){
+        return 1;
+    }
     //auto tmp = std::make_unique<Physics::SSPH>();
     //auto tmp = std::make_unique<Physics::IISPH>();
     auto tmp = std::make_unique<Physics::ViscoElastic>();
