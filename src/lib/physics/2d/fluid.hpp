@@ -57,6 +57,15 @@ public:
     Coordinates1d& particles_velocity_correction();
     const Coordinates1d& particles_velocity_correction() const;
 
+    Float& particles_lower_velocity_correction_limit();
+    const Float& particles_lower_velocity_correction_limit() const;
+
+    Float& particles_weakening_speed();
+    const Float& particles_weakening_speed() const;
+
+    Float& particles_yield_criterion();
+    const Float& particles_yield_criterion() const;
+
     const Coordinates2d& boundary_position() const;
     Coordinates2d& boundary_position();
 
@@ -121,8 +130,13 @@ private:
     Coordinates1d m_boundary_psi;
     Float m_h = 0.05;
     std::vector<std::vector<Connection>> m_connectivity;
-    /// c_i: velocity correction coefficient
+    /// c_i: velocity correction coefficient, the higher, the tougher the material
     Coordinates1d m_velocity_correction;
+    /// l_i: lower bound for c_i
+    Float m_lower_velocity_correction_limit = 0.0;
+    Float m_weakening_speed = 0.0;
+    /// Roughly: if a paritle pair is further than h*gamma, it get's weakened
+    Float m_yield_criterion = 1.5;
 
     Float m_K = 10000.0; // gas constant dependent on temperature, good values 1000-100'000
     // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3

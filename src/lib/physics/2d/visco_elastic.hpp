@@ -9,6 +9,8 @@ namespace d2 {
 namespace Physics {
 
 /// This class wraps another Fluid solver and adds velocity correction based on particle positions
+///
+/// See "Volume Preserving Viscoelastic Fluids With Large Deformations using Position-based velocity Corrections" by Takahashi et al.
 class ViscoElastic : public FluidSolver {
 public:
     ViscoElastic();
@@ -16,6 +18,7 @@ public:
     virtual void computeTotalForce(Scene& scene, TimeStep dt);
     virtual bool considerBoundary(bool consider);
     virtual bool considerBoundary() const;
+    void updateVelocityCorrectionCoefficients(Scene& scene, TimeStep dt);
     /// Set the fluid solver responsible for the core physics
     void base(std::unique_ptr<FluidSolver>&& b);
 private:

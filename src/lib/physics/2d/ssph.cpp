@@ -38,7 +38,7 @@ bool SSPH::considerBoundary() const {
     return m_consider_boundary;
 }
 
-void SSPH::computeTotalForce(Scene& scene, TimeStep dt){
+void SSPH::computeTotalForce(Scene& scene, TimeStep){
     if(scene.fluid.get() == nullptr){
         return;
     }

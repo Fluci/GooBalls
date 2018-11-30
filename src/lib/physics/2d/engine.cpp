@@ -36,7 +36,7 @@ void Engine::initScene(Scene& scene){
         scene.fluid->particles_mass().setOnes(pos.rows());
     }
     auto& conn = scene.fluid->particles_connectivity();
-    if(pos.rows() != conn.size()){
+    if((long) pos.rows() != (long)conn.size()){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle connectivity set, setting to 1.5*h.";
         NeighborhoodSpatialHashing neigh;
         neigh.inRange(pos, scene.fluid->h()*4);
@@ -54,7 +54,7 @@ void Engine::initScene(Scene& scene){
     if(pos.rows() != scene.fluid->particles_velocity_correction().rows()){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity correction coefficients set, setting to 1.";
         scene.fluid->particles_velocity_correction().resize(pos.rows(), Eigen::NoChange);
-        scene.fluid->particles_velocity_correction().array() = 0.0001;
+        scene.fluid->particles_velocity_correction().array() = 0.001;
     }
     if(pos.rows() != scene.fluid->particles_external_force().rows()){
         BOOST_LOG_TRIVIAL(warning) << "No proper external particle force set, setting zero.";

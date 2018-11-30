@@ -154,22 +154,45 @@ void SceneLoader::readFluid(Physics::Scene& physScene, Render::Scene& renderScen
     }
     // TODO: compute the mass from rho*V = m
     // TODO: check all known constraint equations (CLF)
-    fluidPhys->particles_mass().resize(pn);
-    fluidPhys->particles_mass().array() = fluid["mass"].asDouble();
+    // TOOD: make sanity checks
+    fluidPhys->particles_mass().setOnes(pn);
+    if(fluid.isMember("mass"))
+        fluidPhys->particles_mass().array() = fluid["mass"].asDouble();
     fluidPhys->h(h);
-    fluidPhys->stiffnessConstant(fluid["stiffnessConstant"].asDouble());
-    fluidPhys->rest_density(fluid["restDensity"].asDouble());
-    fluidPhys->surface_tension(fluid["surfaceTension"].asDouble());
-    fluidPhys->fluid_viscosity(fluid["fluidViscosity"].asDouble());
-    fluidPhys->boundary_viscosity(fluid["boundaryViscosity"].asDouble());
-    fluidPhys->pressure_gamma(fluid["pressureGamma"].asDouble());
 
-    fluidRender->particles_color().resize(pn, 3);
-    fluidRender->particles_color().col(0).array() = fluid["color"][0].asDouble();
-    fluidRender->particles_color().col(1).array() = fluid["color"][1].asDouble();
-    fluidRender->particles_color().col(2).array() = fluid["color"][2].asDouble();
-    fluidRender->particles_radius().resize(pn);
-    fluidRender->particles_radius().array() = fluid["radius"].asDouble();
+    if(fluid.isMember("stiffnessConstant"))
+        fluidPhys->stiffnessConstant(fluid["stiffnessConstant"].asDouble());
+    if(fluid.isMember("restDensity"))
+        fluidPhys->rest_density(fluid["restDensity"].asDouble());
+    if(fluid.isMember("surfaceTension"))
+        fluidPhys->surface_tension(fluid["surfaceTension"].asDouble());
+    if(fluid.isMember("fluidViscosity"))
+        fluidPhys->fluid_viscosity(fluid["fluidViscosity"].asDouble());
+    if(fluid.isMember("boundaryViscosity"))
+        fluidPhys->boundary_viscosity(fluid["boundaryViscosity"].asDouble());
+    if(fluid.isMember("pressureGamma"))
+        fluidPhys->pressure_gamma(fluid["pressureGamma"].asDouble());
+
+    fluidPhys->particles_velocity_correction().setOnes(pn);
+    if(fluid.isMember("velocityCorrectionCoefficient"))
+        fluidPhys->particles_velocity_correction().array() = fluid["velocityCorrectionCoefficient"].asDouble();
+    if(fluid.isMember("velocityCorrectionCoefficientMin"))
+        fluidPhys->particles_lower_velocity_correction_limit() = fluid["velocityCorrectionCoefficientMin"].asDouble();
+    if(fluid.isMember("weakeningSpeed"))
+        fluidPhys->particles_weakening_speed() = fluid["weakeningSpeed"].asDouble();
+    if(fluid.isMember("yieldCriterion"))
+        fluidPhys->particles_yield_criterion() = fluid["yieldCriterion"].asDouble();
+
+    fluidRender->particles_color().setOnes(pn, 3);
+    if(fluid.isMember("color")){
+        fluidRender->particles_color().col(0).array() = fluid["color"][0].asDouble();
+        fluidRender->particles_color().col(1).array() = fluid["color"][1].asDouble();
+        fluidRender->particles_color().col(2).array() = fluid["color"][2].asDouble();
+    }
+    if(fluid.isMember("radius")){
+        fluidRender->particles_radius().setOnes(pn);
+        fluidRender->particles_radius().array() = fluid["radius"].asDouble();
+    }
 
     physScene.fluid = std::move(fluidPhys);
     // for the moment we only support one fluid at a time

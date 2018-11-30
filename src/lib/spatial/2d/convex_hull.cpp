@@ -25,7 +25,7 @@ Coordinates2d convex_hull(Coordinates2d pointSet) {
     }
     std::vector<Point> points(pointSet.rows());
     int minI = 0;
-    for(int i = 0; i < points.size(); ++i){
+    for(size_t i = 0; i < points.size(); ++i){
         points[i].x = pointSet(i, 0);
         points[i].y = pointSet(i, 1);
         if(points[i].x <= points[minI].x){
@@ -43,7 +43,7 @@ Coordinates2d convex_hull(Coordinates2d pointSet) {
     std::vector<Point> stack;
     stack.push_back(p0);
     stack.push_back(points.front());
-    int i = 1;
+    size_t i = 1;
     while(i < points.size()){
         int j = stack.size()-1;
         auto turnDir = turnDirection(stack[j-1], stack[j], points[i]);
@@ -55,7 +55,7 @@ Coordinates2d convex_hull(Coordinates2d pointSet) {
         }
     }
     pointSet.resize(stack.size(), Eigen::NoChange);
-    for(int i = 0; i < stack.size(); ++i){
+    for(size_t i = 0; i < stack.size(); ++i){
         pointSet(i, 0) = stack[i].x;
         pointSet(i, 1) = stack[i].y;
     }

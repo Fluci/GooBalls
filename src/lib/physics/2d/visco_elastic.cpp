@@ -1,6 +1,7 @@
 #include "visco_elastic.hpp"
 #include "ssph.hpp"
 
+#include <boost/log/trivial.hpp>
 namespace GooBalls {
 
 namespace d2 {
@@ -61,8 +62,45 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
     }
     Coordinates2d Dv = -dx/dt;
     vs = vs + dt * a + Dv;
-    scene.room.restrictFluid(* scene.fluid);
     pos = pos + dt * vs;
+    scene.room.restrictFluid(* scene.fluid);
+    updateVelocityCorrectionCoefficients(scene, dt);
+}
+
+void ViscoElastic::updateVelocityCorrectionCoefficients(Scene& scene, TimeStep dt){
+    // D_ij = max(||x_ij|| - r_ij, 0)
+    // if (gamma_i + gamma_j)/2 < D_ij/h:
+    // c^t+1_i = max(c^t_i - dt * sum_j (w_i + w_j)/2, l_i)
+    auto& cs = scene.fluid->particles_velocity_correction();
+    const auto l = scene.fluid->particles_lower_velocity_correction_limit();
+    const auto w = scene.fluid->particles_weakening_speed();
+    const auto gamma = scene.fluid->particles_yield_criterion();
+    const auto& pos = scene.fluid->particles_position();
+    const auto h = scene.fluid->h();
+    Float lowerDij = h*(gamma + gamma)/2; // in the paper, this has to be evaluated for each point pair, we assume gamma_i = gamma_j
+
+    if(w <= 0){
+        return;
+    }
+    for(int i = 0; i < pos.rows(); ++i){
+        const auto& conn = scene.fluid->particles_connectivity()[i];
+        Float sum = 0.0;
+        for(size_t j = 0; j < conn.size(); ++j){
+            auto xij = pos.row(i) - pos.row(conn[j].partner);
+            auto xijN = xij.norm();
+            auto Dij = std::max(xijN - conn[j].rij, 0.0);
+            if(lowerDij >= Dij){
+                continue;
+            }
+            // consder to update c_i
+            sum += w; // (w_i + w_j)/2
+        }
+        cs[i] = std::max(cs[i] - dt * sum, l);
+        if(dt*sum > 0){
+            BOOST_LOG_TRIVIAL(info) << cs[i];
+        }
+    }
+
 }
 
 void ViscoElastic::computeTotalForce(Scene& scene, TimeStep dt){

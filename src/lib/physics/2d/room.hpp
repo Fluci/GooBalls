@@ -14,9 +14,9 @@ namespace Physics {
  * A NaN means: don't use this element
  * */
 struct Room {
-    Float floor = -0.6;
-    Float left_wall = -1;
-    Float right_wall = 1;
+    Float floor = -10000000;
+    Float left_wall = -1000000;
+    Float right_wall = 1000000;
     Float ceiling = 1000000;
     void restrictFluid(Fluid& fluid) const;
 };

@@ -7,7 +7,7 @@ namespace d2 {
 
 namespace Physics {
 
-void NoSph::computeTotalForce(Scene& scene, TimeStep dt) {
+void NoSph::computeTotalForce(Scene& scene, TimeStep) {
     // don't do anything
     if(scene.fluid->particles_position().rows() == 0){
         return;

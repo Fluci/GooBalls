@@ -7,7 +7,7 @@ namespace d2 {
 namespace Physics {
 
 
-bool FluidSolver::considerBoundary(bool consider) {
+bool FluidSolver::considerBoundary(bool) {
     return false;
 }
 

@@ -91,6 +91,31 @@ const Coordinates1d& Fluid::particles_velocity_correction() const {
     return m_velocity_correction;
 }
 
+Float& Fluid::particles_lower_velocity_correction_limit(){
+    return m_lower_velocity_correction_limit;
+}
+
+const Float& Fluid::particles_lower_velocity_correction_limit() const {
+    return m_lower_velocity_correction_limit;
+}
+
+Float& Fluid::particles_weakening_speed(){
+    return m_weakening_speed;
+}
+
+const Float& Fluid::particles_weakening_speed() const {
+    return m_weakening_speed;
+}
+
+Float& Fluid::particles_yield_criterion() {
+    return m_yield_criterion;
+}
+
+const Float& Fluid::particles_yield_criterion() const {
+    return m_yield_criterion;
+}
+
+
 const Coordinates2d& Fluid::boundary_position() const {
     assert(m_boundary_position.get() != nullptr);
     return *m_boundary_position;
