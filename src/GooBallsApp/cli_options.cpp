@@ -11,6 +11,7 @@ op::options_description cli_options() {
     ad("help,h", "Help screen");
     ad("src,s", op::value<std::string>(), "Scene to display");
     ad("log,l", op::value<std::string>()->default_value("info"), "Set lowest log level to show. Possible options: trace, debug, info, warning, error, fatal, none. Default: info");
+    ad("fluid-solver", op::value<std::string>()->default_value("viscoElastic"), "Set the fluid solver: ssph, viscoElastic");
 
     return desc;
 }

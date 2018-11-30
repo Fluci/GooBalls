@@ -101,13 +101,21 @@ void Engine::advance(Scene& scene, TimeStep dt) {
         for(auto& mesh : scene.meshes){
             const auto& local = mesh.particles_position_local();
             const auto& part = scene.fluid->boundary_force().block(s, 0, local.rows(), 2);
+            const auto& pos = scene.fluid->boundary_position().block(s, 0, local.rows(), 2);
+            /*for(int i = 0; i < part.rows(); ++i){
+                mesh.body->ApplyForce(b2Vec2(part(i,0), part(i,1)), b2Vec2(pos(i,0), pos(i,1)), true);
+            }*/
             TranslationVector Frigid = part.colwise().sum();
-            mesh.body->ApplyForce(b2Vec2(Frigid[0], Frigid[1]), mesh.body->GetWorldCenter(), false);
-            Coordinates2d centered = (part.rowwise() - part.colwise().mean());
+            mesh.body->ApplyForce(b2Vec2(Frigid[0], Frigid[1]), mesh.body->GetWorldCenter(), true);
+            TranslationVector cog = TranslationVector(mesh.body->GetWorldCenter().x, mesh.body->GetWorldCenter().y);
+            //cog = pos.colwise.mean();
+            Coordinates2d centered = (pos.rowwise() - cog);
+
             /*
              * Cross product: a x b = (a2 b3 - a3b2, a3b1 - a1b3, a1b2 - a2b1)
              * = (a2 * 0 - 0 * b2, 0 * b1 - a1 * b, a1 b2 - a2 b1)
             */
+
             Float torque = (centered.col(0)*Frigid[1] - centered.col(1) * Frigid[0]).sum();
             mesh.body->ApplyTorque(torque, true);
             s += local.rows();

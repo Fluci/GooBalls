@@ -8,6 +8,7 @@
 #include "rendering/2d/disk_fluid.hpp"
 #include "physics/2d/engine.hpp"
 #include "physics/2d/fluid.hpp"
+#include "physics/2d/fluid_solver.hpp"
 #include "physics/2d/ssph.hpp"
 #include "physics/2d/iisph.hpp"
 #include "physics/2d/visco_elastic.hpp"
@@ -211,14 +212,20 @@ int main(int argc, char **argv) {
     Render::Scene renderScene;
     //createRandomScene(physicsScene, renderScene);
     SceneLoader loader;
+    // TODO: add fluid solver to scene file
     if(!loader.loadScene(physicsScene, renderScene, scenePath)){
         return 1;
     }
-    //auto tmp = std::make_unique<Physics::SSPH>();
-    //auto tmp = std::make_unique<Physics::IISPH>();
-    auto tmp = std::make_unique<Physics::ViscoElastic>();
-    tmp->considerBoundary(true);
-    physicsEngine.fluidSolver(std::move(tmp));
+    std::unique_ptr<Physics::FluidSolver> solver;
+    auto desiredSolver = cli_options["fluid-solver"].as<std::string>();
+    if(desiredSolver == "ssph"){
+        solver = std::make_unique<Physics::SSPH>();
+    } else if (desiredSolver == "viscoElastic") {
+        solver = std::make_unique<Physics::ViscoElastic>();
+    } else if (desiredSolver == "iisph") {
+        solver = std::make_unique<Physics::IISPH>();
+    }
+    physicsEngine.fluidSolver(std::move(solver));
     physicsEngine.initScene(physicsScene);
     std::cout << "Starting gui" << std::endl;
     try {
