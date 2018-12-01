@@ -57,40 +57,16 @@ namespace GooBalls {
 
 namespace d2 {
 
-MyGLCanvas::MyGLCanvas(Widget *parent, Render::Engine& renderEngine, Render::Scene& renderScene)
-    : nanogui::GLCanvas(parent), r_renderEngine(renderEngine), r_renderScene(renderScene) {
-    // empty
-}
-
-void MyGLCanvas::drawGL() {
-    r_renderEngine.render(r_renderScene);
-}
-
 ExampleApplication::ExampleApplication(Physics::Engine& physicsEngine, Render::Engine& renderEngine,
         Physics::Scene& physicsScene, Render::Scene& renderScene)
-        : nanogui::Screen(Eigen::Vector2i(900, 900), "NanoGUI Test", false),
+        : nanogui::Screen(Eigen::Vector2i(900, 900), "GooFBalls", false),
         m_physicsEngine(physicsEngine), m_physicsScene(physicsScene),
         m_renderEngine(renderEngine), m_renderScene(renderScene) {
-    using namespace nanogui;
-
-    Window *window = new Window(this, "GooFBalls");
-    window->setPosition(Vector2i(15, 15));
-    window->setLayout(new GroupLayout());
-
-    mCanvas = new MyGLCanvas(window, m_renderEngine, m_renderScene);
-    mCanvas->setBackgroundColor({190, 190, 255, 255});
-    mCanvas->setSize({800, 800});
-
-    Widget *tools = new Widget(window);
-    tools->setLayout(new BoxLayout(Orientation::Horizontal,
-                                   Alignment::Middle, 0, 5));
-
-    Button *b0 = new Button(tools, "Random Color");
-    b0->setCallback([this]() { mCanvas->setBackgroundColor(Vector4i(rand() % 256, rand() % 256, rand() % 256, 255)); });
-
-    performLayout();
 
     m_renderEngine.init();
+
+    setBackground({190, 190, 255, 255});
+    performLayout();
 }
 
 bool ExampleApplication::keyboardEvent(int key, int scancode, int action, int modifiers) {
@@ -115,7 +91,7 @@ bool ExampleApplication::keyboardEvent(int key, int scancode, int action, int mo
     return false;
 }
 
-void ExampleApplication::draw(NVGcontext *ctx) {
+void ExampleApplication::drawContents() {
     /// seconds per frame: TODO get from measurments or so
     double target = 1/200.0;
     /// dt: largest possible timestep, for which the simulation stays
@@ -141,6 +117,10 @@ void ExampleApplication::draw(NVGcontext *ctx) {
         rad = rho0/(rho.array())*0.015;
         //rad = rho0/rho.array().pow(.5)*0.0003;
     }
+    m_renderEngine.render(m_renderScene);
+}
+
+void ExampleApplication::draw(NVGcontext *ctx) {
     /* Draw the user interface */
     Screen::draw(ctx);
 }

@@ -44,7 +44,7 @@ bool SceneLoader::loadScene(Physics::Scene& physScene, Render::Scene& renderScen
     Json::Reader reader;
     Json::Value scene;
     reader.parse(ifs, scene);
-    BOOST_LOG_TRIVIAL(info) << "Loading Scene: " << scene["name"].asString() << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "Loading Scene: " << scene["name"].asString() << std::endl;
     if(scene.isMember("includes")){
         const auto& includes = scene["includes"];
         for(unsigned int i = 0; i < includes.size(); ++i){
@@ -237,7 +237,7 @@ void SceneLoader::readObject(Physics::Scene& physScene, Render::Scene& renderSce
     const auto& vertex = obj["vertices"];
     int faceCount = obj["faces"].size();
 
-    BOOST_LOG_TRIVIAL(info) << "OBJECT: " << obj["name"] << std::endl << "-----------";
+    BOOST_LOG_TRIVIAL(debug) << "OBJECT: " << obj["name"] << std::endl << "-----------";
 
     // iterate through the object's vertices
     Coordinates2d vertices = readCoordinates(vertex);
@@ -252,8 +252,8 @@ void SceneLoader::readObject(Physics::Scene& physScene, Render::Scene& renderSce
         faces(i, 2) = obj["faces"][i][2].asInt();
     }
 
-    BOOST_LOG_TRIVIAL(info) << "Vertices:" << std::endl << vertices;
-    BOOST_LOG_TRIVIAL(info) << "Faces:" << std::endl << faces;
+    BOOST_LOG_TRIVIAL(debug) << "Vertices:" << std::endl << vertices;
+    BOOST_LOG_TRIVIAL(debug) << "Faces:" << std::endl << faces;
 
 
     if(m_convertMeshToBoundingBox){
@@ -328,7 +328,7 @@ std::vector<b2Vec2> SceneLoader::computeAABB(const Coordinates2d& vertices) cons
     min_y = minCoords(0, 1);
     max_x = maxCoords(0, 0);
     max_y = maxCoords(0, 1);
-    BOOST_LOG_TRIVIAL(info) << "Bounding Box at (" << min_x << ", " << min_y << "), (" << max_x << ", " << max_y << ")";
+    BOOST_LOG_TRIVIAL(debug) << "Bounding Box at (" << min_x << ", " << min_y << "), (" << max_x << ", " << max_y << ")";
     std::vector<b2Vec2> b2Verts(4);
     b2Verts[0].x = min_x;
     b2Verts[0].y = min_y;

@@ -11,19 +11,6 @@ namespace GooBalls {
 
 namespace d2 {
 
-class MyGLCanvas : public nanogui::GLCanvas {
-public:
-    MyGLCanvas(Widget *parent, Render::Engine& renderEngine, Render::Scene& renderScene);
-
-    ~MyGLCanvas() = default;
-
-    virtual void drawGL() override;
-
-private:
-    Render::Engine& r_renderEngine;
-    Render::Scene& r_renderScene;
-};
-
 
 class ExampleApplication : public nanogui::Screen {
 public:
@@ -33,10 +20,10 @@ public:
     virtual bool keyboardEvent(int key, int scancode, int action, int modifiers);
 
     virtual void draw(NVGcontext *ctx);
+    virtual void drawContents();
+
 
 private:
-    MyGLCanvas *mCanvas;
-
     Physics::Engine& m_physicsEngine;
     Physics::Scene& m_physicsScene;
 
