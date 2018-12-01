@@ -8,26 +8,26 @@
             "type": "grid",
             "gridWidth": 40,
             "gridHeight": 10,
-            "gridSpacing": 0.9
+            "gridSpacing": 1
         },
         "position": [7, 10],
-        "kernelRadius": 1.42,
-        "mass": 100,
+        "kernelRadius": 2,
+        "mass": 5.5,
         "initialVelocity": [0, 0],
-        "stiffnessConstant": 10000,
-        "restDensity": 1000,
+        "stiffnessConstant": 5000,
+        "restDensity": 100,
         "surfaceTension": 0,
-        "fluidViscosity": 0.03,
-        "boundaryViscosity": 30,
+        "fluidViscosity": 0.003,
+        "boundaryViscosity": 0.03,
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],
         "radius": 0.23,
         "velocityCorrectionCoefficient": 0.0005,
         "velocityCorrectionCoefficientMin": 0,
         "weakeningSpeed": 0,
-        "yieldCriterion": 1,
-        "mergeThreshold": 2,
-        "splitThreshold": 1000
+        "yieldCriterion": 1.01,
+        "mergeThreshold": 1,
+        "splitThreshold": 2
     },
 	"objects": [
         {

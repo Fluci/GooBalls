@@ -3,29 +3,32 @@
     "includes": ["world_border.json"],
 	"scale": 0.035,
 	"translation": [-1, -.5],
-        "fluid": {
+    "fluid": {
         "particles": {
             "type": "grid",
             "gridWidth": 40,
             "gridHeight": 10,
-            "gridSpacing": 0.9
+            "gridSpacing": 1
         },
         "position": [15, 40],
-        "kernelRadius": 1.42,
-        "mass": 100,
+        "kernelRadius": 2,
+        "mass": 5.5,
         "initialVelocity": [0, 0],
-        "stiffnessConstant": 10000,
-        "restDensity": 1000,
+        "stiffnessConstant": 5000,
+        "restDensity": 100,
         "surfaceTension": 0,
-        "fluidViscosity": 0.03,
-        "boundaryViscosity": 0.03,
+        "fluidViscosity": 0.003,
+        "boundaryViscosity": 0.3,
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],
         "radius": 0.23,
-        "velocityCorrectionCoefficient": 0.1,
+        "velocityCorrectionCoefficient": 0.001,
         "velocityCorrectionCoefficientMin": 0.00000,
-        "weakeningSpeed": 0.0,
-        "yieldCriterion": 0.00000001
+        "weakeningSpeed": 0.001,
+        "yieldCriterion": 1.01,
+        "mergeThreshold": 1,
+        "splitThreshold": 2,
+        "boundaryMergeThreshold": 0
     },
 	"objects": [
         {

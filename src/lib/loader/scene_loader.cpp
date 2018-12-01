@@ -307,7 +307,7 @@ void SceneLoader::readObject(Physics::Scene& physScene, Render::Scene& renderSce
     b2PolygonShape boundingBox;
     auto b2Verts = computeConvexHull(vertices);
     boundingBox.Set(b2Verts.data(), b2Verts.size());
-    Float objDensity = 10000000.0f;
+    Float objDensity = 1000.0f;
     if(obj.isMember("density")){
         objDensity = obj["density"].asDouble();
     }
