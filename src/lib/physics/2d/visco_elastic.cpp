@@ -70,8 +70,7 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
         dy.resize(pos.rows(), Eigen::NoChange);
         dy.setZero();
         auto h = scene.fluid->h();
-        auto alpha = scene.fluid->merge_threshold();
-        auto beta = scene.fluid->split_threshold();
+        auto alpha = scene.fluid->boundary_merge_threshold();
         scene.fluid->boundary_neighborhood->inRange(pos, bPos, alpha*h);
         const auto& bCs = scene.fluid->boundary_velocity_correction_coefficient();
         const auto& bMs = scene.fluid->boundary_mass();

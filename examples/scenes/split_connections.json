@@ -27,7 +27,8 @@
         "weakeningSpeed": 0.0,
         "yieldCriterion": 0.00000001,
         "mergeThreshold": 0.9,
-        "splitThreshold": 1.2
+        "splitThreshold": 1.2,
+        "boundaryMergeThreshold": 0
     },
 	"objects": [
         {

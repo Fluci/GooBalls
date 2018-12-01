@@ -131,6 +131,14 @@ const Float& Fluid::split_threshold() const {
     return m_split_threshold;
 }
 
+Float& Fluid::boundary_merge_threshold() {
+    return m_boundary_merge_threshold;
+}
+
+const Float& Fluid::boundary_merge_threshold() const {
+    return m_boundary_merge_threshold;
+}
+
 const Coordinates2d& Fluid::boundary_position() const {
     assert(m_boundary_position.get() != nullptr);
     return *m_boundary_position;
