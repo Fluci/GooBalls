@@ -3,6 +3,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/filesystem.hpp>
 #include "rendering/2d/disk_fluid.hpp"
+#include <Eigen/Geometry>
 
 /**
  * Loads a scene from a file <scenename>.json located in the scenes-folder.
@@ -241,6 +242,12 @@ void SceneLoader::readObject(Physics::Scene& physScene, Render::Scene& renderSce
 
     // iterate through the object's vertices
     Coordinates2d vertices = readCoordinates(vertex);
+    if(obj.isMember("rotation")){
+        Float degreeAngle = obj["rotation"].asDouble();
+        Eigen::Rotation2D<Float> rot(degreeAngle/180*M_PI);
+        RotationMatrix rotM = rot.toRotationMatrix();
+        vertices = vertices * rotM.transpose();
+    }
     vertices = vertices*scale;
     vertices.col(0) = vertices.col(0).array() + transl_x;
     vertices.col(1) = vertices.col(1).array() + transl_y;
@@ -274,6 +281,13 @@ void SceneLoader::readObject(Physics::Scene& physScene, Render::Scene& renderSce
         posy = scale*obj["position"][1].asDouble();
     }
     bodyDefinition.position.Set(posx, posy);
+    Float v0x = 0;
+    Float v0y = 0;
+    if(obj.isMember("initialVelocity")){
+        v0x = obj["initialVelocity"][0].asDouble();
+        v0y = obj["initialVelocity"][1].asDouble();
+    }
+    bodyDefinition.linearVelocity.Set(v0x, v0y);
     if(obj.isMember("dynamic") && obj["dynamic"].asBool()){
         bodyDefinition.type = b2_dynamicBody;
         /*
@@ -293,7 +307,11 @@ void SceneLoader::readObject(Physics::Scene& physScene, Render::Scene& renderSce
     b2PolygonShape boundingBox;
     auto b2Verts = computeConvexHull(vertices);
     boundingBox.Set(b2Verts.data(), b2Verts.size());
-    physMesh.body->CreateFixture(&boundingBox, 10000000.0f); // attach the bounding box to the body
+    Float objDensity = 10000000.0f;
+    if(obj.isMember("density")){
+        objDensity = obj["density"].asDouble();
+    }
+    physMesh.body->CreateFixture(&boundingBox, objDensity); // attach the bounding box to the body
 
     if(obj.isMember("velocityCorrectionCoefficient")){
         physMesh.particles_velocity_correction_coefficient() = obj["velocityCorrectionCoefficient"].asDouble();

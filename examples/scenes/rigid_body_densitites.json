@@ -1,0 +1,85 @@
+{
+	"name":"Falling Box",
+    "includes": ["world_border.json"],
+	"scale": 0.035,
+	"translation": [-1, -.5],
+        "fluid": {
+        "particles": {
+            "type": "grid",
+            "gridWidth": 50,
+            "gridHeight": 10,
+            "gridSpacing": 0.9
+        },
+        "position": [7, 10],
+        "kernelRadius": 1.42,
+        "mass": 100,
+        "initialVelocity": [0, 0],
+        "stiffnessConstant": 10000,
+        "restDensity": 1000,
+        "surfaceTension": 0,
+        "fluidViscosity": 0.03,
+        "boundaryViscosity": 3,
+        "pressureGamma": 7.0,
+        "color": [0.6, 0.6, 1.0],
+        "radius": 0.23,
+        "velocityCorrectionCoefficient": 0.0005,
+        "velocityCorrectionCoefficientMin": 0,
+        "weakeningSpeed": 0,
+        "yieldCriterion": 1,
+        "mergeThreshold": 2,
+        "splitThreshold": 1000
+    },
+	"objects": [
+        {
+            "name": "dynamicBoxLight",
+            "position": [10, 40],
+            "initialVelocity": [0, 0],
+            "dynamic": true,
+            "density": 100000,
+            "vertices": [
+				[0, 0],
+				[4, 0],
+				[4, 4],
+				[0, 4]
+            ],
+            "faces": [
+                [0,1,2],
+                [3,0,2]
+            ]
+        },
+        {
+            "name": "dynamicBoxMedium",
+            "position": [25, 40],
+            "initialVelocity": [0, 0],
+            "dynamic": true,
+            "density": 1000000,
+            "vertices": [
+				[0, 0],
+				[4, 0],
+				[4, 4],
+				[0, 4]
+            ],
+            "faces": [
+                [0,1,2],
+                [3,0,2]
+            ]
+        },
+        {
+            "name": "dynamicBoxHeavy",
+            "position": [40, 40],
+            "initialVelocity": [0, 0],
+            "dynamic": true,
+            "density": 10000000,
+            "vertices": [
+				[0, 0],
+				[4, 0],
+				[4, 4],
+				[0, 4]
+            ],
+            "faces": [
+                [0,1,2],
+                [3,0,2]
+            ]
+        }
+    ]
+}
