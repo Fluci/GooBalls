@@ -183,14 +183,14 @@ void Mesh::compute_particles_volume(Float h) {
         pickRows(m_particles_position_local, indexes[i], jpos);
         auto xij = -(jpos.rowwise() - m_particles_position_local.row(i));
         kernel.compute(xij, &W, nullptr, nullptr);
-        m_particles_volume[i] = 1.0/W.sum();
+        m_particles_volume[i] = 1/W.sum();
     }
 }
 
 void Mesh::compute_particles_mass(Float) {
     int PN = m_particles_position_local.rows();
     m_particles_mass.resize(PN, Eigen::NoChange);
-    m_particles_mass.array() = 1000;//TODO: body->GetMass()/PN;
+    m_particles_mass.array() = body->GetMass()/PN;//TODO: body->GetMass()/PN;
 }
 
 } // Physics

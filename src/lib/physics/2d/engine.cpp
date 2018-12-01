@@ -85,6 +85,7 @@ void Engine::advance(Scene& scene, TimeStep dt) {
     }
     // solve fluid
     m_fluidSolver->advance(scene, dt);
+    assert(scene.fluid->boundary_position().rows() == scene.fluid->boundary_force().rows());
 
     if(boundaryParticles > 0){
         int s = 0;
@@ -95,7 +96,7 @@ void Engine::advance(Scene& scene, TimeStep dt) {
             /*for(int i = 0; i < part.rows(); ++i){
                 mesh.body->ApplyForce(b2Vec2(part(i,0), part(i,1)), b2Vec2(pos(i,0), pos(i,1)), true);
             }*/
-            TranslationVector Frigid = part.colwise().sum();
+            TranslationVector Frigid = part.colwise().mean();
             mesh.body->ApplyForce(b2Vec2(Frigid[0], Frigid[1]), mesh.body->GetWorldCenter(), true);
             TranslationVector cog = TranslationVector(mesh.body->GetWorldCenter().x, mesh.body->GetWorldCenter().y);
             //cog = pos.colwise.mean();

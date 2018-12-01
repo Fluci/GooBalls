@@ -83,7 +83,14 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
                 auto xij = pos.row(i) - bPos.row(jj);
                 auto xijN = xij.norm();
                 Float Dij = std::max(xijN - 0.5*alpha*h, 0.0);
-                TranslationVector DX = (cs[i] + bCs[jj])/2.0 * bMs[jj] / (ms[i] + bMs[jj]) * Dij * xij.normalized();
+                Float M;
+                if(bMs[jj] > 0){
+                    M =  bMs[jj] / (ms[i] + bMs[jj]);
+                } else {
+                    // mass equal to zero means it is a static object, hence m_i = infinity
+                    M = 1.0/ms[i];
+                }
+                TranslationVector DX = (cs[i] + bCs[jj])/2.0 * M * Dij * xij.normalized();
                 sum = sum + DX;
             }
             dy.row(i) = sum;

@@ -24,11 +24,17 @@ void AbstractSph::prepareFluid(Scene& scene) const {
     assert(is_finite(ms));
 }
 
+void AbstractSph::prepareBoundary(Scene& scene) const {
+    Coordinates1d& psi = scene.fluid->boundary_psi();
+    Float rho0 = scene.fluid->rest_density();
+    psi = rho0 * scene.fluid->boundary_volume();
+    auto h = scene.fluid->h();
+    scene.fluid->boundary_neighborhood->inRange(scene.fluid->particles_position(), scene.fluid->boundary_position(), h);
+    scene.fluid->boundary_force().setZero(psi.rows(), 2);
+}
+
 void AbstractSph::advance(Scene& scene, TimeStep dt){
     if(scene.fluid.get() == nullptr){
-        return;
-    }
-    if(scene.fluid->particles_position().rows() == 0){
         return;
     }
     computeTotalForce(scene, dt);
@@ -173,15 +179,6 @@ void AbstractSph::computeStandardSurfaceTensionForce(const Scene& scene, const K
             FSurface.row(i) = aa * colorN;
         }
     }
-}
-
-void AbstractSph::prepareBoundary(Scene& scene) const {
-    Coordinates1d& psi = scene.fluid->boundary_psi();
-    Float rho0 = scene.fluid->rest_density();
-    psi = rho0 * scene.fluid->boundary_volume();
-    auto h = scene.fluid->h();
-    scene.fluid->boundary_neighborhood->inRange(scene.fluid->particles_position(), scene.fluid->boundary_position(), h);
-    scene.fluid->boundary_force().setZero(psi.rows(), 2);
 }
 
 /// computes rho_i += sum_j m_j W_ij

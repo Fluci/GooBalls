@@ -35,13 +35,13 @@ bool showDebugOutput = true;
 
 bool SceneLoader::loadScene(Physics::Scene& physScene, Render::Scene& renderScene, std::string pathStr) {
 
-    auto path = boost::filesystem::canonical(pathStr);
-    std::ifstream ifs(path.string());
+    std::ifstream ifs(pathStr);
 
     if (!ifs.is_open()) {
-        BOOST_LOG_TRIVIAL(error) << "Error on opening scene file: " + path.string();
+        BOOST_LOG_TRIVIAL(error) << "Error on opening scene file: " + pathStr;
         return false;
     }
+    auto path = boost::filesystem::canonical(pathStr);
     Json::Reader reader;
     Json::Value scene;
     reader.parse(ifs, scene);
