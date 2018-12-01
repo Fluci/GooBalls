@@ -6,19 +6,19 @@
         "fluid": {
         "particles": {
             "type": "grid",
-            "gridWidth": 15,
-            "gridHeight": 15,
+            "gridWidth": 10,
+            "gridHeight": 10,
             "gridSpacing": 0.9
         },
-        "position": [15, 25],
+        "position": [20, 10],
         "kernelRadius": 1.42,
         "mass": 100,
-        "initialVelocity": [3, 0],
+        "initialVelocity": [0, 4],
         "stiffnessConstant": 10000,
         "restDensity": 1000,
         "surfaceTension": 0,
         "fluidViscosity": 0.03,
-        "boundaryViscosity": 30,
+        "boundaryViscosity": 3,
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],
         "radius": 0.23,
@@ -32,12 +32,12 @@
 	"objects": [
         {
             "name": "triangleOfDoom",
-            "position": [40, 20],
+            "position": [25, 30],
             "velocityCorrectionCoefficient": 0.001,
             "vertices": [
-				[-6, 0],
-				[6, 0],
-				[-6, 20]
+				[-10, 0],
+				[10, 0],
+				[0, 5]
             ],
             "faces": [
                 [0,1,2]
