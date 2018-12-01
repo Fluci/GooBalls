@@ -1,0 +1,32 @@
+{
+	"name":"Falling Box",
+    "includes": ["static_scene_with_funnel.json"],
+	"scale": 0.035,
+	"translation": [-1, -.5],
+        "fluid": {
+        "particles": {
+            "type": "grid",
+            "gridWidth": 10,
+            "gridHeight": 20,
+            "gridSpacing": 0.89
+        },
+        "position": [34, 30],
+        "kernelRadius": 1.42,
+        "mass": 100,
+        "initialVelocity": [0, 0],
+        "stiffnessConstant": 10000,
+        "restDensity": 1000,
+        "surfaceTension": 0,
+        "fluidViscosity": 0.03,
+        "boundaryViscosity": 0.03,
+        "pressureGamma": 7.0,
+        "color": [0.6, 0.6, 1.0],
+        "radius": 0.23,
+        "velocityCorrectionCoefficient": 0.0005,
+        "velocityCorrectionCoefficientMin": 0,
+        "weakeningSpeed": 0,
+        "yieldCriterion": 1,
+        "mergeThreshold": 2,
+        "splitThreshold": 1000
+    }
+}

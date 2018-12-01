@@ -293,7 +293,7 @@ void SceneLoader::readObject(Physics::Scene& physScene, Render::Scene& renderSce
     b2PolygonShape boundingBox;
     auto b2Verts = computeConvexHull(vertices);
     boundingBox.Set(b2Verts.data(), b2Verts.size());
-    physMesh.body->CreateFixture(&boundingBox, 100000.0f); // attach the bounding box to the body
+    physMesh.body->CreateFixture(&boundingBox, 10000000.0f); // attach the bounding box to the body
 
     if(obj.isMember("velocityCorrectionCoefficient")){
         physMesh.particles_velocity_correction_coefficient() = obj["velocityCorrectionCoefficient"].asDouble();

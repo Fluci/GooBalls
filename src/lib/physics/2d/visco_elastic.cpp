@@ -82,8 +82,8 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
                 int jj = index[j];
                 auto xij = pos.row(i) - bPos.row(jj);
                 auto xijN = xij.norm();
-                Float Dij = std::max(xijN - 0.5*alpha*h, 0.0); // bMs[jj] / (ms[i] + bMs[jj]) *
-                TranslationVector DX = (cs[i] + bCs[jj])/2.0 * Dij * xij.normalized();
+                Float Dij = std::max(xijN - 0.5*alpha*h, 0.0);
+                TranslationVector DX = (cs[i] + bCs[jj])/2.0 * bMs[jj] / (ms[i] + bMs[jj]) * Dij * xij.normalized();
                 sum = sum + DX;
             }
             dy.row(i) = sum;
