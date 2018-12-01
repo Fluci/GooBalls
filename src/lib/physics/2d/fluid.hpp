@@ -88,6 +88,11 @@ public:
     const Coordinates2d& boundary_force() const;
     Coordinates2d& boundary_force();
 
+    const Coordinates1d& boundary_mass() const;
+    Coordinates1d& boundary_mass();
+
+    const Coordinates1d& boundary_velocity_correction_coefficient() const;
+    Coordinates1d& boundary_velocity_correction_coefficient();
 
     /**
      * Checks invariants of the fluid
@@ -132,6 +137,8 @@ private:
     std::shared_ptr<Coordinates2d> m_boundary_position;
     Coordinates2d m_boundary_velocity;
     Coordinates1d m_boundary_volume;
+    Coordinates1d m_boundary_mass;
+    Coordinates1d m_boundary_velocity_correction_coefficient;
     Coordinates2d m_boundary_force;
     Coordinates1d m_boundary_psi;
     Float m_h = 0.05;

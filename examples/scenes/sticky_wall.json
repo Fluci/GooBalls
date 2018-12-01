@@ -6,7 +6,7 @@
         "fluid": {
         "particles": {
             "type": "grid",
-            "gridWidth": 40,
+            "gridWidth": 20,
             "gridHeight": 10,
             "gridSpacing": 0.9
         },
@@ -33,6 +33,7 @@
         {
             "name": "triangleOfDoom",
             "position": [25, 20],
+            "velocityCorrectionCoefficient": 10,
             "vertices": [
 				[-6, 0],
 				[6, 0],

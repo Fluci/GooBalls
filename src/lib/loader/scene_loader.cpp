@@ -275,6 +275,10 @@ void SceneLoader::readObject(Physics::Scene& physScene, Render::Scene& renderSce
     boundingBox.Set(b2Verts.data(), b2Verts.size());
     physMesh.body->CreateFixture(&boundingBox, 100000.0f); // attach the bounding box to the body
 
+    if(obj.isMember("velocityCorrectionCoefficient")){
+        physMesh.particles_velocity_correction_coefficient() = obj["velocityCorrectionCoefficient"].asDouble();
+    }
+
     // insert the box2d mesh into the scene (including body and bounding box)
     physScene.meshes.push_back(std::move(physMesh));
 

@@ -33,6 +33,9 @@ public:
     const Coordinates2d& particles_position_local() const;
     const Coordinates2d& particles_velocity() const;
     const Coordinates1d& particles_volume() const;
+    const Coordinates1d& particles_mass() const;
+    Float& particles_velocity_correction_coefficient();
+    Float particles_velocity_correction_coefficient() const;
     /**
      * Holds a pointer to its corresponding Box2d object
      * */
@@ -47,10 +50,14 @@ private:
     Coordinates m_particles_position_local;
     Coordinates m_particles_velocity;
     Coordinates1d m_particles_volume;
+    Coordinates1d m_particles_mass;
+    /// For Visco Elastic materials
+    Float m_velocity_correction_coefficient = 0.0;
     /// Create fixed particles
     void create_particles(Float h);
     /// Compute weight for particles
     void compute_particles_volume(Float h);
+    void compute_particles_mass(Float h);
 };
 
 } // Physics

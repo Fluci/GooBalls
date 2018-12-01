@@ -86,7 +86,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
     // surface force should be fine I guess ..
     // implementation:
     // let's get the neighborhood information
-    bool consider_boundary = m_consider_boundary && scene.fluid->boundary_volume().rows() > 0;
+    bool consider_boundary = considerBoundary() && scene.fluid->boundary_volume().rows() > 0;
     if(consider_boundary){
         prepareBoundary(scene);
     }

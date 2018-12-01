@@ -60,6 +60,17 @@ const Coordinates1d& Mesh::particles_volume() const {
     return m_particles_volume;
 }
 
+const Coordinates1d& Mesh::particles_mass() const {
+    return m_particles_mass;
+}
+
+Float& Mesh::particles_velocity_correction_coefficient() {
+    return m_velocity_correction_coefficient;
+}
+Float Mesh::particles_velocity_correction_coefficient() const {
+    return m_velocity_correction_coefficient;
+}
+
 RotationMatrix Mesh::rotation() const {
     Float radianAngle = body->GetAngle();
     // eigen convention: counter-clockwise rotation in radians
@@ -117,7 +128,7 @@ void Mesh::prepare(Float h){
     update_from_rigid_body();
     create_particles(h);
     compute_particles_volume(h);
-
+    compute_particles_mass(h);
 }
 void Mesh::create_particles(Float h) {
     // most basic particle generation algorithm:
@@ -176,6 +187,11 @@ void Mesh::compute_particles_volume(Float h) {
     }
 }
 
+void Mesh::compute_particles_mass(Float) {
+    int PN = m_particles_position_local.rows();
+    m_particles_mass.resize(PN, Eigen::NoChange);
+    m_particles_mass.array() = 0.1;//TODO: body->GetMass()/PN;
+}
 
 } // Physics
 } // d2

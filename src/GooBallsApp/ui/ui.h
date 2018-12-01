@@ -51,7 +51,7 @@
 #endif
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+//#include <stb_image.h>
 
 #if defined(_WIN32)
 #  pragma warning(pop)
@@ -94,8 +94,8 @@ public:
     ExampleApplication(Physics::Engine& physicsEngine, Render::Engine& renderEngine,
             Physics::Scene& physicsScene, Render::Scene& renderScene) 
             : nanogui::Screen(Eigen::Vector2i(900, 900), "NanoGUI Test", false),
-            m_physicsEngine(physicsEngine), m_renderEngine(renderEngine),
-            m_physicsScene(physicsScene), m_renderScene(renderScene) {
+            m_physicsEngine(physicsEngine), m_physicsScene(physicsScene),
+            m_renderEngine(renderEngine), m_renderScene(renderScene) {
         using namespace nanogui;
 
         Window *window = new Window(this, "GooFBalls");

@@ -65,15 +65,21 @@ void Engine::advance(Scene& scene, TimeStep dt) {
         auto& boundary = scene.fluid->boundary_position();
         auto& volume = scene.fluid->boundary_volume();
         auto& velocity = scene.fluid->boundary_velocity();
+        auto& mass = scene.fluid->boundary_mass();
+        auto& velocityCorrection = scene.fluid->boundary_velocity_correction_coefficient();
         boundary.resize(boundaryParticles, Eigen::NoChange);
         volume.resize(boundaryParticles, Eigen::NoChange);
         velocity.resize(boundaryParticles, Eigen::NoChange);
+        mass.resize(boundaryParticles, Eigen::NoChange);
+        velocityCorrection.resize(boundaryParticles, Eigen::NoChange);
         int s = 0;
         for(auto& mesh : scene.meshes){
             const auto& local = mesh.particles_position_local();
             boundary.block(s, 0, local.rows(), 2) = (local * mesh.rotation().transpose()).rowwise() + mesh.translation();//(local * mesh.rotation().transpose()).rowwise() + mesh.translation(); // TODO: check order of arguments
             volume.block(s, 0, local.rows(), 1) = mesh.particles_volume();
             velocity.block(s, 0, local.rows(), 2) = mesh.particles_velocity();
+            mass.block(s, 0, local.rows(), 1) = mesh.particles_mass();
+            velocityCorrection.block(s, 0, local.rows(), 1).array() = mesh.particles_velocity_correction_coefficient();
             s += local.rows();
         }
     }

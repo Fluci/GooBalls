@@ -61,6 +61,35 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
         }
         dx.row(i) = sum;
     }
+
+    const auto& bPos = scene.fluid->boundary_position();
+    bool consider_boundary = considerBoundary() && bPos.rows() > 0;
+    if(consider_boundary){
+        Coordinates2d dy;
+        dy.resize(pos.rows(), Eigen::NoChange);
+        dy.setZero();
+        auto h = scene.fluid->h();
+        auto alpha = scene.fluid->merge_threshold();
+        auto beta = scene.fluid->split_threshold();
+        scene.fluid->boundary_neighborhood->inRange(pos, bPos, beta*h);
+        const auto& bCs = scene.fluid->boundary_velocity_correction_coefficient();
+        const auto& bMs = scene.fluid->boundary_mass();
+        for(int i = 0; i < pos.rows(); ++i){
+            const auto& index = scene.fluid->boundary_neighborhood->indexes()[i];
+            TranslationVector sum;
+            sum.setZero();
+            for(size_t j = 0; j < index.size(); ++j){
+                int jj = index[j];
+                auto xij = pos.row(i) - bPos.row(jj);
+                auto xijN = xij.norm();
+                Float Dij = std::max(xijN - alpha*h, 0.0);
+                TranslationVector DX = (cs[i] + bCs[jj])/2.0 * bMs[jj] / (ms[i] + bMs[jj]) * Dij * xij.normalized();
+                sum = sum + DX;
+            }
+            dy.row(i) = sum;
+        }
+        dx = dx + dy;
+    }
     Coordinates2d Dv = -dx/dt;
     vs = vs + dt * a + Dv;
     pos = pos + dt * vs;

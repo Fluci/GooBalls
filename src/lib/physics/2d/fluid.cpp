@@ -173,6 +173,22 @@ Coordinates1d& Fluid::boundary_psi() {
     return m_boundary_psi;
 }
 
+const Coordinates1d& Fluid::boundary_mass() const {
+    return m_boundary_mass;
+}
+Coordinates1d& Fluid::boundary_mass() {
+    return m_boundary_mass;
+}
+
+const Coordinates1d& Fluid::boundary_velocity_correction_coefficient() const {
+    return m_boundary_velocity_correction_coefficient;
+}
+
+Coordinates1d& Fluid::boundary_velocity_correction_coefficient() {
+    return m_boundary_velocity_correction_coefficient;
+}
+
+
 Float Fluid::h() const {
     return m_h;
 }
