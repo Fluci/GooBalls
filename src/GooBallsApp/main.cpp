@@ -227,7 +227,7 @@ int main(int argc, char **argv) {
     }
     physicsEngine.fluidSolver(std::move(solver));
     physicsEngine.initScene(physicsScene);
-    std::cout << "Starting gui" << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "Starting gui";
     try {
         nanogui::init();
 
@@ -245,7 +245,7 @@ int main(int argc, char **argv) {
         #if defined(_WIN32)
             MessageBoxA(nullptr, error_msg.c_str(), NULL, MB_ICONERROR | MB_OK);
         #else
-            std::cerr << error_msg << endl;
+            BOOST_LOG_TRIVIAL(fatal) << error_msg;
         #endif
         return -1;
     }
