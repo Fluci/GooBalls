@@ -54,10 +54,11 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
         TranslationVector sum;
         sum.setZero();
         for(size_t j = 0; j < conn.size(); ++j){
-            auto xij = pos.row(i) - pos.row(conn[j].partner);
+            int jj = conn[j].partner;
+            auto xij = pos.row(i) - pos.row(jj);
             auto xijN = xij.norm();
             auto Dij = std::max(xijN - conn[j].rij, 0.0);
-            sum = sum + (cs[i] + cs[j])/2.0 * ms[j] / (ms[i] + ms[j]) * Dij * xij.normalized();
+            sum = sum + (cs[i] + cs[jj])/2.0 * ms[jj] / (ms[i] + ms[jj]) * Dij * xij.normalized();
         }
         dx.row(i) = sum;
     }
@@ -71,7 +72,7 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
         auto h = scene.fluid->h();
         auto alpha = scene.fluid->merge_threshold();
         auto beta = scene.fluid->split_threshold();
-        scene.fluid->boundary_neighborhood->inRange(pos, bPos, beta*h);
+        scene.fluid->boundary_neighborhood->inRange(pos, bPos, alpha*h);
         const auto& bCs = scene.fluid->boundary_velocity_correction_coefficient();
         const auto& bMs = scene.fluid->boundary_mass();
         for(int i = 0; i < pos.rows(); ++i){
@@ -82,8 +83,8 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
                 int jj = index[j];
                 auto xij = pos.row(i) - bPos.row(jj);
                 auto xijN = xij.norm();
-                Float Dij = std::max(xijN - alpha*h, 0.0);
-                TranslationVector DX = (cs[i] + bCs[jj])/2.0 * bMs[jj] / (ms[i] + bMs[jj]) * Dij * xij.normalized();
+                Float Dij = std::max(xijN - 0.5*alpha*h, 0.0); // bMs[jj] / (ms[i] + bMs[jj]) *
+                TranslationVector DX = (cs[i] + bCs[jj])/2.0 * Dij * xij.normalized();
                 sum = sum + DX;
             }
             dy.row(i) = sum;
@@ -94,7 +95,7 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
     vs = vs + dt * a + Dv;
     pos = pos + dt * vs;
     scene.room.restrictFluid(* scene.fluid);
-    updateVelocityCorrectionCoefficients(scene, dt);
+    //updateVelocityCorrectionCoefficients(scene, dt);
 }
 
 void ViscoElastic::updateVelocityCorrectionCoefficients(Scene& scene, TimeStep dt){
@@ -169,6 +170,10 @@ void ViscoElastic::controlConnections(Scene& scene) {
         const auto& index = indexes[i];
         for(size_t j = 0; j < index.size(); ++j){
             int jj = index[j];
+            if(jj == i){
+                // TODO: figure out if i is ok
+                continue;
+            }
             Connection newConnection;
             newConnection.partner = jj;
             auto candidate = std::lower_bound(cs[i].begin(), cs[i].end(), newConnection, [](const auto& a, const auto& b){return a.partner < b.partner;});

@@ -80,7 +80,25 @@ bool SceneLoader::loadScene(Physics::Scene& physScene, Render::Scene& renderScen
     } else {
         setEmptyFluid(physScene, renderScene);
     }
+    if(scene.isMember("room")){
+        readRoom(physScene, renderScene, scene["room"]);
+    }
     return true;
+}
+
+void SceneLoader::readRoom(Physics::Scene& physScene, Render::Scene&, const Json::Value& room) const {
+    if(room.isMember("floor")){
+        physScene.room.floor = room["floor"].asDouble()*scale + transl_y;
+    }
+    if(room.isMember("ceiling")){
+        physScene.room.ceiling = room["ceiling"].asDouble()*scale + transl_y;
+    }
+    if(room.isMember("leftWall")){
+        physScene.room.left_wall = room["leftWall"].asDouble()*scale + transl_x;
+    }
+    if(room.isMember("rightWall")){
+        physScene.room.right_wall = room["rightWall"].asDouble()*scale + transl_x;
+    }
 }
 
 Coordinates2d SceneLoader::createGrid(int px, int py, Float gridSpacing) const {

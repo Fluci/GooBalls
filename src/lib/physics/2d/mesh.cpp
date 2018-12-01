@@ -190,7 +190,7 @@ void Mesh::compute_particles_volume(Float h) {
 void Mesh::compute_particles_mass(Float) {
     int PN = m_particles_position_local.rows();
     m_particles_mass.resize(PN, Eigen::NoChange);
-    m_particles_mass.array() = 0.1;//TODO: body->GetMass()/PN;
+    m_particles_mass.array() = 0.00001;//TODO: body->GetMass()/PN;
 }
 
 } // Physics

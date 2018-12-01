@@ -8,7 +8,7 @@
             "type": "grid",
             "gridWidth": 10,
             "gridHeight": 20,
-            "gridSpacing": 1
+            "gridSpacing": 0.9
         },
         "position": [35, 35],
         "kernelRadius": 1.42,
@@ -22,10 +22,12 @@
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],
         "radius": 0.23,
-        "velocityCorrectionCoefficient": 0.0001,
+        "velocityCorrectionCoefficient": 0.0005,
         "velocityCorrectionCoefficientMin": 0,
         "weakeningSpeed": 0,
-        "yieldCriterion": 0
+        "yieldCriterion": 1,
+        "mergeThreshold": 2,
+        "splitThreshold": 1000
     },
 	"objects": [
         {
