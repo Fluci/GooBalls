@@ -57,6 +57,8 @@ namespace GooBalls {
 
 namespace d2 {
 
+
+
 ExampleApplication::ExampleApplication(Physics::Engine& physicsEngine, Render::Engine& renderEngine,
         Physics::Scene& physicsScene, Render::Scene& renderScene)
         : nanogui::Screen(Eigen::Vector2i(900, 900), "GooFBalls", false),
@@ -76,19 +78,8 @@ bool ExampleApplication::keyboardEvent(int key, int scancode, int action, int mo
         setVisible(false);
         return true;
     }
-    if (key == GLFW_KEY_A && action != GLFW_RELEASE) {
-        m_physicsScene.fluid->particles_external_force().col(0).array() = -10000;
-        m_physicsScene.fluid->particles_external_force().col(1).array() = 0;
-    } else if (key == GLFW_KEY_D && action != GLFW_RELEASE) {
-        m_physicsScene.fluid->particles_external_force().col(0).array() = 10000;
-        m_physicsScene.fluid->particles_external_force().col(1).array() = 0;
-    } else if (key == GLFW_KEY_W && action != GLFW_RELEASE) {
-        m_physicsScene.fluid->particles_external_force().col(0).array() = 0;
-        m_physicsScene.fluid->particles_external_force().col(1).array() = 10000;
-    } else {
-        m_physicsScene.fluid->particles_external_force().array() = 0;
-    }
-    return false;
+
+    return m_controller.keyboardEvent(key, scancode, action, modifiers);
 }
 
 void ExampleApplication::drawContents() {
@@ -99,6 +90,7 @@ void ExampleApplication::drawContents() {
     double dt = 0.001;
     int n = std::max(1.0, target/dt);
     for(int i = 0; i < n; ++i){
+        m_controller.apply(m_physicsScene);
         m_physicsEngine.advance(m_physicsScene, dt);
     }
     // for the moment only one fluid is supported

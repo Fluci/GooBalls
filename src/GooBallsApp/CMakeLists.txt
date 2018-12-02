@@ -4,6 +4,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # list here all source files appart from main
 set(source_files
     cli_options.cpp
+    game_controller.cpp
     ui/ui.cpp
     placeholder.cpp
     )

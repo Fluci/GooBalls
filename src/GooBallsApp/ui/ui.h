@@ -6,6 +6,7 @@
 
 #include "physics/2d/engine.hpp"
 #include "rendering/2d/engine.hpp"
+#include "game_controller.hpp"
 
 namespace GooBalls {
 
@@ -24,6 +25,8 @@ public:
 
 
 private:
+    GameController m_controller;
+
     Physics::Engine& m_physicsEngine;
     Physics::Scene& m_physicsScene;
 
