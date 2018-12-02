@@ -2,6 +2,8 @@
 
 #include <nanogui/glcanvas.h>
 #include <nanogui/screen.h>
+#include <ctime>
+#include <deque>
 
 
 #include "physics/2d/engine.hpp"
@@ -11,6 +13,7 @@
 namespace GooBalls {
 
 namespace d2 {
+
 
 
 class ExampleApplication : public nanogui::Screen {
@@ -32,6 +35,14 @@ private:
 
     Render::Engine& m_renderEngine;
     Render::Scene& m_renderScene;
+
+
+    /// remembers the last frame render times
+    /// needed to figure out the amout of phyiscs we should compute
+    /// gives us exact fps
+    std::deque<clock_t> frames;
+    int fps = 0;
+    nanogui::Label* fps_label;
 };
 
 } // d2

@@ -1,6 +1,6 @@
 #include "ui.h"
 
-
+#include <boost/log/trivial.hpp>
 
 #include <nanogui/opengl.h>
 #include <nanogui/glutil.h>
@@ -57,7 +57,7 @@ namespace GooBalls {
 
 namespace d2 {
 
-
+using namespace nanogui;
 
 ExampleApplication::ExampleApplication(Physics::Engine& physicsEngine, Render::Engine& renderEngine,
         Physics::Scene& physicsScene, Render::Scene& renderScene)
@@ -66,6 +66,10 @@ ExampleApplication::ExampleApplication(Physics::Engine& physicsEngine, Render::E
         m_renderEngine(renderEngine), m_renderScene(renderScene) {
 
     m_renderEngine.init();
+    frames.push_back(clock());
+
+    fps_label = new Label(this, "000 fps");
+    fps_label->setColor({0,0,0,255});
 
     setBackground({190, 190, 255, 255});
     performLayout();
@@ -79,16 +83,28 @@ bool ExampleApplication::keyboardEvent(int key, int scancode, int action, int mo
         return true;
     }
 
+
     return m_controller.keyboardEvent(key, scancode, action, modifiers);
 }
 
 void ExampleApplication::drawContents() {
-    /// seconds per frame: TODO get from measurments or so
-    double target = 1/200.0;
+    clock_t current = clock();
+    clock_t previous = frames.back();
+    clock_t lastSec = current - CLOCKS_PER_SEC;
+    while(frames.front() < lastSec){
+        frames.pop_front();
+    }
+    fps = frames.size();
+    fps_label->setCaption(std::to_string(fps) + " fps");
+    frames.push_back(current);
+    //std::cout << "Fps: " << fps << "\n";
+    double simulationSpeed = 0.5; // 1 = real time, 0.5: slomotion, 2: faster than real time
+    /// How large of a total time step should be simulated?
+    double target = std::min(double(current - previous)/CLOCKS_PER_SEC, 1/60.0)*simulationSpeed;
     /// dt: largest possible timestep, for which the simulation stays
     /// stable
     double dt = 0.001;
-    int n = std::max(1.0, target/dt);
+    int n = std::max(1.0, std::ceil(target/dt));
     for(int i = 0; i < n; ++i){
         m_controller.apply(m_physicsScene);
         m_physicsEngine.advance(m_physicsScene, dt);

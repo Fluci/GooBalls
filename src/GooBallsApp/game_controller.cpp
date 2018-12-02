@@ -5,6 +5,10 @@ namespace GooBalls {
 
 namespace d2 {
 
+GameController::GameController() : move_left(false), move_right(false), move_up(false) {
+    // empty
+}
+
 bool GameController::keyboardEvent(int key, int scancode, int action, int modifiers){
     if (key == GLFW_KEY_A) {
         move_left = action != GLFW_RELEASE;
