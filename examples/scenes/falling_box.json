@@ -2,6 +2,7 @@
 	"name":"Falling Box",
     "includes": ["static_scene_with_funnel.json"],
 	"scale": 0.035,
+    "gravity": [0,-9.81],
 	"translation": [-1, -.5],
         "fluid": {
         "particles": {
@@ -22,7 +23,7 @@
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],
         "radius": 0.23,
-        "velocityCorrectionCoefficient": 0.0005,
+        "velocityCorrectionCoefficient": 0.001,
         "velocityCorrectionCoefficientMin": 0,
         "weakeningSpeed": 0,
         "yieldCriterion": 1.01,

@@ -84,6 +84,10 @@ bool SceneLoader::loadScene(Physics::Scene& physScene, Render::Scene& renderScen
     if(scene.isMember("room")){
         readRoom(physScene, renderScene, scene["room"]);
     }
+    if(scene.isMember("gravity")){
+        physScene.gravity[0] = scene["gravity"][0].asDouble();
+        physScene.gravity[1] = scene["gravity"][1].asDouble();
+    }
     return true;
 }
 
