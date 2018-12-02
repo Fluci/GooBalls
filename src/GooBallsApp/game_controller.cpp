@@ -27,21 +27,38 @@ void GameController::apply(Physics::Scene& scene){
         move_left = false;
         move_right = false;
     }
-    if (move_left) {
-        scene.fluid->particles_external_force().col(0).array() = -1000;
-        scene.fluid->particles_external_force().col(1).array() = 0;
-    }
-    if (move_right) {
-        scene.fluid->particles_external_force().col(0).array() = 1000;
-        scene.fluid->particles_external_force().col(1).array() = 0;
-    }
-    if (move_up) {
-        scene.fluid->particles_external_force().col(0).array() = 0;
-        scene.fluid->particles_external_force().col(1).array() = 1000;
-    }
+    bool moveByForce = false;
+    if(moveByForce){
+        if (move_left) {
+            scene.fluid->particles_external_force().col(0).array() = -1000;
+            scene.fluid->particles_external_force().col(1).array() = 0;
+        }
+        if (move_right) {
+            scene.fluid->particles_external_force().col(0).array() = 1000;
+            scene.fluid->particles_external_force().col(1).array() = 0;
+        }
+        if (move_up) {
+            scene.fluid->particles_external_force().col(0).array() = 0;
+            scene.fluid->particles_external_force().col(1).array() = 1000;
+        }
 
-    if(!move_left && !move_right && !move_up){
-        scene.fluid->particles_external_force().array() = 0;
+        if(!move_left && !move_right && !move_up){
+            scene.fluid->particles_external_force().array() = 0;
+        }
+    } else {
+        Float vMax = 2;
+        Float acc = 0.01;
+
+        auto& vs = scene.fluid->particles_velocity();
+        if(move_left){
+            vs.col(0) = vs.col(0).array()*(1-acc) - vMax * acc;
+        }
+        if(move_right){
+            vs.col(0) = vs.col(0).array()*(1-acc) + vMax * acc;
+        }
+        if(move_up){
+            vs.col(1) = vs.col(1).array()*(1-acc) + vMax * acc;
+        }
     }
 }
 
