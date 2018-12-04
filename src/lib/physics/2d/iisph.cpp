@@ -39,6 +39,7 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
         return;
     }
     prepareFluid(scene);
+    prepareBoundary(scene);
     assert(m_kernelDensity.get() != nullptr);
     assert(m_kernelPressure.get() != nullptr);
     assert(m_kernelViscosity.get() != nullptr);
@@ -62,9 +63,10 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
     // sum_j a_ij p_j = b_i = rho_0 - rho^adv_i
 
     scene.fluid->fluid_neighborhood->inRange(pos, h);
+    //computeFluidPressure(scene);
     predictAdvection(scene, dt, *m_kernelDensity);
     pressureSolve(scene, dt, *m_kernelDensity);
-    //computeMomentumPreservingPressureForce(scene, *m_kernelDensity);
+    computeMomentumPreservingPressureForce(scene, *m_kernelDensity);
     //computeStandardPressureForce(scene, *m_kernelDensity);
 
     FPressure = FPressure.array().min(100*K).max(-100*K);
@@ -240,7 +242,7 @@ void IISPH::pressureSolve(Scene& scene, TimeStep dt, const Kernel& kernel) {
         l++;
         assert(is_finite(ps));
         assert(is_finite(rhol));
-        if(l > 200){
+        if(l > 400){
             BOOST_LOG_TRIVIAL(info) << "reached maximum number of iterations with rhol=" << rhol.maxCoeff() << " avg: " << rhol.mean() << ", eta: " << eta;
             break;
         }
@@ -268,6 +270,7 @@ void IISPH::advance(Scene& scene, TimeStep dt){
     vs = vs + dt * a;
     scene.room.restrictFluid(* scene.fluid);
     pos = pos + dt * vs;
+    limitVelocity(scene);
 }
 
 

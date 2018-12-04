@@ -218,12 +218,14 @@ int main(int argc, char **argv) {
     }
     std::unique_ptr<Physics::FluidSolver> solver;
     auto desiredSolver = cli_options["fluid-solver"].as<std::string>();
+    Float dt = 0.001;
     if(desiredSolver == "ssph"){
         solver = std::make_unique<Physics::SSPH>();
     } else if (desiredSolver == "viscoElastic") {
         solver = std::make_unique<Physics::ViscoElastic>();
     } else if (desiredSolver == "iisph") {
         solver = std::make_unique<Physics::IISPH>();
+        dt = 0.005;
     }
     physicsEngine.fluidSolver(std::move(solver));
     physicsEngine.initScene(physicsScene);
@@ -236,6 +238,7 @@ int main(int argc, char **argv) {
                 new ExampleApplication(physicsEngine, renderEngine, physicsScene, renderScene);
             app->drawAll();
             app->setVisible(true);
+            app->default_dt = dt;
             nanogui::mainloop();
         }
 
