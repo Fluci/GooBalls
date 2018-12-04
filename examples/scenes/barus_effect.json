@@ -2,7 +2,7 @@
 	"name":"Falling Box",
     "includes": ["static_scene_with_funnel.json"],
 	"scale": 0.035,
-	"translation": [-1, -.5],
+	"translation": [-1, -.95],
     "fluid": {
         "particles": {
             "type": "grid",

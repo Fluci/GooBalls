@@ -1,7 +1,7 @@
 {
 	"name":"Scene0",
 	"scale": 0.035,
-	"translation": [-1, -.5],
+	"translation": [-1, -.95],
 	"objects": [
 		{
 			"name": "left_wall",

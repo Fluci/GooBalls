@@ -3,7 +3,7 @@
     "includes": ["static_scene_with_funnel.json"],
 	"scale": 0.035,
     "gravity": [0,-9.81],
-	"translation": [-1, -.5],
+	"translation": [-1, -.95],
         "fluid": {
         "particles": {
             "type": "grid",

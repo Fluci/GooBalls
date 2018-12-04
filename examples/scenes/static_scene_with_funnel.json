@@ -2,7 +2,7 @@
 	"name":"Scene0",
     "includes": ["world_border.json"],
 	"scale": 0.035,
-	"translation": [-1, -.5],
+	"translation": [-1, -.95],
 	"objects": [
 		{
 			"name": "floor_spike",

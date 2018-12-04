@@ -6,7 +6,7 @@
         "rightWall": 50,
         "floor": 4
     },
-	"translation": [-1, -.5],
+	"translation": [-1, -.95],
     "fluid": {
         "particles": {
             "type": "grid",
