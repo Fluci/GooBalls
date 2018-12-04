@@ -31,6 +31,8 @@
 #include <memory>
 #include <utility>
 
+#include "physics/2d/recommended_timestep.hpp"
+
 #if defined(__GNUC__)
 #  pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
@@ -103,7 +105,11 @@ void ExampleApplication::drawContents() {
     double target = std::min(double(current - previous)/CLOCKS_PER_SEC, 1/60.0)*simulationSpeed;
     /// dt: largest possible timestep, for which the simulation stays
     /// stable
-    double dt = 0.001;
+    double dt = default_dt;
+    if(use_recommended_timestep){
+        dt = Physics::recommendedTimeStep(m_physicsScene);
+    }
+    BOOST_LOG_TRIVIAL(trace) << "Used timestep: " << dt;
     int n = std::max(1.0, std::ceil(target/dt));
     for(int i = 0; i < n; ++i){
         m_controller.apply(m_physicsScene);

@@ -27,6 +27,9 @@ public:
     virtual void drawContents();
 
 
+
+    bool use_recommended_timestep = false;
+    double default_dt = 0.001;
 private:
     GameController m_controller;
 

@@ -2,6 +2,8 @@
 #include "pick_rows.hpp"
 #include "generic/is_finite.hpp"
 
+#include <boost/log/trivial.hpp>
+
 namespace GooBalls {
 
 namespace d2 {
@@ -50,6 +52,7 @@ void AbstractSph::advance(Scene& scene, TimeStep dt){
     vs = vs + dt * a;
     scene.room.restrictFluid(* scene.fluid);
     pos = pos + dt * vs;
+    limitVelocity(scene);
 }
 
 void AbstractSph::computeGravityForce(const Scene& scene) {
@@ -206,6 +209,25 @@ void AbstractSph::addFluidDensity(Scene& scene, const Kernel& densityKernel) con
         rho[i] += jW.sum();
     }
 }
+
+/// based on CFL condition: dt = lambda * h /max(sqrt(K), v_max)
+void AbstractSph::limitVelocity(const Scene& scene) const {
+    const Float vMax = std::sqrt(scene.fluid->stiffnessConstant());
+    auto& vs = scene.fluid->particles_velocity();
+
+    Coordinates1d vsMag2 = vs.rowwise().squaredNorm();
+    Float maxV2 = vsMag2.maxCoeff();
+    if(maxV2 > vMax*vMax){
+        BOOST_LOG_TRIVIAL(info) << "Limiting particle speed from " << std::sqrt(maxV2) << " to " << vMax;
+        for(int i = 0; i < vs.rows(); ++i){
+            if(vsMag2[i] > vMax*vMax){
+                vs.row(i) = vs.row(i) / std::sqrt(vsMag2[i]) * vMax;
+            }
+        }
+        vs.array().min(vMax).max(-vMax);
+    }
+}
+
 
 } // Physics
 

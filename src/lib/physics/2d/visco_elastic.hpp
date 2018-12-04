@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fluid_solver.hpp"
+#include "abstract_sph.hpp"
 
 namespace GooBalls {
 
@@ -11,7 +11,7 @@ namespace Physics {
 /// This class wraps another Fluid solver and adds velocity correction based on particle positions
 ///
 /// See "Volume Preserving Viscoelastic Fluids With Large Deformations using Position-based velocity Corrections" by Takahashi et al.
-class ViscoElastic : public FluidSolver {
+class ViscoElastic : public AbstractSph {
 public:
     ViscoElastic();
     virtual void advance(Scene& scene, TimeStep dt);

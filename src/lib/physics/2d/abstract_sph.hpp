@@ -41,6 +41,8 @@ protected:
     void computeStandardSurfaceTensionForce(const Scene& scene, const Kernel& kernel, Float color_relevant_normal_size);
     /// As described in Monaghan, 1992
     void computeMomentumPreservingPressureForce(const Scene& scene, const Kernel& pressureKernel);
+    /// based on CFL condition: dt = lambda * h /max(sqrt(K), v_max)
+    void limitVelocity(const Scene& scene) const;
 public:
     virtual ~AbstractSph() = default;
 };

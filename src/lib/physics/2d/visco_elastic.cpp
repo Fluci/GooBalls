@@ -102,6 +102,7 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
     pos = pos + dt * vs;
     scene.room.restrictFluid(* scene.fluid);
     //updateVelocityCorrectionCoefficients(scene, dt);
+    limitVelocity(scene);
 }
 
 void ViscoElastic::updateVelocityCorrectionCoefficients(Scene& scene, TimeStep dt){
