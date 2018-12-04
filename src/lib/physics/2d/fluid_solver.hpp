@@ -26,6 +26,7 @@ public:
     virtual bool considerBoundary(bool consider);
     virtual bool considerBoundary() const;
 
+    virtual void initFluid(Scene& scene);
 };
 
 

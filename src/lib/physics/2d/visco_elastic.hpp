@@ -14,14 +14,18 @@ namespace Physics {
 class ViscoElastic : public AbstractSph {
 public:
     ViscoElastic();
-    virtual void advance(Scene& scene, TimeStep dt);
-    virtual void computeTotalForce(Scene& scene, TimeStep dt);
+    virtual void advance(Scene& scene, TimeStep dt) override;
+    virtual void computeTotalForce(Scene& scene, TimeStep dt) override;
+    virtual void initFluid(Scene& scene) override;
     virtual bool considerBoundary(bool consider);
     virtual bool considerBoundary() const;
     void updateVelocityCorrectionCoefficients(Scene& scene, TimeStep dt);
-    void controlConnections(Scene& scene);
+    void mergeConnections(Scene& scene);
+    void splitConnections(Scene& scene);
     /// Set the fluid solver responsible for the core physics
     void base(std::unique_ptr<FluidSolver>&& b);
+    bool continuousMerge = false;
+    bool continuousSplit = false;
 private:
     /// This is the main fluid solver who's results we adjust to make the fluid visco elastic
     std::unique_ptr<FluidSolver> m_solver;

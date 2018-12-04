@@ -22,37 +22,17 @@ void Engine::fluidSolver(std::unique_ptr<FluidSolver>&& solver){
 }
 
 void Engine::initScene(Scene& scene){
+    BOOST_LOG_TRIVIAL(trace) << "Physics Engine: initializing scene";
     for(auto& mesh : scene.meshes){
         mesh.prepare(scene.fluid->h());
     }
-    const auto& pos = scene.fluid->particles_position();
-    if(pos.rows() != scene.fluid->particles_velocity().rows()){
-        // by default, give the particles no speed
-        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity set, setting to zero.";
-        scene.fluid->particles_velocity().setOnes(pos.rows(), Eigen::NoChange);
-    }
-    if(pos.rows() != scene.fluid->particles_mass().rows()){
-        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle mass set, setting to ones.";
-        scene.fluid->particles_mass().setOnes(pos.rows());
-    }
-    if(pos.rows() != scene.fluid->particles_velocity_correction().rows()){
-        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity correction coefficients set, setting to 1.";
-        scene.fluid->particles_velocity_correction().resize(pos.rows(), Eigen::NoChange);
-        scene.fluid->particles_velocity_correction().array() = 0.001;
-    }
-    if(pos.rows() != scene.fluid->particles_external_force().rows()){
-        BOOST_LOG_TRIVIAL(warning) << "No proper external particle force set, setting zero.";
-        scene.fluid->particles_external_force().setZero(pos.rows(), 2);
-    }
-
-    // adjusted later down the road, just making sure the width is ok
-    scene.fluid->particles_density().resize(1, Eigen::NoChange);
-    scene.fluid->particles_total_force().resize(1, Eigen::NoChange);
-    scene.fluid->particles_pressure().resize(1, Eigen::NoChange);
+    m_fluidSolver->initFluid(scene);
     scene.world.SetGravity(b2Vec2(scene.gravity[0], scene.gravity[1]));
+    BOOST_LOG_TRIVIAL(trace) << "Physics Engine: Scene initialized";
 }
 
 void Engine::advance(Scene& scene, TimeStep dt) {
+    BOOST_LOG_TRIVIAL(trace) << "Physics Engine: advancing scene by " << dt;
     scene.world.Step(dt, velocity_iterations, position_iterations);
     // The rigid bodies moved: use their transform to compute the local meshes
     int boundaryParticles = 0;

@@ -43,6 +43,7 @@ protected:
     void computeMomentumPreservingPressureForce(const Scene& scene, const Kernel& pressureKernel);
     /// based on CFL condition: dt = lambda * h /max(sqrt(K), v_max)
     void limitVelocity(const Scene& scene) const;
+    virtual void initFluid(Scene& scene) override;
 public:
     virtual ~AbstractSph() = default;
 };

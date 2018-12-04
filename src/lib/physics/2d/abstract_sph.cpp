@@ -10,6 +10,34 @@ namespace d2 {
 
 namespace Physics {
 
+void AbstractSph::initFluid(Scene& scene) {
+    BOOST_LOG_TRIVIAL(trace) << "AbstractSph: initializing";
+    const auto& pos = scene.fluid->particles_position();
+    if(pos.rows() != scene.fluid->particles_velocity().rows()){
+        // by default, give the particles no speed
+        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity set, setting to zero.";
+        scene.fluid->particles_velocity().setOnes(pos.rows(), Eigen::NoChange);
+    }
+    if(pos.rows() != scene.fluid->particles_mass().rows()){
+        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle mass set, setting to ones.";
+        scene.fluid->particles_mass().setOnes(pos.rows());
+    }
+    if(pos.rows() != scene.fluid->particles_velocity_correction().rows()){
+        BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity correction coefficients set, setting to 1.";
+        scene.fluid->particles_velocity_correction().resize(pos.rows(), Eigen::NoChange);
+        scene.fluid->particles_velocity_correction().array() = 0.001;
+    }
+    if(pos.rows() != scene.fluid->particles_external_force().rows()){
+        BOOST_LOG_TRIVIAL(warning) << "No proper external particle force set, setting zero.";
+        scene.fluid->particles_external_force().setZero(pos.rows(), 2);
+    }
+
+    // adjusted later down the road, just making sure the width is ok
+    scene.fluid->particles_density().resize(1, Eigen::NoChange);
+    scene.fluid->particles_total_force().resize(1, Eigen::NoChange);
+    scene.fluid->particles_pressure().resize(1, Eigen::NoChange);
+}
+
 void AbstractSph::prepareFluid(Scene& scene) const {
     assert(scene.fluid.get() != nullptr);
     assert(scene.fluid->sanity_check());

@@ -24,12 +24,22 @@ bool ViscoElastic::considerBoundary() const {
     return m_solver->considerBoundary();
 }
 
+void ViscoElastic::initFluid(Scene& scene) {
+    BOOST_LOG_TRIVIAL(trace) << "ViscoElastic: initializing solver";
+    assert(m_solver.get() != nullptr);
+    m_solver->initFluid(scene);
+    BOOST_LOG_TRIVIAL(trace) << "ViscoElastic: initializing connections";
+    auto& cs = scene.fluid->particles_connectivity();
+    const auto& pos = scene.fluid->particles_position();
+    cs.resize(pos.rows());
+    mergeConnections(scene);
+}
+
 
 void ViscoElastic::advance(Scene& scene, TimeStep dt){
     if(scene.fluid.get() == nullptr){
         return;
     }
-    controlConnections(scene);
     computeTotalForce(scene, dt);
     Coordinates2d a;
     // a_i = f_i / rho_i
@@ -102,6 +112,12 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
     pos = pos + dt * vs;
     scene.room.restrictFluid(* scene.fluid);
     //updateVelocityCorrectionCoefficients(scene, dt);
+    if(continuousSplit){
+        splitConnections(scene);
+    }
+    if(continuousMerge){
+        mergeConnections(scene);
+    }
     limitVelocity(scene);
 }
 
@@ -140,7 +156,7 @@ void ViscoElastic::updateVelocityCorrectionCoefficients(Scene& scene, TimeStep d
     }
 }
 
-void ViscoElastic::controlConnections(Scene& scene) {
+void ViscoElastic::splitConnections(Scene& scene) {
     // if ||x_ij|| < h * alpha -> new connection
     // if ||x_ij|| > h * beta -> split
     const auto alpha = scene.fluid->merge_threshold();
@@ -149,7 +165,6 @@ void ViscoElastic::controlConnections(Scene& scene) {
     const auto& pos = scene.fluid->particles_position();
     const auto h = scene.fluid->h();
     auto& cs = scene.fluid->particles_connectivity();
-    cs.resize(pos.rows());
     // remove connections that are too large
     Float hb2 = h*h*beta*beta;
     int removed = 0;
@@ -169,9 +184,22 @@ void ViscoElastic::controlConnections(Scene& scene) {
         cs[i].resize(next);
         std::sort(cs[i].begin(), cs[i].end(), [](auto a, auto b){return a.partner < b.partner;});
     }
+    if(removed != 0){
+        BOOST_LOG_TRIVIAL(trace) << "Connections removed: " << removed;
+    }
+}
+
+void ViscoElastic::mergeConnections(Scene& scene) {
     // add new connections
+    assert(scene.fluid.get() != nullptr);
+    assert(scene.fluid->fluid_neighborhood.get() != nullptr);
+    const auto alpha = scene.fluid->merge_threshold();
+    const auto& pos = scene.fluid->particles_position();
+    const auto h = scene.fluid->h();
     scene.fluid->fluid_neighborhood->inRange(pos, h*alpha);
     const auto& indexes = scene.fluid->fluid_neighborhood->indexes();
+    auto& cs = scene.fluid->particles_connectivity();
+    assert(cs.size() == pos.rows());
     int added = 0;
     for(int i = 0; i < pos.rows(); ++i){
         const auto& index = indexes[i];
@@ -192,9 +220,9 @@ void ViscoElastic::controlConnections(Scene& scene) {
             newConnection.rij = (pos.row(i) - pos.row(jj)).norm();
             cs[i].push_back(std::move(newConnection));
         }
-    }
-    if(removed != 0 || added != 0){
-        BOOST_LOG_TRIVIAL(trace) << "Connections removed: " << removed << ", added: " << added;
+        if(added != 0){
+            BOOST_LOG_TRIVIAL(trace) << "Connections added: " << added;
+        }
     }
 }
 
