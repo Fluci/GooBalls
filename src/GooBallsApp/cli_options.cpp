@@ -12,6 +12,7 @@ op::options_description cli_options() {
     ad("src,s", op::value<std::string>(), "Scene to display");
     ad("log,l", op::value<std::string>()->default_value("info"), "Set lowest log level to show. Possible options: trace, debug, info, warning, error, fatal, none. Default: info");
     ad("fluid-solver", op::value<std::string>()->default_value("viscoElastic"), "Set the fluid solver: ssph, viscoElastic");
+    ad("pause,p", "True: start the simulation in pause mode, false: run as expected, default: false");
 
     return desc;
 }

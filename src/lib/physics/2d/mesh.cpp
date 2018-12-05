@@ -113,7 +113,6 @@ void Mesh::update_from_rigid_body() {
     TranslationVector dx = translation();
     rotM.transpose();
     glob = (loc * rotM).rowwise() + dx;
-    //m_particles_global = (m_particles_local * rotM).rowwise() + dy;
     // speed of particle
     if(m_particles_position_local.rows() > 0){
         m_particles_velocity.resize(m_particles_position_local.rows(), Eigen::NoChange);

@@ -201,7 +201,7 @@ int main(int argc, char **argv) {
 
     setLogLevel(cli_options["log"].as<std::string>());
 
-    std::string scenePath = "../examples/scenes/falling_box.json";
+    std::string scenePath = "../examples/scenes/falling_boxes.json";
     if(cli_options.count("src")) {
         scenePath = cli_options["src"].as<std::string>();
     }
@@ -239,6 +239,7 @@ int main(int argc, char **argv) {
             app->drawAll();
             app->setVisible(true);
             app->default_dt = dt;
+            app->run_state = cli_options.count("pause") ? PAUSE : RUN;
             nanogui::mainloop();
         }
 

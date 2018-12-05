@@ -116,7 +116,7 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
         splitConnections(scene);
     }
     if(scene.fluid->continuous_merge()){
-        mergeConnections(scene);
+        mergeConnections(scene, 1.5);
     }
     limitVelocity(scene);
 }
@@ -189,7 +189,7 @@ void ViscoElastic::splitConnections(Scene& scene) {
     }
 }
 
-void ViscoElastic::mergeConnections(Scene& scene) {
+void ViscoElastic::mergeConnections(Scene& scene, Float slack) {
     // add new connections
     assert(scene.fluid.get() != nullptr);
     assert(scene.fluid->fluid_neighborhood.get() != nullptr);
@@ -217,7 +217,7 @@ void ViscoElastic::mergeConnections(Scene& scene) {
                 continue;
             }
             added++;
-            newConnection.rij = (pos.row(i) - pos.row(jj)).norm();
+            newConnection.rij = (pos.row(i) - pos.row(jj)).norm() * slack;
             cs[i].push_back(std::move(newConnection));
         }
         if(added != 0){

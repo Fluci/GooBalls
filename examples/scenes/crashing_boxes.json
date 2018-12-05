@@ -1,0 +1,69 @@
+{
+	"name":"Falling Box",
+    "includes": ["static_scene_with_funnel.json"],
+	"scale": 0.035,
+    "gravity": [0,-9.81],
+	"translation": [-1, -.95],
+    "fluid": {
+        "particles": {
+            "type": "grid",
+            "gridWidth": 10,
+            "gridHeight": 40,
+            "gridSpacing": 1
+        },
+        "position": [7, 10],
+        "kernelRadius": 2,
+        "mass": 5.5,
+        "initialVelocity": [0, 0],
+        "stiffnessConstant": 5000,
+        "restDensity": 100,
+        "surfaceTension": 0,
+        "fluidViscosity": 0.003,
+        "boundaryViscosity": 0.03,
+        "pressureGamma": 7.0,
+        "color": [0.6, 0.6, 1.0],
+        "radius": 0.23,
+        "velocityCorrectionCoefficient": 0.001,
+        "velocityCorrectionCoefficientMin": 0,
+        "weakeningSpeed": 0,
+        "yieldCriterion": 1.01,
+        "mergeThreshold": 1,
+        "splitThreshold": 2
+    },
+	"objects": [
+        {
+            "name": "dynamicBox",
+            "position": [20, 40],
+            "initialVelocity": [-2,0],
+            "density": 500,
+            "dynamic": true,
+            "vertices": [
+				[0, 0],
+				[4, 0],
+				[4, 4],
+				[0, 4]
+            ],
+            "faces": [
+                [0,1,2],
+                [3,0,2]
+            ]
+        },
+        {
+            "name": "dynamicBox2",
+            "position": [30, 40],
+            "initialVelocity": [-4, 0],
+            "density": 500,
+            "dynamic": true,
+            "vertices": [
+				[0, 0],
+				[4, 0],
+				[4, 4],
+				[0, 4]
+            ],
+            "faces": [
+                [0,1,2],
+                [3,0,2]
+            ]
+        }
+    ]
+}

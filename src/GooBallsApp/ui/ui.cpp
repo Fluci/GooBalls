@@ -90,7 +90,7 @@ bool ExampleApplication::keyboardEvent(int key, int scancode, int action, int mo
         return true;
     }
     if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-        run_state = ONE_FRAME;
+        run_state = modifiers & GLFW_MOD_SHIFT ? ONE_TIME_STEP : ONE_FRAME;
         BOOST_LOG_TRIVIAL(info) << "run state: " << run_state;
         return true;
     }
@@ -122,9 +122,6 @@ void ExampleApplication::drawContents() {
     fps_label->setCaption(std::to_string(fps) + " fps");
     frames.push_back(current);
     if(run_state != PAUSE){
-        if(run_state == ONE_FRAME || run_state == ONE_TIME_STEP){
-            run_state = PAUSE;
-        }
         //std::cout << "Fps: " << fps << "\n";
         double simulationSpeed = 0.5; // 1 = real time, 0.5: slomotion, 2: faster than real time
         /// How large of a total time step should be simulated?
@@ -137,12 +134,18 @@ void ExampleApplication::drawContents() {
         }
         BOOST_LOG_TRIVIAL(trace) << "Used timestep: " << dt;
         int n = std::max(1.0, std::ceil(slow_motion*target/dt));
+        if(run_state == ONE_TIME_STEP){
+            n = 1;
+        }
         if(n == 1){
             BOOST_LOG_TRIVIAL(info) << "Performing one timestep of " << dt;
         }
         for(int i = 0; i < n; ++i){
             m_controller.apply(m_physicsScene);
             m_physicsEngine.advance(m_physicsScene, dt);
+        }
+        if(run_state == ONE_FRAME || run_state == ONE_TIME_STEP){
+            run_state = PAUSE;
         }
     }
     // for the moment only one fluid is supported

@@ -127,6 +127,11 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
     computeMomentumPreservingPressureForce(scene, *m_kernelPressure);
     computeStandardSurfaceTensionForce(scene, *m_kernelPressure, color_relevant_normal_size);
     if(consider_boundary){
+        /*
+        if(scene.fluid->boundary_velocity().maxCoeff() > 50){
+            BOOST_LOG_TRIVIAL(info) << "largest boundary speed: " << scene.fluid->boundary_velocity().maxCoeff();
+        }
+        */
         scene.fluid->boundary_force().setZero();
         for(int i = 0; i < PN; ++i){
             // pressure: makes sure stuff doesn't enter the rigid body
@@ -147,27 +152,22 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
             m_kernelViscosity->compute(xik, nullptr, nullptr, &jLap);
             for(size_t j = 0; j < index.size(); ++j){
                 int jj = index[j];
-                TranslationVector vij = scene.fluid->boundary_velocity().row(jj) - vs.row(i);
+                TranslationVector vij = -(scene.fluid->boundary_velocity().row(jj) - vs.row(i));
                 jPress.row(j) = -ms[i] * psi[jj] * ps[i]/(rho[i] * rho[i]) * jGrad.row(j);
                 Float PI = h * std::max(vij.dot(xik.row(j)), 0.0)/(xik.squaredNorm() + visc_epsilon*h*h);
-                jVisc.row(j) = mu_boundary * psi[jj] * PI/rho[i] * vij * jLap[j];
+                jVisc.row(j) = mu_boundary * ms[i] * psi[jj] * PI/rho[i] * jGrad.row(j);
                 TranslationVector F = scene.fluid->boundary_force().row(jj) - (jPress.row(j) + jVisc.row(j));
-                // clamp maximum forces
-                Float clamp = 10*1000;
-                if(F.squaredNorm() > clamp*clamp){
-                    F = F.normalized()*clamp;
-                }
                 scene.fluid->boundary_force().row(jj) = F;
             }
             FPressure.row(i) += jPress.colwise().sum();
             FViscosity.row(i) += jVisc.colwise().sum();
         }
     }
-    //BOOST_LOG_TRIVIAL(info) << "maxF: " << scene.fluid->boundary_force().maxCoeff();
-    //Float clamp = 200*1000;
-    //scene.fluid->boundary_force() = scene.fluid->boundary_force().array().min(clamp).max(-clamp);
-    //FPressure = FPressure.array().min(10*K).max(-10*K);
-    //FViscosity = FViscosity.array().min(10*K).max(-10*K);
+    /*
+    if(scene.fluid->boundary_force().maxCoeff() > 600000){
+        BOOST_LOG_TRIVIAL(info) << "maxF: " << scene.fluid->boundary_force().maxCoeff();
+    }
+    */
     assert(is_finite(FPressure));
     assert(is_finite(FViscosity));
     assert(is_finite(FSurface));
