@@ -14,7 +14,9 @@ namespace Physics {
  */
 class Kernel {
 public:
-    /** 
+    /**
+     * Computes the kernel values for the difference vector r_i - r_j
+     *
      * Calculates the values for all out-arguments != nullptr
      * */
     virtual void compute(
