@@ -21,7 +21,7 @@ void computeViscosity(
         Eigen::MatrixBase<DerivedOut3>* laplacianResult,
         Float h,
         Float A) {
-    Float epsilon = 0.000001;
+    Float epsilon = 0.0000001;
     assert(sqNorm.maxCoeff() <= h*h*1.01);
     Coordinates1d norm = sqNorm.array().sqrt();
     Coordinates1d diffH = h*h - sqNorm.array();
@@ -57,12 +57,13 @@ void computeViscosity(
         // total:
         // -3x |r|/(2h^3) + 2 x/h^2 - h x /(2 r^3)
         // x (-3 |r|/(2h^3) + 2/h^2 - h/(2r^3)
-        //auto r32 = sqNorm.array();
-        Coordinates1d comm = (-3.0/2.0/h3) * norm.array() - (h/2.0)/(norm.array().pow(3.0) + epsilon);
+        // wolfram alpha:
+        // -(h^4 - 4 h r^3 + 3 r^4)/(2 h^3 r^2)
+        //
+        Coordinates1d comm = -(h2*h2 - 4*h*norm.array()*sqNorm.array() + 3 * sqNorm.array()*sqNorm.array())/(sqNorm.array() + epsilon);
         comm = comm.unaryExpr([](auto v){return std::isfinite(v) ? v : 0.0;});
-        comm = A*2.0/h2 + A*comm.array();
         gradientResult->derived().resize(sqNorm.rows(), Eigen::NoChange);
-        gradientResult->col(0) = comm;
+        gradientResult->col(0) = A*comm.array();
         //*gradientResult = gradientResult->unaryExpr([](auto v){return std::isfinite(v) ? v : 0.0;});
     }
     if(laplacianResult != nullptr){

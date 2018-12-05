@@ -8,6 +8,8 @@ using namespace GooBalls;
 using namespace d2;
 using namespace Physics;
 
+// TODO
+/*
 BOOST_AUTO_TEST_CASE(empty_world) {
     Scene scene;
     Engine physEngine;
@@ -16,7 +18,7 @@ BOOST_AUTO_TEST_CASE(empty_world) {
         physEngine.advance(scene, 0.1);
     }
 }
-
+*/
 BOOST_AUTO_TEST_CASE(simple_world) {
     return;
     auto particleCoordinates = std::make_shared<Coordinates2d>(Coordinates2d::Random(10, 2));
