@@ -14,7 +14,12 @@ namespace GooBalls {
 
 namespace d2 {
 
-
+enum RUN_STATE {
+    RUN,
+    PAUSE,
+    ONE_FRAME,
+    ONE_TIME_STEP
+};
 
 class ExampleApplication : public nanogui::Screen {
 public:
@@ -30,6 +35,9 @@ public:
 
     bool use_recommended_timestep = false;
     double default_dt = 0.001;
+    // the higher, the faster the simulation runs
+    double slow_motion = 1.0;
+    RUN_STATE run_state = RUN;
 private:
     GameController m_controller;
 

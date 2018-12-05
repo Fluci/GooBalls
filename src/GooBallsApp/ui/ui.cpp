@@ -84,6 +84,28 @@ bool ExampleApplication::keyboardEvent(int key, int scancode, int action, int mo
         setVisible(false);
         return true;
     }
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS){
+        run_state = run_state != RUN ? RUN : PAUSE;
+        BOOST_LOG_TRIVIAL(info) << "run state: " << run_state;
+        return true;
+    }
+    if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+        run_state = ONE_FRAME;
+        BOOST_LOG_TRIVIAL(info) << "run state: " << run_state;
+        return true;
+    }
+    if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
+        slow_motion = 1.5*slow_motion;
+        if(std::abs(1.0 - slow_motion) < 0.05){slow_motion = 1.0;}
+        BOOST_LOG_TRIVIAL(info) << "slow_motion: " << slow_motion;
+        return true;
+    }
+    if(key == GLFW_KEY_DOWN && action == GLFW_PRESS){
+        slow_motion = 1.0/1.5*slow_motion;
+        if(std::abs(1.0 - slow_motion) < 0.05){slow_motion = 1.0;}
+        BOOST_LOG_TRIVIAL(info) << "slow_motion: " << slow_motion;
+        return true;
+    }
 
 
     return m_controller.keyboardEvent(key, scancode, action, modifiers);
@@ -99,21 +121,29 @@ void ExampleApplication::drawContents() {
     fps = frames.size();
     fps_label->setCaption(std::to_string(fps) + " fps");
     frames.push_back(current);
-    //std::cout << "Fps: " << fps << "\n";
-    double simulationSpeed = 0.5; // 1 = real time, 0.5: slomotion, 2: faster than real time
-    /// How large of a total time step should be simulated?
-    double target = std::min(double(current - previous)/CLOCKS_PER_SEC, 1/60.0)*simulationSpeed;
-    /// dt: largest possible timestep, for which the simulation stays
-    /// stable
-    double dt = default_dt;
-    if(use_recommended_timestep){
-        dt = Physics::recommendedTimeStep(m_physicsScene);
-    }
-    BOOST_LOG_TRIVIAL(trace) << "Used timestep: " << dt;
-    int n = std::max(1.0, std::ceil(target/dt));
-    for(int i = 0; i < n; ++i){
-        m_controller.apply(m_physicsScene);
-        m_physicsEngine.advance(m_physicsScene, dt);
+    if(run_state != PAUSE){
+        if(run_state == ONE_FRAME || run_state == ONE_TIME_STEP){
+            run_state = PAUSE;
+        }
+        //std::cout << "Fps: " << fps << "\n";
+        double simulationSpeed = 0.5; // 1 = real time, 0.5: slomotion, 2: faster than real time
+        /// How large of a total time step should be simulated?
+        double target = std::min(double(current - previous)/CLOCKS_PER_SEC, 1/60.0)*simulationSpeed;
+        /// dt: largest possible timestep, for which the simulation stays
+        /// stable
+        double dt = default_dt;
+        if(use_recommended_timestep){
+            dt = Physics::recommendedTimeStep(m_physicsScene);
+        }
+        BOOST_LOG_TRIVIAL(trace) << "Used timestep: " << dt;
+        int n = std::max(1.0, std::ceil(slow_motion*target/dt));
+        if(n == 1){
+            BOOST_LOG_TRIVIAL(info) << "Performing one timestep of " << dt;
+        }
+        for(int i = 0; i < n; ++i){
+            m_controller.apply(m_physicsScene);
+            m_physicsEngine.advance(m_physicsScene, dt);
+        }
     }
     // for the moment only one fluid is supported
     if(!m_renderScene.fluids.empty()){

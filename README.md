@@ -44,3 +44,32 @@ Ubuntu packages:
 
 `sudo apt install libbox2d-dev libboost-filesystem-dev libboost-program-options-dev libboost-log-dev libboost-test-dev libjsoncpp-dev xorg-dev libgl1-mesa-dev`
 
+### Run the application
+
+After building, you should find the executable in the build folder at `src/GooBallsApp/gooBalls`.
+
+You need to run it from the build folder with `./src/GooBallsApp/gooBalls`. Otherwise it won't be able to find needed files (shaders, example scenes etc.).
+
+By default, the `falling_box.json` scene will be loaded (a bunch of boxes falling onto a block of visco elastic material). 
+
+You can find more example scenes at `examples/scenes`.
+
+To load another scene, please call the executable with the scene path as command line argument. Example:
+
+```bash
+./GooBallsApp/gooBalls ../../examples/scenes/split_connections.json
+```
+
+#### Controlling the simulation
+
+Following controlls are available:
+
+- `SPACE`: Pause and continue the simulation execution.
+
+- `Right arrow`: Compute one frame and then stop. (Note: this is to compute one frame, one frame can cause multiple smaller simulation time steps.)
+
+- `Up arrow`: Accelerate the simulation speed
+
+- `Down arrow`: Slow the simulation down. Note: The simulation timestep is not changed, so the lowest speed you can choose, is one simulation step at a time. This means hitting the down arrow will slow the simulation down only to a minimum speed.
+
+
