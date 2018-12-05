@@ -24,11 +24,13 @@
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],
         "radius": 0.23,
-        "velocityCorrectionCoefficient": 0.001,
+        "velocityCorrectionCoefficient": 0.01,
         "velocityCorrectionCoefficientMin": 0,
         "weakeningSpeed": 0,
         "yieldCriterion": 1.01,
         "mergeThreshold": 1,
-        "splitThreshold": 2
+        "splitThreshold": 2,
+        "continuousMerge": false,
+        "continuousSplit": false
     }
 }

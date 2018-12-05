@@ -24,8 +24,6 @@ public:
     void splitConnections(Scene& scene);
     /// Set the fluid solver responsible for the core physics
     void base(std::unique_ptr<FluidSolver>&& b);
-    bool continuousMerge = false;
-    bool continuousSplit = false;
 private:
     /// This is the main fluid solver who's results we adjust to make the fluid visco elastic
     std::unique_ptr<FluidSolver> m_solver;

@@ -28,6 +28,8 @@
         "yieldCriterion": 1.01,
         "mergeThreshold": 1,
         "splitThreshold": 1.1,
+        "continuousSplit": true,
+        "continuousMerge": true,
         "boundaryMergeThreshold": 1
     },
 	"objects": [

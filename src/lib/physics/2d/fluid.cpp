@@ -248,6 +248,21 @@ void Fluid::pressure_gamma(Float gamma) {
     m_pressure_gamma = gamma;
 }
 
+bool Fluid::continuous_merge() const {
+    return m_continuous_merge;
+
+}
+void Fluid::continuous_merge(bool newV) {
+    m_continuous_merge = newV;
+}
+
+bool Fluid::continuous_split() const {
+    return m_continuous_split;
+}
+void Fluid::continuous_split(bool newV) {
+    m_continuous_split = newV;
+}
+
 bool Fluid::sanity_check() const {
     if(particles_position().rows() != particles_velocity().rows()){
         std::cerr << "Position and velocity should have same number of rows." << std::endl;

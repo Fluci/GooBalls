@@ -126,6 +126,12 @@ public:
     Float pressure_gamma() const;
     void pressure_gamma(Float gamma);
 
+    bool continuous_merge() const;
+    void continuous_merge(bool newV);
+
+    bool continuous_split() const;
+    void continuous_split(bool newV);
+
     std::unique_ptr<Neighborhood> fluid_neighborhood;
     std::unique_ptr<Neighborhood> boundary_neighborhood;
 
@@ -156,6 +162,9 @@ private:
     Float m_merge_threshold = 1.0;
     Float m_split_threshold = 3.0;
     Float m_boundary_merge_threshold = 0.0;
+    bool m_continuous_merge = true;
+    bool m_continuous_split = true;
+
 
     Float m_K = 10000.0; // gas constant dependent on temperature, good values 1000-100'000
     // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3

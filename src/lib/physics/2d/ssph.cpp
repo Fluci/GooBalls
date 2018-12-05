@@ -5,6 +5,7 @@
 #include "pick_rows.hpp"
 #include "generic/is_finite.hpp"
 #include <iostream>
+#include <boost/log/trivial.hpp>
 
 namespace GooBalls {
 
@@ -150,14 +151,23 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
                 jPress.row(j) = -ms[i] * psi[jj] * ps[i]/(rho[i] * rho[i]) * jGrad.row(j);
                 Float PI = h * std::max(vij.dot(xik.row(j)), 0.0)/(xik.squaredNorm() + visc_epsilon*h*h);
                 jVisc.row(j) = mu_boundary * psi[jj] * PI/rho[i] * vij * jLap[j];
-                scene.fluid->boundary_force().row(jj) = scene.fluid->boundary_force().row(jj) - (jPress.row(j) + jVisc.row(j));
+                TranslationVector F = scene.fluid->boundary_force().row(jj) - (jPress.row(j) + jVisc.row(j));
+                // clamp maximum forces
+                Float clamp = 10*1000;
+                if(F.squaredNorm() > clamp*clamp){
+                    F = F.normalized()*clamp;
+                }
+                scene.fluid->boundary_force().row(jj) = F;
             }
             FPressure.row(i) += jPress.colwise().sum();
             FViscosity.row(i) += jVisc.colwise().sum();
         }
     }
-    FPressure = FPressure.array().min(100*K).max(-100*K);
-    FViscosity = FViscosity.array().min(100*K).max(-100*K);
+    //BOOST_LOG_TRIVIAL(info) << "maxF: " << scene.fluid->boundary_force().maxCoeff();
+    //Float clamp = 200*1000;
+    //scene.fluid->boundary_force() = scene.fluid->boundary_force().array().min(clamp).max(-clamp);
+    //FPressure = FPressure.array().min(10*K).max(-10*K);
+    //FViscosity = FViscosity.array().min(10*K).max(-10*K);
     assert(is_finite(FPressure));
     assert(is_finite(FViscosity));
     assert(is_finite(FSurface));

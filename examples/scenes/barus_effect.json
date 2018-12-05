@@ -27,6 +27,8 @@
         "weakeningSpeed": 0,
         "yieldCriterion": 1.01,
         "mergeThreshold": 1,
-        "splitThreshold": 200
+        "splitThreshold": 2,
+        "continuousMerge": false,
+        "continuousSplit": false
     }
 }

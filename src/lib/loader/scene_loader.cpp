@@ -211,6 +211,10 @@ void SceneLoader::readFluid(Physics::Scene& physScene, Render::Scene& renderScen
         fluidPhys->split_threshold() = fluid["splitThreshold"].asDouble();
     if(fluid.isMember("boundaryMergeThreshold"))
         fluidPhys->boundary_merge_threshold() = fluid["boundaryMergeThreshold"].asDouble();
+    if(fluid.isMember("continuousMerge"))
+        fluidPhys->continuous_merge(fluid["continuousMerge"].asBool());
+    if(fluid.isMember("continuousSplit"))
+        fluidPhys->continuous_split(fluid["continuousSplit"].asBool());
 
     fluidRender->particles_color().setOnes(pn, 3);
     if(fluid.isMember("color")){

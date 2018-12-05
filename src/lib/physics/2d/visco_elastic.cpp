@@ -112,10 +112,10 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
     pos = pos + dt * vs;
     scene.room.restrictFluid(* scene.fluid);
     //updateVelocityCorrectionCoefficients(scene, dt);
-    if(continuousSplit){
+    if(scene.fluid->continuous_split()){
         splitConnections(scene);
     }
-    if(continuousMerge){
+    if(scene.fluid->continuous_merge()){
         mergeConnections(scene);
     }
     limitVelocity(scene);

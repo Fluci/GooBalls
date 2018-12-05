@@ -30,6 +30,8 @@
         "velocityCorrectionCoefficientMin": 0.00000,
         "weakeningSpeed": 0.001,
         "yieldCriterion": 1.01,
+        "continuousMerge": false,
+        "continuousSplit": false, 
         "mergeThreshold": 1,
         "splitThreshold": 2
     }
