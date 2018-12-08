@@ -210,6 +210,9 @@ int main(int argc, char **argv) {
     Physics::Scene physicsScene;
     Render::Engine renderEngine;
     Render::Scene renderScene;
+    physicsScene.room.left_wall = -1;
+    physicsScene.room.right_wall = 1;
+    physicsScene.room.floor = -1;
     //createRandomScene(physicsScene, renderScene);
     SceneLoader loader;
     // TODO: add fluid solver to scene file

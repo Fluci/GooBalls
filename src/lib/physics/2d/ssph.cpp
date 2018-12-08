@@ -88,6 +88,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
     // implementation:
     // let's get the neighborhood information
     bool consider_boundary = considerBoundary() && scene.fluid->boundary_volume().rows() > 0;
+
     BOOST_LOG_TRIVIAL(trace) << "consider boundary: " << consider_boundary;
     if(consider_boundary){
         prepareBoundary(scene);
@@ -199,6 +200,7 @@ void SSPH::advance(Scene& scene, TimeStep dt){
     scene.room.restrictFluid(* scene.fluid);
     pos = pos + dt * vs;
     assert(is_finite(pos));
+    limitVelocity(scene);
 }
 
 

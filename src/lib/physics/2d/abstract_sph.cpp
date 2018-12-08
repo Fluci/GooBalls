@@ -39,10 +39,13 @@ void AbstractSph::initFluid(Scene& scene) {
     scene.fluid->particles_total_force().setZero(PN, 2);
     scene.fluid->particles_pressure().setZero(PN, 1);
 
+    scene.fluid->boundary_force().setZero(scene.fluid->boundary_position().rows(), 2);
+
     FGravity.setZero(PN, 2);
     FPressure.setZero(PN, 2);
     FSurface.setZero(PN, 2);
     FViscosity.setZero(PN, 2);
+
 
     // initialize with some rough values such that the first frame looks ok
     assert(scene.fluid->rest_density() > 0);
@@ -72,7 +75,7 @@ void AbstractSph::prepareBoundary(Scene& scene) const {
     psi = rho0 * scene.fluid->boundary_volume();
     auto h = scene.fluid->h();
     scene.fluid->boundary_neighborhood->inRange(scene.fluid->particles_position(), scene.fluid->boundary_position(), h);
-    scene.fluid->boundary_force().setZero(psi.rows(), 2);
+    scene.fluid->boundary_force().setZero();
 }
 
 void AbstractSph::advance(Scene& scene, TimeStep dt){
