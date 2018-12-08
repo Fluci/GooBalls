@@ -18,17 +18,17 @@
         "restDensity": 100,
         "surfaceTension": 0,
         "fluidViscosity": 0.3,
-        "boundaryViscosity": 5,
+        "boundaryViscosity": 0.05,
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],
         "radius": 0.23,
-        "velocityCorrectionCoefficient": 0.01,
+        "velocityCorrectionCoefficient": 0.001,
         "velocityCorrectionCoefficientMin": 0.00000,
         "weakeningSpeed": 0.0,
         "yieldCriterion": 1.01,
         "mergeThreshold": 1,
-        "splitThreshold": 1000,
-        "boundaryMergeThreshold": 1
+        "splitThreshold": 20,
+        "boundaryMergeThreshold": 0
     },
 	"objects": [
         {

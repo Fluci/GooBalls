@@ -15,7 +15,7 @@
         "kernelRadius": 2,
         "mass": 0.12,
         "initialVelocity": [0, 0],
-        "stiffnessConstant": 200000,
+        "stiffnessConstant": 300000,
         "restDensity": 100,
         "surfaceTension": 0,
         "fluidViscosity": 0.3,

@@ -28,7 +28,7 @@
         "yieldCriterion": 1.01,
         "mergeThreshold": 1,
         "splitThreshold": 1000,
-        "boundaryMergeThreshold": 1
+        "boundaryMergeThreshold": 0
     },
 	"objects": [
         {
