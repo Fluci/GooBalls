@@ -9,6 +9,7 @@ namespace d2 {
 
 class GameController {
     std::atomic_bool move_up;
+    std::atomic_bool move_down;
     std::atomic_bool move_left;
     std::atomic_bool move_right;
 public:

@@ -19,6 +19,9 @@ bool GameController::keyboardEvent(int key, int scancode, int action, int modifi
     if (key == GLFW_KEY_W) {
         move_up = action != GLFW_RELEASE;
     }
+    if (key == GLFW_KEY_S) {
+        move_down = action != GLFW_RELEASE;
+    }
     return true;
 }
 
@@ -41,12 +44,16 @@ void GameController::apply(Physics::Scene& scene){
             scene.fluid->particles_external_force().col(0).array() = 0;
             scene.fluid->particles_external_force().col(1).array() = 1000;
         }
+        if (move_up) {
+            scene.fluid->particles_external_force().col(0).array() = 0;
+            scene.fluid->particles_external_force().col(1).array() = -1000;
+        }
 
-        if(!move_left && !move_right && !move_up){
+        if(!move_left && !move_right && !move_up && !move_down){
             scene.fluid->particles_external_force().array() = 0;
         }
     } else {
-        Float vMax = 2;
+        Float vMax = 3;
         Float acc = 0.01;
 
         auto& vs = scene.fluid->particles_velocity();

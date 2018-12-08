@@ -10,7 +10,7 @@
             "gridHeight": 15,
             "gridSpacing": 1 
         },
-        "position": [7, 25],
+        "position": [7, 30],
         "kernelRadius": 2,
         "mass": 0.12,
         "initialVelocity": [3, 1],
@@ -18,27 +18,27 @@
         "restDensity": 100,
         "surfaceTension": 0,
         "fluidViscosity": 0.3,
-        "boundaryViscosity": 0.03,
+        "boundaryViscosity": 300,
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],
         "radius": 0.23,
-        "velocityCorrectionCoefficient": 0.05,
+        "velocityCorrectionCoefficient": 0.008,
         "velocityCorrectionCoefficientMin": 0.00000,
         "weakeningSpeed": 0.0,
         "yieldCriterion": 1.01,
         "mergeThreshold": 1,
-        "splitThreshold": 1000,
-        "boundaryMergeThreshold": 0
+        "splitThreshold": 2,
+        "boundaryMergeThreshold": 1
     },
 	"objects": [
         {
             "name": "triangleOfDoom",
-            "position": [40, 20],
-            "velocityCorrectionCoefficient": 0.001,
+            "position": [40, 25],
+            "velocityCorrectionCoefficient": 0.0,
             "vertices": [
 				[-6, 0],
 				[6, 0],
-				[-6, 20]
+				[-6, 30]
             ],
             "faces": [
                 [0,1,2]
