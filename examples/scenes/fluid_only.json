@@ -17,7 +17,7 @@
         "stiffnessConstant": 10000,
         "restDensity": 100,
         "surfaceTension": 0,
-        "fluidViscosity": 0.5,
+        "fluidViscosity": 0.9,
         "boundaryViscosity": 0.06,
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],

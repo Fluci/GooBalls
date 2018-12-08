@@ -163,7 +163,7 @@ void ExampleApplication::drawContents() {
         col.col(2) = col.col(1);
         assert(rad.rows() == rho.rows());
         // density dependent size
-        rad = (rho0/(rho.array())*0.015).max(0.002);
+        rad = (rho0/(rho.array())*0.015).max(0.001);
         //rad = rho0/rho.array().pow(.5)*0.0003;
     }
     m_renderEngine.render(m_renderScene);

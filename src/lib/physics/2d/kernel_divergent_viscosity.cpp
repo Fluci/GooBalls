@@ -8,7 +8,10 @@ namespace Physics {
 
 void DivergentViscosity::setH(Float h) {
     m_h = h;
-    m_A = 45.0 / (M_PI * std::pow(h, 6));
+    // TODO
+    //m_A1d = 24.0/(m_h * (-19.0 + 12.0 * std::log(1.0 + 1.0/m_epsilon)));
+    m_A1d = 1;
+    m_A2d = 45.0 / (M_PI * std::pow(h, 6));
 }
 
 
@@ -52,9 +55,7 @@ void DivergentViscosity::compute1d(
         Coordinates1d* gradientResult,
         Coordinates1d* laplacianResult) const {
 //    m_A = 45.0 / (M_PI * std::pow(h, 6));
-	Float A = 24.0/(m_h * (-19.0 + 12.0 * std::log(1.0 + 1.0/m_epsilon)));
-	A = 1.0;
-    computeDivergentViscosity(squaredNorm, wResult, gradientResult, laplacianResult, m_h, A, m_epsilon);
+    computeDivergentViscosity(squaredNorm, wResult, gradientResult, laplacianResult, m_h, m_A1d, m_epsilon);
 }
 
 /// 15.0/(2*pi*h^3) * (-r^3 / (2h^3) + r^2 / h^2 + h / (2r + epsilon) - 1)

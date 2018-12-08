@@ -9,7 +9,8 @@ void Poly6::setH(Float h) {
     m_h = h;
     //m_A = 4.0/M_PI/std::pow(h, 8);
     //m_A = 16.0/M_PI/std::pow(h, 6);
-    m_A = 4.0/M_PI/std::pow(h, 8);
+    m_A1d = 35.0/32.0/std::pow(m_h, 7);
+    m_A2d = 4.0/M_PI/std::pow(h, 8);
 }
 
 template <typename DerivedIn, typename DerivedOut1, typename DerivedOut2, typename DerivedOut3>
@@ -65,7 +66,7 @@ void Poly6::compute1d(
         Coordinates1d* wResult,
         Coordinates1d* gradientResult,
         Coordinates1d* laplacianResult) const {
-    computePoly6(squaredNorm, wResult, gradientResult, laplacianResult, m_h, 35.0/32.0/std::pow(m_h, 7));
+    computePoly6(squaredNorm, wResult, gradientResult, laplacianResult, m_h, m_A1d);
 }
 
 void Poly6::compute(
@@ -74,7 +75,7 @@ void Poly6::compute(
         Coordinates2d* gradientResult, 
         Coordinates1d* laplacianResult) const {
     Coordinates1d r2 = rs.rowwise().squaredNorm();
-    computePoly6(r2, wResult, gradientResult, laplacianResult, m_h, m_A);
+    computePoly6(r2, wResult, gradientResult, laplacianResult, m_h, m_A2d);
     if(gradientResult != nullptr){
         Coordinates2d rsN = rs.array().colwise() / (r2.array().sqrt() + m_h*0.000001);
         gradientResult->col(1) = rsN.col(1).array() * gradientResult->col(0).array();
@@ -83,7 +84,7 @@ void Poly6::compute(
     if(laplacianResult != nullptr){
     	// -6*A * (h^2 - r^2) * (2.0 * h^2 - 6.0*r^2)
     	Float h2 = m_h * m_h;
-        *laplacianResult = (-6.0 * m_A) * (h2 - r2.array()) * (2.0*h2 - 6.0*r2.array());
+        *laplacianResult = (-6.0 * m_A2d) * (h2 - r2.array()) * (2.0*h2 - 6.0*r2.array());
         //auto r = r2.array().sqrt();
     	//*laplacianResult = laplacianResult->array() / r.array();
     }

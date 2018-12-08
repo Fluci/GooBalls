@@ -1,7 +1,7 @@
 #include "ssph.hpp"
 #include "kernel_debrun_spiky.hpp"
 #include "kernel_poly6.hpp"
-#include "kernel_poly_viscosity.hpp"
+#include "kernel_viscosity.hpp"
 #include "pick_rows.hpp"
 #include "generic/is_finite.hpp"
 #include <iostream>
@@ -17,7 +17,7 @@ SSPH::SSPH(){
     // Decent defaults
     m_kernelDensity = std::make_unique<Poly6>();
     m_kernelPressure = std::make_unique<DebrunSpiky>();
-    m_kernelViscosity = std::make_unique<PolyViscosity>();
+    m_kernelViscosity = std::make_unique<Viscosity>();
 }
 
 void SSPH::densityKernel(std::unique_ptr<Kernel>&& k) {

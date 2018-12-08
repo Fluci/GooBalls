@@ -17,7 +17,8 @@ namespace Physics {
 class Poly6: public Kernel {
 private:
     Float m_h;
-    Float m_A;
+    Float m_A1d;
+    Float m_A2d;
 public:
     virtual void setH(Float h);
     virtual void compute(
