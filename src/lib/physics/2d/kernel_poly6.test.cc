@@ -10,7 +10,37 @@ using namespace Physics;
 
 namespace utf = boost::unit_test;
 
-typedef Poly6 KKernel;
+using KKernel = Poly6;
+
+BOOST_AUTO_TEST_CASE(poly6_zero_border_1d, *utf::tolerance(0.0001)){
+    KKernel k;
+    testZeroBorder1d(k);
+}
+
+BOOST_AUTO_TEST_CASE(poly6_normalization_1d, *utf::tolerance(0.0001)){
+    KKernel k;
+    testNormalization1d(k, 100);
+}
+
+BOOST_AUTO_TEST_CASE(poly6_zero_border_gradient_1d, *utf::tolerance(0.01)){
+    KKernel k;
+    testZeroBorderGradient1d(k);
+}
+
+BOOST_AUTO_TEST_CASE(poly6_grad_finite_diff_1d, *utf::tolerance(0.001)){
+    KKernel k;
+    testGradientFiniteDifference1d(k, 100);
+}
+
+BOOST_AUTO_TEST_CASE(poly6_lap_grad_finite_diff_1d, *utf::tolerance(0.0001)){
+    KKernel k;
+    testLaplacianFromGradientFiniteDifferences1d(k, 100);
+}
+
+BOOST_AUTO_TEST_CASE(poly6_lap_finite_diff_1d, *utf::tolerance(0.00001)){
+    KKernel k;
+    testLaplacianFiniteDifference1d(k, 100);
+}
 
 BOOST_AUTO_TEST_CASE(poly6_zero_border, *utf::tolerance(0.0001)){
     KKernel k;
@@ -41,7 +71,6 @@ BOOST_AUTO_TEST_CASE(poly6_grad_finite_diff, *utf::tolerance(0.001)){
     KKernel k;
     testGradientFiniteDifference(k, 100);
 }
-
 
 BOOST_AUTO_TEST_CASE(poly6_lap_grad_finite_diff, *utf::tolerance(0.005)){
     KKernel k;

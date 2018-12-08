@@ -236,10 +236,10 @@ int main(int argc, char **argv) {
         /* scoped variables */ {
             nanogui::ref<ExampleApplication> app = 
                 new ExampleApplication(physicsEngine, renderEngine, physicsScene, renderScene);
-            app->drawAll();
-            app->setVisible(true);
             app->default_dt = dt;
             app->run_state = cli_options.count("pause") ? PAUSE : RUN;
+            app->drawAll();
+            app->setVisible(true);
             nanogui::mainloop();
         }
 

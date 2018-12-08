@@ -13,29 +13,42 @@ namespace Physics {
 void AbstractSph::initFluid(Scene& scene) {
     BOOST_LOG_TRIVIAL(trace) << "AbstractSph: initializing";
     const auto& pos = scene.fluid->particles_position();
-    if(pos.rows() != scene.fluid->particles_velocity().rows()){
+    int PN = pos.rows();
+    BOOST_LOG_TRIVIAL(trace) << "Found " << PN << " fluid particles.";
+    if(PN != scene.fluid->particles_velocity().rows()){
         // by default, give the particles no speed
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity set, setting to zero.";
-        scene.fluid->particles_velocity().setOnes(pos.rows(), Eigen::NoChange);
+        scene.fluid->particles_velocity().setOnes(PN, Eigen::NoChange);
     }
-    if(pos.rows() != scene.fluid->particles_mass().rows()){
+    if(PN != scene.fluid->particles_mass().rows()){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle mass set, setting to ones.";
-        scene.fluid->particles_mass().setOnes(pos.rows());
+        scene.fluid->particles_mass().setOnes(PN);
     }
-    if(pos.rows() != scene.fluid->particles_velocity_correction().rows()){
+    if(PN != scene.fluid->particles_velocity_correction().rows()){
         BOOST_LOG_TRIVIAL(warning) << "No proper fluid particle velocity correction coefficients set, setting to 1.";
-        scene.fluid->particles_velocity_correction().resize(pos.rows(), Eigen::NoChange);
+        scene.fluid->particles_velocity_correction().resize(PN, Eigen::NoChange);
         scene.fluid->particles_velocity_correction().array() = 0.001;
     }
-    if(pos.rows() != scene.fluid->particles_external_force().rows()){
+    if(PN != scene.fluid->particles_external_force().rows()){
         BOOST_LOG_TRIVIAL(warning) << "No proper external particle force set, setting zero.";
-        scene.fluid->particles_external_force().setZero(pos.rows(), 2);
+        scene.fluid->particles_external_force().setZero(PN, 2);
     }
 
-    // adjusted later down the road, just making sure the width is ok
-    scene.fluid->particles_density().resize(1, Eigen::NoChange);
-    scene.fluid->particles_total_force().resize(1, Eigen::NoChange);
-    scene.fluid->particles_pressure().resize(1, Eigen::NoChange);
+
+    scene.fluid->particles_density().setZero(PN, 1);
+    scene.fluid->particles_total_force().setZero(PN, 2);
+    scene.fluid->particles_pressure().setZero(PN, 1);
+
+    FGravity.setZero(PN, 2);
+    FPressure.setZero(PN, 2);
+    FSurface.setZero(PN, 2);
+    FViscosity.setZero(PN, 2);
+
+    // initialize with some rough values such that the first frame looks ok
+    assert(scene.fluid->rest_density() > 0);
+    scene.fluid->particles_density().array() = scene.fluid->rest_density();
+    computeFluidPressure(scene);
+    BOOST_LOG_TRIVIAL(trace) << "Abstract fluid initialized";
 }
 
 void AbstractSph::prepareFluid(Scene& scene) const {
@@ -44,14 +57,13 @@ void AbstractSph::prepareFluid(Scene& scene) const {
     const auto& pos = scene.fluid->particles_position();
     const auto& vs = scene.fluid->particles_velocity();
     const auto& ms = scene.fluid->particles_mass();
-    int PN = pos.rows();
-    scene.fluid->fluid_neighborhood->inRange(pos, scene.fluid->h());
-    scene.fluid->particles_density().setZero(PN, 1);
-    scene.fluid->particles_pressure().setZero(PN, 1);
-    scene.fluid->particles_total_force().setZero(PN, 2);
     assert(is_finite(pos));
     assert(is_finite(vs));
     assert(is_finite(ms));
+    scene.fluid->fluid_neighborhood->inRange(pos, scene.fluid->h());
+    scene.fluid->particles_density().setZero();
+    scene.fluid->particles_pressure().setZero();
+    scene.fluid->particles_total_force().setZero();
 }
 
 void AbstractSph::prepareBoundary(Scene& scene) const {
@@ -68,11 +80,10 @@ void AbstractSph::advance(Scene& scene, TimeStep dt){
         return;
     }
     computeTotalForce(scene, dt);
-    Coordinates2d a;
     // a_i = f_i / rho_i
     const auto& rho = scene.fluid->particles_density();
     const auto& Ftotal = scene.fluid->particles_total_force();
-    a.resize(rho.rows(), 2);
+    Coordinates2d a(rho.rows(), 2);
     a.col(0) = Ftotal.col(0).array() / rho.array();
     a.col(1) = Ftotal.col(1).array() / rho.array();
     auto& pos = scene.fluid->particles_position();
@@ -81,12 +92,12 @@ void AbstractSph::advance(Scene& scene, TimeStep dt){
     scene.room.restrictFluid(* scene.fluid);
     pos = pos + dt * vs;
     limitVelocity(scene);
+    assert(is_finite(pos));
+    assert(is_finite(vs));
 }
 
 void AbstractSph::computeGravityForce(const Scene& scene) {
-    const auto& pos = scene.fluid->particles_position();
     const auto& rho = scene.fluid->particles_density();
-    FGravity.resize(pos.rows(), 2);
     FGravity.col(0) = scene.gravity[0] * rho;
     FGravity.col(1) = scene.gravity[1] * rho;
 }
@@ -109,7 +120,6 @@ void AbstractSph::computeStandardPressureForce(const Scene& scene, const Kernel&
     const auto& ps = scene.fluid->particles_pressure();
     int PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
-    FPressure.resize(PN, 2);
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
         Coordinates2d jpos, jGrad;
@@ -133,7 +143,6 @@ void AbstractSph::computeMomentumPreservingPressureForce(const Scene& scene, con
     const auto& ps = scene.fluid->particles_pressure();
     int PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
-    FPressure.resize(PN, 2);
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
         Coordinates2d jpos, jGrad;
@@ -159,7 +168,6 @@ void AbstractSph::computeStandardViscosityForce(const Scene& scene, const Kernel
     const auto& rho = scene.fluid->particles_density();
     int PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
-    FViscosity.resize(PN, 2);
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
         Coordinates2d jpos;
@@ -184,7 +192,6 @@ void AbstractSph::computeStandardSurfaceTensionForce(const Scene& scene, const K
     auto color_sigma = scene.fluid->surface_tension();
     int PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
-    FSurface.setZero(PN, 2);
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
         Coordinates2d jpos;

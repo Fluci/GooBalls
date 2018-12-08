@@ -24,6 +24,11 @@ public:
             Coordinates1d* wResult, 
             Coordinates2d* gradientResult, 
             Coordinates1d* laplacianResult) const = 0;
+    virtual void compute1d(
+            const Coordinates1d& squaredNorm,
+            Coordinates1d* wResult,
+            Coordinates1d* gradientResult,
+            Coordinates1d* laplacianResult) const = 0;
     /**
      * Gives the kernel the chance to precompute things.
      * */

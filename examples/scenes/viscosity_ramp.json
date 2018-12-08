@@ -7,8 +7,8 @@
     "fluid": {
         "particles": {
             "type": "grid",
-            "gridWidth": 10,
-            "gridHeight": 4,
+            "gridWidth": 20,
+            "gridHeight": 10,
             "gridSpacing": 1
         },
         "position": [10, 20],
@@ -19,7 +19,7 @@
         "restDensity": 100,
         "surfaceTension": 0,
         "fluidViscosity": 0.003,
-        "boundaryViscosity": 3000,
+        "boundaryViscosity": 0.003,
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],
         "radius": 0.23,

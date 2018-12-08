@@ -2,7 +2,7 @@
 #include "spatial/2d/neighborhood_spatial_hashing.hpp"
 #include "kernel_debrun_spiky.hpp"
 #include "kernel_poly6.hpp"
-#include "kernel_viscosity.hpp"
+#include "kernel_poly_viscosity.hpp"
 #include "pick_rows.hpp"
 #include "generic/is_finite.hpp"
 
@@ -21,7 +21,7 @@ IISPH::IISPH(){
     // Decent defaults
     m_kernelDensity = std::make_unique<Poly6>();
     m_kernelPressure = std::make_unique<DebrunSpiky>();
-    m_kernelViscosity = std::make_unique<Viscosity>();
+    m_kernelViscosity = std::make_unique<PolyViscosity>();
 }
 
 void IISPH::densityKernel(std::unique_ptr<Kernel>&& k) {

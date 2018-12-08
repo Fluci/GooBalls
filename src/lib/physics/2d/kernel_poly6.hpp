@@ -24,7 +24,12 @@ public:
             const Coordinates2d& rs,
             Coordinates1d* W,
             Coordinates2d* gradient,
-            Coordinates1d* laplacian) const;
+            Coordinates1d* laplacian) const override;
+    virtual void compute1d(
+            const Coordinates1d& squaredNorm,
+            Coordinates1d* wResult,
+            Coordinates1d* gradientResult,
+            Coordinates1d* laplacianResult) const override;
 };
 
 } // Physics

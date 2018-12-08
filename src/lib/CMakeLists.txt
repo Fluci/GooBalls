@@ -22,7 +22,8 @@ set(source_files
     physics/2d/visco_elastic.cpp
     physics/2d/kernel_debrun_spiky.cpp
     physics/2d/kernel_poly6.cpp
-    physics/2d/kernel_viscosity.cpp
+    physics/2d/kernel_poly_viscosity.cpp
+    physics/2d/kernel_divergent_viscosity.cpp
     physics/2d/room.cpp
     physics/2d/recommended_timestep.cpp
     rendering/2d/disk_fluid.cpp
@@ -76,7 +77,8 @@ set(test_files
     physics/2d/kernel_test.cc
     physics/2d/kernel_debrun_spiky.test.cc
     physics/2d/kernel_poly6.test.cc
-    physics/2d/kernel_viscosity.test.cc
+    physics/2d/kernel_poly_viscosity.test.cc
+    physics/2d/kernel_divergent_viscosity.test.cc
     observing/abstractSubject.test.cc
     spatial/2d/convex_hull.test.cc
     spatial/2d/neighborhood_spatial_hashing.test.cc

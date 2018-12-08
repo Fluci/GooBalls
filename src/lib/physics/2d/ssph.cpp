@@ -1,7 +1,7 @@
 #include "ssph.hpp"
 #include "kernel_debrun_spiky.hpp"
 #include "kernel_poly6.hpp"
-#include "kernel_viscosity.hpp"
+#include "kernel_poly_viscosity.hpp"
 #include "pick_rows.hpp"
 #include "generic/is_finite.hpp"
 #include <iostream>
@@ -17,7 +17,7 @@ SSPH::SSPH(){
     // Decent defaults
     m_kernelDensity = std::make_unique<Poly6>();
     m_kernelPressure = std::make_unique<DebrunSpiky>();
-    m_kernelViscosity = std::make_unique<Viscosity>();
+    m_kernelViscosity = std::make_unique<PolyViscosity>();
 }
 
 void SSPH::densityKernel(std::unique_ptr<Kernel>&& k) {
@@ -51,10 +51,10 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
     m_kernelDensity->setH(h);
     m_kernelPressure->setH(h);
     m_kernelViscosity->setH(h);
-    auto& pos = scene.fluid->particles_position();
-    auto& vs = scene.fluid->particles_velocity();
-    auto& ms = scene.fluid->particles_mass();
-    auto& ps = scene.fluid->particles_pressure();
+    const auto& pos = scene.fluid->particles_position();
+    const auto& vs = scene.fluid->particles_velocity();
+    const auto& ms = scene.fluid->particles_mass();
+    const auto& ps = scene.fluid->particles_pressure();
     Float K = scene.fluid->stiffnessConstant(); // gas constant dependent on temperature, TODO: correct value?
     // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3
     // p, pressure: force per unit area
@@ -88,6 +88,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
     // implementation:
     // let's get the neighborhood information
     bool consider_boundary = considerBoundary() && scene.fluid->boundary_volume().rows() > 0;
+    BOOST_LOG_TRIVIAL(trace) << "consider boundary: " << consider_boundary;
     if(consider_boundary){
         prepareBoundary(scene);
     }
@@ -185,14 +186,19 @@ void SSPH::advance(Scene& scene, TimeStep dt){
     // a_i = f_i / rho_i
     const auto& rho = scene.fluid->particles_density();
     const auto& Ftotal = scene.fluid->particles_total_force();
+    assert(is_finite(Ftotal));
+    assert(is_finite(rho));
     a.resize(rho.rows(), 2);
     a.col(0) = Ftotal.col(0).array() / rho.array();
     a.col(1) = Ftotal.col(1).array() / rho.array();
+    assert(is_finite(a));
     auto& pos = scene.fluid->particles_position();
     auto& vs = scene.fluid->particles_velocity();
     vs = vs + dt * a;
+    assert(is_finite(vs));
     scene.room.restrictFluid(* scene.fluid);
     pos = pos + dt * vs;
+    assert(is_finite(pos));
 }
 
 

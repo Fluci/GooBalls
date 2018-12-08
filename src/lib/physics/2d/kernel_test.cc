@@ -30,6 +30,15 @@ Coordinates2d randomUnitDisk(int samples){
     return Xs;
 }
 
+Coordinates1d increasingToOne(int n){
+    Coordinates1d Xorig(n);
+    for(int i = 0; i  < n; ++i){
+        Xorig[i] = double(i)/n;
+    }
+    assert(Xorig.maxCoeff() < 1.0);
+    return Xorig;
+}
+
 std::vector<Float> getHs(){
     std::vector<Float> hs;
     hs.push_back(0.1);
@@ -42,36 +51,57 @@ std::vector<Float> getHs(){
     return hs;
 }
 
+
 void testRadialSymmetry(Kernel& k, int experiments){
     int radiusSamples = std::sqrt(experiments);
     int angleSamples = radiusSamples;
-    Float h = 1.0;
-    k.setH(h);
-    Coordinates2d Xs(angleSamples, 2);
-    Coordinates1d w, wgradN, wlap;
-    Coordinates2d wgrad;
-    Coordinates2d dirs(angleSamples, 2);
-    for(int i = 0; i < radiusSamples; ++i){
-        Float radius = i/double(radiusSamples) * h;
-        for(int j = 0; j < angleSamples; ++j){
-            Float angle = i/double(angleSamples) * 2*M_PI;
-            dirs(j, 0) = std::sin(angle);
-            dirs(j, 1) = std::cos(angle);
+    auto hs = getHs();
+    for(auto h : hs){
+        k.setH(h);
+        Coordinates2d Xs(angleSamples, 2);
+        Coordinates1d w, wgradN, wlap;
+        Coordinates2d wgrad;
+        Coordinates2d dirs(angleSamples, 2);
+        for(int i = 1; i < radiusSamples; ++i){
+            Float radius = i/double(radiusSamples) * h;
+            for(int j = 0; j < angleSamples; ++j){
+                Float angle = i/double(angleSamples) * 2*M_PI;
+                dirs(j, 0) = std::sin(angle);
+                dirs(j, 1) = std::cos(angle);
+            }
+            Xs = dirs * radius;
+            k.compute(Xs, &w, &wgrad, &wlap);
+            wgradN = wgrad.rowwise().norm();
+            BOOST_TEST(w.maxCoeff() - w.minCoeff() < 0.0001);
+            BOOST_TEST(wlap.maxCoeff() - wlap.minCoeff() < 0.0001);
+            BOOST_TEST(wgradN.maxCoeff() - wgradN.minCoeff() < 0.0001);
+            // TODO: check gradient direction
         }
-        Xs = dirs * radius;
-        k.compute(Xs, &w, &wgrad, &wlap);
-        wgradN = wgrad.rowwise().norm();
-        BOOST_TEST(w.maxCoeff() - w.minCoeff() < 0.0001);
-        BOOST_TEST(wlap.maxCoeff() - wlap.minCoeff() < 0.0001);
-        BOOST_TEST(wgradN.maxCoeff() - wgradN.minCoeff() < 0.0001);
-        // TODO: check gradient direction
     }
+}
+
+void testZeroBorder1d(Kernel& k){
+    auto hs = getHs();
+    Coordinates1d ws(hs.size());
+    for(size_t i = 0; i < hs.size(); ++i){
+        Float h = hs[i];
+        k.setH(h);
+        Coordinates1d Xs(1);
+        Xs[0] = h;
+        Coordinates1d w;
+        k.compute1d(Xs.array()*Xs.array(), &w, nullptr, nullptr);
+        ws[i] = w[0];
+        // BOOST_TEST(w[0] == 0.0);
+    }
+    ws = ws.array().abs();
+    BOOST_TEST(ws.maxCoeff() == 0.0);
 }
 
 void testZeroBorder(Kernel& k, int experiments){
     std::mt19937 rnd;
     rnd.seed(17); // we use a fixed seed for repeatability
     std::uniform_real_distribution<> dist(-10.0, 10.0);
+    Coordinates1d ws(experiments);
     for(int i = 0; i < experiments; ++i){
         Coordinates2d x(1,2);
         x(0,0) = dist(rnd);
@@ -80,6 +110,21 @@ void testZeroBorder(Kernel& k, int experiments){
         k.setH(h);
         Coordinates1d w;
         k.compute(x, &w, nullptr, nullptr);
+        ws[i] = w[0];
+        //BOOST_TEST(w[0] == 0.0);
+    }
+    ws = ws.array().abs();
+    BOOST_TEST(ws.maxCoeff() == 0.0);
+}
+
+void testZeroBorderGradient1d(Kernel& k){
+    auto hs = getHs();
+    for(auto h : hs){
+        k.setH(h);
+        Coordinates1d Xs(1);
+        Xs[0] = h;
+        Coordinates1d w;
+        k.compute1d(Xs.array()*Xs.array(), nullptr, &w, nullptr);
         BOOST_TEST(w[0] == 0.0);
     }
 }
@@ -92,11 +137,12 @@ void testZeroBorderGradient(Kernel& k, int experiments){
         Coordinates2d Wgrad;
         k.setH(h);
         k.compute(Xs, nullptr, &Wgrad, nullptr);
-        for(int i = 0; i < Xs.rows(); ++i){
-            BOOST_TEST(Wgrad.row(i).norm() == 0.0);
-            BOOST_TEST(Wgrad(i, 0) == 0.0);
-            BOOST_TEST(Wgrad(i, 1) == 0.0);
-        }
+        int i;
+        auto extrema = Wgrad.rowwise().norm();
+        extrema.maxCoeff(&i);
+        BOOST_TEST(Wgrad.row(i).norm() == 0.0);
+        BOOST_TEST(Wgrad(i, 0) == 0.0);
+        BOOST_TEST(Wgrad(i, 1) == 0.0);
     }
 }
 
@@ -132,7 +178,7 @@ void testGradientFiniteDifference(Kernel& k, int experiments){
     for(auto h : hs){
         Float dx = h * 0.00000001;
         k.setH(h);
-        Coordinates2d Xs = 0.99 * h * Xorig;
+        Coordinates2d Xs = 0.99 * h * Xorig.array();
         Coordinates2d Xsx = Xs;
         Xsx.col(0).array() += dx;
         Coordinates2d Xsy = Xs;
@@ -145,10 +191,53 @@ void testGradientFiniteDifference(Kernel& k, int experiments){
         Coordinates2d gradExpected(Xs.rows(), 2);
         gradExpected.col(0) = (Wx - W0)/dx;
         gradExpected.col(1) = (Wy - W0)/dx;
-        for(int i = 0; i < Xs.rows(); ++i){
-            BOOST_TEST(gradExpected(i, 0) == WgradReceived(i, 0));
-            BOOST_TEST(gradExpected(i, 1) == WgradReceived(i, 1));
-        }
+        auto diff = (gradExpected - WgradReceived).array().abs();
+        int i, j;
+        diff.maxCoeff(&i,&j);
+        BOOST_TEST(gradExpected(i, j) == WgradReceived(i, j));
+    }
+}
+
+
+void testGradientFiniteDifference1d(Kernel& k, int experiments){
+    auto hs = getHs();
+    Coordinates1d Xorig = increasingToOne(experiments);
+    for(auto h : hs){
+        Float dx = h * 0.000001;
+        k.setH(h);
+        Coordinates1d Xs = 0.99 * h * Xorig;
+        Coordinates1d Xsx = Xs.array() + dx;
+        Coordinates1d W0, Wx;
+        Coordinates1d WgradReceived;
+        k.compute1d(Xs.array()*Xs.array(), &W0, &WgradReceived, nullptr);
+        k.compute1d(Xsx.array()*Xsx.array(), &Wx, nullptr, nullptr);
+        Coordinates1d gradExpected = (Wx - W0)/dx;
+        auto diff = (gradExpected - WgradReceived).array().abs();
+        int i;
+        diff.maxCoeff(&i);
+        BOOST_TEST(gradExpected[i] == WgradReceived[i]);
+    }
+}
+
+void testLaplacianFromGradientFiniteDifferences1d(Kernel& k, int experiments){
+    const Coordinates1d Xorig = increasingToOne(experiments);
+    auto hs = getHs();
+    for(auto h : hs){
+        Float dx = h * 0.000001;
+        k.setH(h);
+        Coordinates1d Xs = 0.99*h*Xorig.array();
+        Coordinates1d Xsx = Xs.array() + dx;
+
+        Coordinates1d G0, Gx;
+        Coordinates1d Wlap;
+        k.compute1d(Xs.array()*Xs.array(), nullptr, &G0, &Wlap);
+        k.compute1d(Xsx.array()*Xsx.array(), nullptr, &Gx, nullptr);
+        Coordinates1d expectedLaplacian = (Gx - G0)/dx;
+        
+        auto diff = (expectedLaplacian - Wlap).array().abs();
+        int i;
+        diff.maxCoeff(&i);
+        BOOST_TEST(expectedLaplacian[i] == Wlap[i]);
     }
 }
 
@@ -169,11 +258,38 @@ void testLaplacianFromGradientFiniteDifferences(Kernel& k, int experiments){
         k.compute(Xsx, nullptr, &Gx, nullptr);
         k.compute(Xsy, nullptr, &Gy, nullptr);
         Coordinates1d expectedLaplacian = (Gx - G0).col(0)/dx + (Gy - G0).col(1)/dx;
-        for(int i = 0; i < Xs.rows(); ++i){
-            BOOST_TEST(expectedLaplacian[i] == Wlap[i]);
-        }
+        
+        auto diff = (expectedLaplacian - Wlap).array().abs();
+        int i;
+        diff.maxCoeff(&i);
+        BOOST_TEST(expectedLaplacian[i] == Wlap[i]);
     }
 }
+
+void testLaplacianFiniteDifference1d(Kernel& k, int experiments){
+    const Coordinates1d Xorig = increasingToOne(experiments);
+    auto hs = getHs();
+    for(auto h : hs){
+        Float dx = h * 0.0001;
+        k.setH(h);
+        Coordinates1d Xs = 0.99 * h * Xorig.array() + dx;
+        Coordinates1d Xsx1 = Xs.array() - dx;
+        Coordinates1d Xsx2 = Xs.array() + dx;
+
+        Coordinates1d W0, Wx1, Wx2;
+        Coordinates1d Wlap;
+        k.compute1d(Xs.array()*Xs.array(), &W0, nullptr, &Wlap);
+        k.compute1d(Xsx1.array()*Xsx1.array(), &Wx1, nullptr, nullptr);
+        k.compute1d(Xsx2.array()*Xsx2.array(), &Wx2, nullptr, nullptr);
+        Coordinates1d expectedLaplacian = (Wx1 + Wx2 - 2*W0) / (dx*dx);
+        
+        auto diff = (expectedLaplacian - Wlap).array().abs();
+        int i;
+        diff.maxCoeff(&i);
+        BOOST_TEST(expectedLaplacian[i] == Wlap[i]);
+    }
+}
+
 
 void testLaplacianFiniteDifference(Kernel& k, int experiments){
     const Coordinates2d Xorig = randomUnitDisk(experiments);
@@ -181,7 +297,7 @@ void testLaplacianFiniteDifference(Kernel& k, int experiments){
     for(auto h : hs){
         Float dx = h * 0.00001;
         k.setH(h);
-        Coordinates2d Xs = 0.99 * h * Xorig;
+        Coordinates2d Xs = 0.99 * h * Xorig.array() + dx;
         Coordinates2d Xsx1, Xsx2, Xsy1, Xsy2;
         Xsx1 = Xs; Xsx1.col(0).array() -= dx;
         Xsx2 = Xs; Xsx2.col(0).array() += dx;
@@ -196,16 +312,33 @@ void testLaplacianFiniteDifference(Kernel& k, int experiments){
         k.compute(Xsy1, &Wy1, nullptr, nullptr);
         k.compute(Xsy2, &Wy2, nullptr, nullptr);
         Coordinates1d expectedLaplacian = (Wx1 + Wx2 + Wy1 + Wy2 - 4*W0) / (dx*dx);
-        for(int i = 0; i < Xs.rows(); ++i){
-            BOOST_TEST(expectedLaplacian[i] == Wlap[i]);
-        }
+        
+        auto diff = (expectedLaplacian - Wlap).array().abs();
+        int i;
+        diff.maxCoeff(&i);
+        BOOST_TEST(expectedLaplacian[i] == Wlap[i]);
+    }
+}
+
+
+void testNormalization1d(Kernel& k, int experiments){
+    auto hs = getHs();
+    Coordinates1d Xorig = increasingToOne(experiments);
+    // we integrate over [-h, h] with `experiments` steps of size (2*h/experiments)
+    for(auto h : hs){
+        Coordinates1d Xs = h*(Xorig.array()*2 - 1);
+        Float dA = h*2/experiments; // area of one test segment
+        Coordinates1d W;
+        k.setH(h);
+        k.compute1d(Xs.array()*Xs.array(), &W, nullptr, nullptr);
+        Float totalWeight = W.sum()*dA;
+        BOOST_TEST(totalWeight == 1.0);
     }
 }
 
 void testNormalization(Kernel& k, int experiments){
     auto hs = getHs();
-    int n = std::sqrt(experiments);
-    n = 100;
+    int n = std::max(100.0, std::sqrt(experiments));
     for(auto h : hs){
         Coordinates2d Xs(n*n, 2);
         int inserted = 0;
@@ -222,7 +355,8 @@ void testNormalization(Kernel& k, int experiments){
         }
         Xs.conservativeResize(inserted, Eigen::NoChange);
         Float dA;
-        dA = 1.0/(n*n); // area of one test square
+        dA = 2*h/n; // area of one test square
+        dA = dA*dA;
         Coordinates1d W;
         k.setH(h);
         k.compute(Xs, &W, nullptr, nullptr);

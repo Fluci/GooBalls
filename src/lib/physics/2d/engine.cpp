@@ -1,6 +1,7 @@
 #include "engine.hpp"
 #include "box2dmessages.hpp"
 #include "visco_elastic.hpp"
+#include "generic/is_finite.hpp"
 #include "spatial/2d/neighborhood_spatial_hashing.hpp"
 
 #include <Eigen/Core>
@@ -33,6 +34,7 @@ void Engine::initScene(Scene& scene){
 
 void Engine::advance(Scene& scene, TimeStep dt) {
     BOOST_LOG_TRIVIAL(trace) << "Physics Engine: advancing scene by " << dt;
+    assert(is_finite(scene.fluid->particles_position()));
     scene.world.Step(dt, velocity_iterations, position_iterations);
     // The rigid bodies moved: use their transform to compute the local meshes
     int boundaryParticles = 0;
@@ -72,6 +74,7 @@ void Engine::advance(Scene& scene, TimeStep dt) {
     // solve fluid
     m_fluidSolver->advance(scene, dt);
     assert(scene.fluid->boundary_position().rows() == scene.fluid->boundary_force().rows());
+    assert(is_finite(scene.fluid->particles_position()));
 
     if(boundaryParticles > 0){
         int s = 0;
@@ -117,6 +120,7 @@ void Engine::advance(Scene& scene, TimeStep dt) {
             mesh.body->ApplyTorque(torque, true);
         }
     }
+    assert(is_finite(scene.fluid->particles_position()));
 }
 
 void Engine::BeginContact(b2Contact* contact) {

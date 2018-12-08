@@ -160,6 +160,7 @@ void SceneLoader::readFluid(Physics::Scene& physScene, Render::Scene& renderScen
     particleCoordinates->col(1).array() += transl_y + pos_y*scale;
     const int pn = particleCoordinates->rows();
     Float h = fluid["kernelRadius"].asDouble() * scale;
+    BOOST_LOG_TRIVIAL(debug) << "Loader: kernelRadius: " << h;
 
     // create physics data
     fluidPhys->particles_velocity().setZero(pn, 2);
