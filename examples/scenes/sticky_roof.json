@@ -18,7 +18,7 @@
         "restDensity": 100,
         "surfaceTension": 0,
         "fluidViscosity": 3,
-        "boundaryViscosity": 1000000,
+        "boundaryViscosity": 100000,
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],
         "radius": 0.23,
@@ -34,7 +34,7 @@
         {
             "name": "triangleOfDoom",
             "position": [25, 30],
-            "velocityCorrectionCoefficient": 0.00,
+            "velocityCorrectionCoefficient": 0.01,
             "vertices": [
 				[-10, 0],
 				[10, 0],

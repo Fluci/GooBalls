@@ -101,7 +101,9 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
                     // mass equal to zero means it is a static object, hence m_j = infinity
                     M = 1.0/ms[i];
                 }
-                TranslationVector DX = (cs[i] + bCs[jj])/2.0 * M * Dij * xij.normalized();
+                // according to the paper it should be cs[i] + bCs[jj]
+                // but that gives us really poor control
+                TranslationVector DX = bCs[jj]/2.0 * M * Dij * xij.normalized();
                 sum = sum + DX;
             }
             dy.row(i) = sum;

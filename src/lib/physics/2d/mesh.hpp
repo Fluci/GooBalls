@@ -40,6 +40,8 @@ public:
      * Holds a pointer to its corresponding Box2d object
      * */
     b2Body* body = nullptr;
+    b2Vec2 linearAcceleration;
+    Float angularAcceleration = 0.0;
 private:
     /// in world coordinates
     std::shared_ptr<Coordinates> m_vertices_position_global;

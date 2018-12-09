@@ -284,31 +284,40 @@ void SceneLoader::readObject(Physics::Scene& physScene, Render::Scene& renderSce
     // create a body for box2d
     b2BodyDef bodyDefinition;
     //bodyDefinition.position.Set(min_x + half_width, min_y + half_width); // the center of the body
-    double posx = 0, posy = 0;
     if(obj.isMember("position")){
-        posx = scale*obj["position"][0].asDouble();
-        posy = scale*obj["position"][1].asDouble();
+        bodyDefinition.position.x = scale*obj["position"][0].asDouble();
+        bodyDefinition.position.y = scale*obj["position"][1].asDouble();
+        BOOST_LOG_TRIVIAL(debug) << "position: " << bodyDefinition.position.x << ", " << bodyDefinition.position.y;
     }
-    bodyDefinition.position.Set(posx, posy);
-    Float v0x = 0;
-    Float v0y = 0;
     if(obj.isMember("initialVelocity")){
-        v0x = obj["initialVelocity"][0].asDouble();
-        v0y = obj["initialVelocity"][1].asDouble();
+        bodyDefinition.linearVelocity.x = obj["initialVelocity"][0].asDouble();
+        bodyDefinition.linearVelocity.y = obj["initialVelocity"][1].asDouble();
+        BOOST_LOG_TRIVIAL(debug) << "velocity: " << bodyDefinition.linearVelocity.x << ", " << bodyDefinition.linearVelocity.y;
     }
-    bodyDefinition.linearVelocity.Set(v0x, v0y);
-    if(obj.isMember("dynamic") && obj["dynamic"].asBool()){
+    if(obj.isMember("acceleration")){
+        // only for non-dynamic objects
+        physMesh.linearAcceleration.x = obj["acceleration"][0].asDouble();
+        physMesh.linearAcceleration.y = obj["acceleration"][1].asDouble();
+        BOOST_LOG_TRIVIAL(debug) << "acceleration: " << physMesh.linearAcceleration.x << ", " << physMesh.linearAcceleration.y;
+    }
+    if(obj.isMember("rotation")){
+        bodyDefinition.angle = scale*obj["rotation"].asDouble();
+    }
+    if(obj.isMember("angularVelocity")){
+        bodyDefinition.angularVelocity = obj["angularVelocity"].asDouble();
+    }
+    if(obj.isMember("angularAcceleration")){
+        physMesh.angularAcceleration = obj["angularAcceleration"].asDouble();
+    }
+    if(obj.isMember("dynamic")){
+        BOOST_LOG_TRIVIAL(warning) << "Found deprecated property 'dynamic', please use 'type' = 'dynamic'. Ignoring property.";
+    }
+    if(obj.isMember("type") && obj["type"].asString() == "dynamic"){
         bodyDefinition.type = b2_dynamicBody;
-        /*
-        // create collision object (a polygon shape) -> bounding box
-        // create a fixture:
-        // this defines physical properties of the collision shape
-        b2FixtureDef fixtureDef;
-        fixtureDef.shape = &dynamicBox;
-        fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.3f;
-        physScene.meshes[1].body = physScene.world.CreateBody(&bodyDef);
-        physScene.meshes[1].body->CreateFixture(&fixtureDef);*/
+    } else if (obj.isMember("type") && obj["type"].asString() == "kinematic") {
+        bodyDefinition.type = b2_kinematicBody;
+    } else {
+        bodyDefinition.type = b2_staticBody;
     }
     physMesh.body = physScene.world.CreateBody(&bodyDefinition); // attach the body to the mesh
 

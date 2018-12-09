@@ -35,7 +35,7 @@
             "position": [25, 40],
             "rotation": 45,
             "initialVelocity": [-0.5, 0],
-            "dynamic": true,
+            "type": "dynamic",
             "density": 10000,
             "vertices": [
 				[0, 0],

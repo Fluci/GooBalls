@@ -36,7 +36,7 @@ void Engine::initScene(Scene& scene){
 
 void Engine::meshToFluid(Scene& scene) const {
     int boundaryParticles = 0;
-    for(auto& mesh : scene.meshes){
+    for(const auto& mesh : scene.meshes){
         boundaryParticles += mesh.particles_position_local().rows();
     }
     if(boundaryParticles <= 0){
@@ -122,6 +122,17 @@ void Engine::fluidToMesh(Scene& scene) const {
 void Engine::advance(Scene& scene, TimeStep dt) {
     BOOST_LOG_TRIVIAL(trace) << "Physics Engine: advancing scene by " << dt;
     assert(is_finite(scene.fluid->particles_position()));
+    for(auto& mesh : scene.meshes){
+        if(mesh.body->GetType() != b2_kinematicBody){
+            continue;
+        }
+        auto v = mesh.body->GetLinearVelocity();
+        v = v + dt * mesh.linearAcceleration;
+        auto t = mesh.body->GetAngularVelocity();
+        t = t + dt * mesh.angularAcceleration;
+        mesh.body->SetLinearVelocity(v);
+        mesh.body->SetAngularVelocity(t);
+    }
     scene.world.Step(dt, velocity_iterations, position_iterations);
     // The rigid bodies moved: use their transform to compute the local meshes
     for(auto& mesh : scene.meshes){

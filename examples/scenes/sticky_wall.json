@@ -34,11 +34,11 @@
         {
             "name": "triangleOfDoom",
             "position": [40, 25],
-            "velocityCorrectionCoefficient": 0.0,
+            "velocityCorrectionCoefficient": 0.009,
             "vertices": [
 				[-6, 0],
 				[6, 0],
-				[-6, 30]
+				[-6, 25]
             ],
             "faces": [
                 [0,1,2]

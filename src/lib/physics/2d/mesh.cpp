@@ -15,13 +15,15 @@ using namespace Spatial;
 
 Mesh::Mesh() : 
     m_vertices_position_global(new Coordinates()), 
-    m_triangles(new TriangleList()){
+    m_triangles(new TriangleList()),
+    linearAcceleration(0,0){
     // empty
 }
 
 Mesh::Mesh(std::shared_ptr<Mesh::Coordinates> verts, std::shared_ptr<TriangleList> tris) : 
     m_vertices_position_global(verts),
-    m_triangles(tris)
+    m_triangles(tris),
+    linearAcceleration(0,0)
 {
     m_vertices_position_local = *verts;
 }

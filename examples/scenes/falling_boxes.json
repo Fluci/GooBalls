@@ -36,7 +36,7 @@
         {
             "name": "dynamicBox",
             "position": [11, 30],
-            "dynamic": true,
+            "type": "dynamic",
             "vertices": [
 				[0, 0],
 				[4, 0],
@@ -51,7 +51,7 @@
         {
             "name": "dynamicBox2",
             "position": [20, 30],
-            "dynamic": true,
+            "type": "dynamic",
             "vertices": [
 				[0, 0],
 				[4, 0],
@@ -66,7 +66,7 @@
         {
             "name": "dynamicBox3",
             "position": [20, 70],
-            "dynamic": true,
+            "type": "dynamic",
             "vertices": [
 				[0, 0],
 				[4, 0],
@@ -81,7 +81,7 @@
         {
             "name": "dynamicBox4",
             "position": [27, 60],
-            "dynamic": true,
+            "type": "dynamic",
             "vertices": [
 				[0, 0],
 				[4, 0],
@@ -96,7 +96,7 @@
         {
             "name": "dynamicBox5",
             "position": [15, 60],
-            "dynamic": true,
+            "type": "dynamic",
             "vertices": [
 				[0, 0],
 				[4, 0],

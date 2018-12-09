@@ -34,7 +34,7 @@
             "name": "dynamicBoxLight",
             "position": [10, 45],
             "initialVelocity": [0, 0],
-            "dynamic": true,
+            "type": "dynamic",
             "density": 50,
             "vertices": [
 				[0, 0],
@@ -51,7 +51,7 @@
             "name": "dynamicBoxMedium",
             "position": [25, 45],
             "initialVelocity": [0, 0],
-            "dynamic": true,
+            "type": "dynamic",
             "density": 1000,
             "vertices": [
 				[0, 0],
@@ -68,7 +68,7 @@
             "name": "dynamicBoxHeavy",
             "position": [40, 45],
             "initialVelocity": [0, 0],
-            "dynamic": true,
+            "type": "dynamic",
             "density": 5000,
             "vertices": [
 				[0, 0],
