@@ -114,6 +114,7 @@ void AbstractSph::computeFluidPressure(Scene& scene) const {
     //ps = K * (rho.array() - rho0);
     ps = K * rho0 / pressure_gamma * ((rho.array()/rho0).pow(pressure_gamma) - 1.0);
     ps = ps.array().max(0);
+    assert(is_finite(ps));
 }
 
 void AbstractSph::computeStandardPressureForce(const Scene& scene, const Kernel& pressureKernel){
@@ -144,6 +145,10 @@ void AbstractSph::computeMomentumPreservingPressureForce(const Scene& scene, con
     const auto& ms = scene.fluid->particles_mass();
     const auto& rho = scene.fluid->particles_density();
     const auto& ps = scene.fluid->particles_pressure();
+    assert(is_finite(pos));
+    assert(is_finite(ms));
+    assert(is_finite(rho));
+    assert(is_finite(ps));
     int PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
     for(int i = 0; i < PN; ++i){
@@ -160,6 +165,7 @@ void AbstractSph::computeMomentumPreservingPressureForce(const Scene& scene, con
         // f_i^pressure = - m_i * sum_j m_j*(p_i/rho_i^2 + p_j/rho_j^2) \nabla W(r_i - r_j, h)
         FPressure.row(i) = - ms[i] * jPress.colwise().sum();
     }
+    assert(is_finite(FPressure));
 }
 
 
@@ -227,6 +233,7 @@ void AbstractSph::addFluidDensity(Scene& scene, const Kernel& densityKernel) con
     const auto& pos = scene.fluid->particles_position();
     int PN = pos.rows();
     const auto& ms = scene.fluid->particles_mass();
+    assert(ms.minCoeff() > 0.0);
     auto& rho = scene.fluid->particles_density();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
     for(int i = 0; i < PN; ++i){
@@ -246,6 +253,8 @@ void AbstractSph::addFluidDensity(Scene& scene, const Kernel& densityKernel) con
         }
         rho[i] += jW.sum();
     }
+    assert(rho.minCoeff() > 0.0);
+    assert(is_finite(rho));
 }
 
 /// based on CFL condition: dt = lambda * h /max(sqrt(K), v_max)

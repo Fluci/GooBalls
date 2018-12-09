@@ -138,100 +138,124 @@ void SceneLoader::setEmptyFluid(Physics::Scene& physScene, Render::Scene& render
     renderScene.fluids[0] = std::move(fluidRender);
 }
 
-void SceneLoader::readFluid(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& fluid) const {
-    auto particleCoordinates = std::make_shared<Coordinates2d>();
-    auto boundaryCoords = std::make_shared<Coordinates2d>();
-    auto fluidPhys = std::make_unique<Physics::Fluid>(particleCoordinates, boundaryCoords);
-    auto fluidRender = std::make_unique<Render::DiskFluid>(particleCoordinates, boundaryCoords);
+void SceneLoader::readSubFluid(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& fluid) const {
+    auto& fluidPhys = *physScene.fluid;
+    auto& fluidRender = *renderScene.fluids[0];
+    auto& particles = fluidPhys.particles_position();
     const auto& parts = fluid["particles"];
+    Coordinates2d newCoords;
     if(parts["type"].asString() == "grid"){
-        *particleCoordinates = readGrid(parts);
+        newCoords = readGrid(parts);
+
     } else if(parts["type"].asString() == "coordinates") {
-        *particleCoordinates = readCoordinates(parts["positions"]);
+        newCoords = readCoordinates(parts["positions"]);
     }
+    
     Float pos_x = 0;
     Float pos_y = 0;
     if(fluid.isMember("position")){
         pos_x = fluid["position"][0].asDouble();
         pos_y = fluid["position"][1].asDouble();
     }
-    (*particleCoordinates) = (*particleCoordinates) * scale;
-    particleCoordinates->col(0).array() += transl_x + pos_x*scale;
-    particleCoordinates->col(1).array() += transl_y + pos_y*scale;
-    const int pn = particleCoordinates->rows();
-    Float h = fluid["kernelRadius"].asDouble() * scale;
-    BOOST_LOG_TRIVIAL(debug) << "Loader: kernelRadius: " << h;
-
-    // create physics data
-    fluidPhys->particles_velocity().setZero(pn, 2);
+    newCoords.array() *= scale;
+    newCoords.col(0).array() += transl_x + pos_x*scale;
+    newCoords.col(1).array() += transl_y + pos_y*scale;
+    const int ps = particles.rows();
+    const int pn = newCoords.rows();
+    const int pa = ps+pn;
+    particles.conservativeResize(pa, Eigen::NoChange);
+    particles.block(ps, 0, pn, 2) = newCoords;
+    // physics data
+    fluidPhys.particles_velocity().conservativeResize(pa, Eigen::NoChange);
+    auto vs = fluidPhys.particles_velocity().block(ps, 0, pn, 2);
+    vs.setZero();
     if(fluid.isMember("initialVelocity")){
         const auto& vinit = fluid["initialVelocity"];
-        auto& vs = fluidPhys->particles_velocity();
         if(vinit[0].isDouble()){
-            vs.col(0) = vs.col(0).array() + vinit[0].asDouble();
-            vs.col(1) = vs.col(1).array() + vinit[1].asDouble();
+            vs.col(0).array() = scale * vinit[0].asDouble();
+            vs.col(1).array() = scale * vinit[1].asDouble();
         } else {
             Coordinates2d v0 = readCoordinates(fluid["initialVelocity"]);
-            assert(vs.rows() == v0.rows());
-            vs = vs + scale*v0;
+            vs.array() = scale*v0;
         }
     }
     // TODO: compute the mass from rho*V = m
     // TODO: check all known constraint equations (CLF)
     // TOOD: make sanity checks
-    fluidPhys->particles_mass().setOnes(pn);
+    fluidPhys.particles_mass().conservativeResize(pa, Eigen::NoChange);
+    auto ms = fluidPhys.particles_mass().block(ps, 0, pn, 1);
+    ms.setOnes();
     if(fluid.isMember("mass"))
-        fluidPhys->particles_mass().array() = fluid["mass"].asDouble();
-    fluidPhys->h(h);
+        ms.array() = fluid["mass"].asDouble();
+    assert(ms.minCoeff() > 0.0);
+    fluidPhys.particles_velocity_correction().conservativeResize(pa, Eigen::NoChange);
+    auto cs = fluidPhys.particles_velocity_correction().block(ps, 0, pn, 1);
+    if(fluid.isMember("velocityCorrectionCoefficient"))
+        cs.array() = fluid["velocityCorrectionCoefficient"].asDouble();
+
+    // Render properties
+    fluidRender.particles_color().conservativeResize(pa, 3);
+    auto col = fluidRender.particles_color().block(ps, 0, pn, 3);
+    if(fluid.isMember("color")){
+        col.col(0).array() = fluid["color"][0].asDouble();
+        col.col(1).array() = fluid["color"][1].asDouble();
+        col.col(2).array() = fluid["color"][2].asDouble();
+    }
+    fluidRender.particles_radius().conservativeResize(pa, 1);
+    auto rad = fluidRender.particles_radius().block(ps, 0, pn, 1);
+    rad.setOnes();
+    if(fluid.isMember("radius")){
+        rad.array() = fluid["radius"].asDouble();
+    }
+}
+
+void SceneLoader::readFluid(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& fluid) const {
+    if(physScene.fluid.get() == nullptr){
+        setEmptyFluid(physScene, renderScene);
+    }
+    if(fluid.isMember("fluids")){
+        for(auto& subFluid : fluid["fluids"]){
+            readSubFluid(physScene, renderScene, subFluid);
+        }
+    } else {
+        readSubFluid(physScene, renderScene, fluid);
+    }
+    auto& fluidPhys = *physScene.fluid;
+    Float h = fluid["kernelRadius"].asDouble() * scale;
+    fluidPhys.h(h);
+    BOOST_LOG_TRIVIAL(debug) << "Loader: kernelRadius: " << h;
+
+    // create physics data
 
     if(fluid.isMember("stiffnessConstant"))
-        fluidPhys->stiffnessConstant(fluid["stiffnessConstant"].asDouble());
+        fluidPhys.stiffnessConstant(fluid["stiffnessConstant"].asDouble());
     if(fluid.isMember("restDensity"))
-        fluidPhys->rest_density(fluid["restDensity"].asDouble());
+        fluidPhys.rest_density(fluid["restDensity"].asDouble());
     if(fluid.isMember("surfaceTension"))
-        fluidPhys->surface_tension(fluid["surfaceTension"].asDouble());
+        fluidPhys.surface_tension(fluid["surfaceTension"].asDouble());
     if(fluid.isMember("fluidViscosity"))
-        fluidPhys->fluid_viscosity(fluid["fluidViscosity"].asDouble());
+        fluidPhys.fluid_viscosity(fluid["fluidViscosity"].asDouble());
     if(fluid.isMember("boundaryViscosity"))
-        fluidPhys->boundary_viscosity(fluid["boundaryViscosity"].asDouble());
+        fluidPhys.boundary_viscosity(fluid["boundaryViscosity"].asDouble());
     if(fluid.isMember("pressureGamma"))
-        fluidPhys->pressure_gamma(fluid["pressureGamma"].asDouble());
+        fluidPhys.pressure_gamma(fluid["pressureGamma"].asDouble());
 
-    fluidPhys->particles_velocity_correction().setOnes(pn);
-    if(fluid.isMember("velocityCorrectionCoefficient"))
-        fluidPhys->particles_velocity_correction().array() = fluid["velocityCorrectionCoefficient"].asDouble();
     if(fluid.isMember("velocityCorrectionCoefficientMin"))
-        fluidPhys->particles_lower_velocity_correction_limit() = fluid["velocityCorrectionCoefficientMin"].asDouble();
+        fluidPhys.particles_lower_velocity_correction_limit() = fluid["velocityCorrectionCoefficientMin"].asDouble();
     if(fluid.isMember("weakeningSpeed"))
-        fluidPhys->particles_weakening_speed() = fluid["weakeningSpeed"].asDouble();
+        fluidPhys.particles_weakening_speed() = fluid["weakeningSpeed"].asDouble();
     if(fluid.isMember("yieldCriterion"))
-        fluidPhys->particles_yield_criterion() = fluid["yieldCriterion"].asDouble();
+        fluidPhys.particles_yield_criterion() = fluid["yieldCriterion"].asDouble();
     if(fluid.isMember("mergeThreshold"))
-        fluidPhys->merge_threshold() = fluid["mergeThreshold"].asDouble();
+        fluidPhys.merge_threshold() = fluid["mergeThreshold"].asDouble();
     if(fluid.isMember("splitThreshold"))
-        fluidPhys->split_threshold() = fluid["splitThreshold"].asDouble();
+        fluidPhys.split_threshold() = fluid["splitThreshold"].asDouble();
     if(fluid.isMember("boundaryMergeThreshold"))
-        fluidPhys->boundary_merge_threshold() = fluid["boundaryMergeThreshold"].asDouble();
+        fluidPhys.boundary_merge_threshold() = fluid["boundaryMergeThreshold"].asDouble();
     if(fluid.isMember("continuousMerge"))
-        fluidPhys->continuous_merge(fluid["continuousMerge"].asBool());
+        fluidPhys.continuous_merge(fluid["continuousMerge"].asBool());
     if(fluid.isMember("continuousSplit"))
-        fluidPhys->continuous_split(fluid["continuousSplit"].asBool());
-
-    fluidRender->particles_color().setOnes(pn, 3);
-    if(fluid.isMember("color")){
-        fluidRender->particles_color().col(0).array() = fluid["color"][0].asDouble();
-        fluidRender->particles_color().col(1).array() = fluid["color"][1].asDouble();
-        fluidRender->particles_color().col(2).array() = fluid["color"][2].asDouble();
-    }
-    if(fluid.isMember("radius")){
-        fluidRender->particles_radius().setOnes(pn);
-        fluidRender->particles_radius().array() = fluid["radius"].asDouble();
-    }
-
-    physScene.fluid = std::move(fluidPhys);
-    // for the moment we only support one fluid at a time
-    renderScene.fluids.resize(1);
-    renderScene.fluids[0] = std::move(fluidRender);
+        fluidPhys.continuous_split(fluid["continuousSplit"].asBool());
 }
 
 Coordinates2d SceneLoader::readCoordinates(const Json::Value& coords) const {

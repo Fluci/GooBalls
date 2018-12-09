@@ -2,6 +2,8 @@
 #include <iostream>
 #include "spatial/2d/neighborhood_spatial_hashing.hpp"
 
+#include <boost/log/trivial.hpp>
+
 namespace GooBalls {
 namespace d2 {
 namespace Physics {
@@ -265,11 +267,15 @@ void Fluid::continuous_split(bool newV) {
 
 bool Fluid::sanity_check() const {
     if(particles_position().rows() != particles_velocity().rows()){
-        std::cerr << "Position and velocity should have same number of rows." << std::endl;
+        BOOST_LOG_TRIVIAL(error) << "Position and velocity should have same number of rows.";
         return false;
     }
     if(particles_position().rows() != particles_mass().rows()){
-        std::cerr << "Position and mass should have same number of rows." << std::endl;
+        BOOST_LOG_TRIVIAL(error) << "Position and mass should have same number of rows.";
+        return false;
+    }
+    if(particles_mass().minCoeff() <= 0.0){
+        BOOST_LOG_TRIVIAL(error) << "Particle mass should be positive.";
         return false;
     }
     return true;

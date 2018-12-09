@@ -37,6 +37,8 @@ void setEmptyFluid(Physics::Scene& physScene, Render::Scene& renderScene) const;
 
 void readFluid(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& fluid) const;
 
+void readSubFluid(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& fluid) const;
+
 void readObject(Physics::Scene& physScene, Render::Scene& renderScene, const Json::Value& obj) const;
 
 Coordinates2d readGrid(const Json::Value& grid) const;

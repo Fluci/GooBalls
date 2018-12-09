@@ -74,6 +74,7 @@ target_link_libraries(libgooBalls
 set(test_files
     test_root.cc
     generic/hello.test.cc
+    loader/scene_loader.test.cc
     physics/2d/engine.test.cc
     physics/2d/kernel_test.cc
     physics/2d/kernel_debrun_spiky.test.cc
