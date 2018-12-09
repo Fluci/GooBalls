@@ -17,7 +17,7 @@
                 "mass": 0.12,
                 "velocityCorrectionCoefficient": 0.002,
                 "color": [0.6, 0.6, 1.0],
-                "radius": 0.23
+                "radius": 0.4
             },
             {
                 "particles": {
@@ -30,8 +30,8 @@
                 "initialVelocity": [50, 0],
                 "mass": 0.12,
                 "velocityCorrectionCoefficient": 0.002,
-                "color": [0.6, 0.6, 1.0],
-                "radius": 0.23
+                "color": [1.0, 0.6, 0.6],
+                "radius": 0.4
             }
         ],
         "kernelRadius": 2,

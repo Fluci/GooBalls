@@ -205,7 +205,7 @@ void SceneLoader::readSubFluid(Physics::Scene& physScene, Render::Scene& renderS
     auto rad = fluidRender.particles_radius().block(ps, 0, pn, 1);
     rad.setOnes();
     if(fluid.isMember("radius")){
-        rad.array() = fluid["radius"].asDouble();
+        rad.array() = scale * fluid["radius"].asDouble();
     }
 }
 

@@ -9,6 +9,7 @@
 #include "physics/2d/engine.hpp"
 #include "rendering/2d/engine.hpp"
 #include "game_controller.hpp"
+#include "styler/styler.hpp"
 
 namespace GooBalls {
 
@@ -37,6 +38,7 @@ public:
     double default_dt = 0.001;
     // the higher, the faster the simulation runs
     double slow_motion = 1.0;
+    std::unique_ptr<Styler> styler;
     RUN_STATE run_state = RUN;
 private:
     GameController m_controller;

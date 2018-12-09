@@ -32,6 +32,7 @@
 #include <utility>
 
 #include "physics/2d/recommended_timestep.hpp"
+#include "styler/no_style.hpp"
 
 #if defined(__GNUC__)
 #  pragma GCC diagnostic ignored "-Wmissing-field-initializers"
@@ -64,6 +65,7 @@ using namespace nanogui;
 ExampleApplication::ExampleApplication(Physics::Engine& physicsEngine, Render::Engine& renderEngine,
         Physics::Scene& physicsScene, Render::Scene& renderScene)
         : nanogui::Screen(Eigen::Vector2i(900, 900), "GooFBalls", false),
+        styler(std::make_unique<NoStyle>()),
         m_physicsEngine(physicsEngine), m_physicsScene(physicsScene),
         m_renderEngine(renderEngine), m_renderScene(renderScene) {
 
@@ -148,24 +150,7 @@ void ExampleApplication::drawContents() {
             run_state = PAUSE;
         }
     }
-    // for the moment only one fluid is supported
-    if(!m_renderScene.fluids.empty()){
-        assert(m_renderScene.fluids.size() == 1);
-        auto& col = m_renderScene.fluids[0]->particles_color();
-        const auto& ps = m_physicsScene.fluid->particles_pressure();
-        auto& rad = m_renderScene.fluids[0]->particles_radius();
-        const auto& rho = m_physicsScene.fluid->particles_density();
-        const auto& rho0 = m_physicsScene.fluid->rest_density();
-        assert(col.rows() == ps.rows());
-        // pressure dependent color
-        col.col(0).array() = 1.0;
-        col.col(1) = 1.0/(1+0.001*(ps.array()).sqrt());
-        col.col(2) = col.col(1);
-        assert(rad.rows() == rho.rows());
-        // density dependent size
-        rad = (rho0/(rho.array())*0.015).max(0.001);
-        //rad = rho0/rho.array().pow(.5)*0.0003;
-    }
+    styler->shapeScene(m_physicsScene, m_renderScene);
     m_renderEngine.render(m_renderScene);
 }
 

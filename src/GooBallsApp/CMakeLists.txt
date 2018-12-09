@@ -6,6 +6,9 @@ set(source_files
     cli_options.cpp
     game_controller.cpp
     ui/ui.cpp
+    styler/styler.cpp
+    styler/no_style.cpp
+    styler/pressure_density.cpp
     placeholder.cpp
     )
 # list here your testing files (*.test.cc) of your module
