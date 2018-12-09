@@ -234,18 +234,21 @@ int main(int argc, char **argv) {
     physicsEngine.initScene(physicsScene);
     BOOST_LOG_TRIVIAL(debug) << "Starting gui";
     try {
+        BOOST_LOG_TRIVIAL(debug) << "Initializing nanogui";
         nanogui::init();
-
         /* scoped variables */ {
-            nanogui::ref<ExampleApplication> app = 
+            BOOST_LOG_TRIVIAL(debug) << "Constructing nanogui application";
+            nanogui::ref<ExampleApplication> app =
                 new ExampleApplication(physicsEngine, renderEngine, physicsScene, renderScene);
             app->default_dt = dt;
             app->run_state = cli_options.count("pause") ? PAUSE : RUN;
             app->drawAll();
             app->setVisible(true);
+            BOOST_LOG_TRIVIAL(debug) << "Entering mainloop";
             nanogui::mainloop();
         }
 
+        BOOST_LOG_TRIVIAL(debug) << "Entering shutdown";
         nanogui::shutdown();
     } catch (const std::runtime_error &e) {
         std::string error_msg = std::string("Caught a fatal error: ") + std::string(e.what());
@@ -256,6 +259,7 @@ int main(int argc, char **argv) {
         #endif
         return -1;
     }
+    BOOST_LOG_TRIVIAL(debug) << "Terminating main";
 
     return 0;
 }
