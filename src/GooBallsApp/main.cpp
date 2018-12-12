@@ -21,6 +21,7 @@
 
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
+#include <ctime>
 
 using namespace GooBalls;
 using namespace d2;
@@ -148,11 +149,16 @@ int main(int argc, char **argv) {
             app->run_state = cli_options.count("pause") ? PAUSE : RUN;
             app->drawAll();
             app->setVisible(true);
-            BOOST_LOG_TRIVIAL(debug) << "Entering mainloop";
+            BOOST_LOG_TRIVIAL(info) << "Entering mainloop";
             nanogui::mainloop();
+            BOOST_LOG_TRIVIAL(info) << "Simulation time: " << double(app->end_time - app->start_time)/CLOCKS_PER_SEC;
+            BOOST_LOG_TRIVIAL(info) << "Simulated frames: " << app->total_frames;
+            BOOST_LOG_TRIVIAL(info) << "Min fps: " << app->min_fps;
+            BOOST_LOG_TRIVIAL(info) << "Max fps: " << app->max_fps;
+            BOOST_LOG_TRIVIAL(info) << "Avg fps: " << app->total_frames / double(app->end_time - app->start_time)*CLOCKS_PER_SEC;
         }
 
-        BOOST_LOG_TRIVIAL(debug) << "Entering shutdown";
+        BOOST_LOG_TRIVIAL(info) << "Entering shutdown";
         nanogui::shutdown();
     } catch (const std::runtime_error &e) {
         std::string error_msg = std::string("Caught a fatal error: ") + std::string(e.what());

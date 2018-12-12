@@ -77,6 +77,7 @@ ExampleApplication::ExampleApplication(Physics::Engine& physicsEngine, Render::E
 
     setBackground({190, 190, 255, 255});
     performLayout();
+    start_time = clock();
 }
 
 bool ExampleApplication::keyboardEvent(int key, int scancode, int action, int modifiers) {
@@ -115,14 +116,21 @@ bool ExampleApplication::keyboardEvent(int key, int scancode, int action, int mo
 
 void ExampleApplication::drawContents() {
     clock_t current = clock();
+    end_time = current;
     clock_t previous = frames.back();
     clock_t lastSec = current - CLOCKS_PER_SEC;
     while(frames.front() < lastSec){
         frames.pop_front();
     }
-    fps = frames.size();
-    fps_label->setCaption(std::to_string(fps) + " fps");
+    total_frames++;
     frames.push_back(current);
+    fps = std::floor(frames.size()/double(frames.back() - frames.front())*CLOCKS_PER_SEC);
+    if(fps < 120){
+        min_fps = std::min(min_fps, fps);
+        max_fps = std::max(max_fps, fps);
+    }
+    assert(frames.size() > 0);
+    fps_label->setCaption(std::to_string(fps) + " fps");
     if(run_state != PAUSE){
         //std::cout << "Fps: " << fps << "\n";
         double simulationSpeed = 0.5; // 1 = real time, 0.5: slomotion, 2: faster than real time

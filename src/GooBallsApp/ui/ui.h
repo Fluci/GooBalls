@@ -40,6 +40,11 @@ public:
     double slow_motion = 1.0;
     std::unique_ptr<Styler> styler;
     RUN_STATE run_state = RUN;
+    clock_t start_time;
+    clock_t end_time;
+    int total_frames = 0;
+    int min_fps = 1000000000;
+    int max_fps = -1;
 private:
     GameController m_controller;
 
