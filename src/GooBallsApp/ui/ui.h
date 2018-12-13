@@ -45,6 +45,8 @@ public:
     int total_frames = 0;
     int min_fps = 1000000000;
     int max_fps = -1;
+    int max_animation_frames = -1;
+    double max_animation_seconds = -1.0;
 private:
     GameController m_controller;
 
@@ -61,6 +63,7 @@ private:
     std::deque<clock_t> frames;
     int fps = 0;
     nanogui::Label* fps_label;
+    double m_animated_time = 0.0;
 };
 
 } // d2

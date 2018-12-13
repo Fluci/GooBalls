@@ -147,6 +147,14 @@ int main(int argc, char **argv) {
             app->styler = std::move(styler);
             app->default_dt = dt;
             app->run_state = cli_options.count("pause") ? PAUSE : RUN;
+            if(cli_options.count("scene-max-frames")){
+                app->max_animation_frames = cli_options["scene-max-frames"].as<int>();
+                BOOST_LOG_TRIVIAL(debug) << "max-animation-frames: " << app->max_animation_frames;
+            }
+            if(cli_options.count("scene-max-seconds")){
+                app->max_animation_seconds = cli_options["scene-max-seconds"].as<double>();
+                BOOST_LOG_TRIVIAL(debug) << "max-animation-seconds: " << app->max_animation_seconds;
+            }
             app->drawAll();
             app->setVisible(true);
             BOOST_LOG_TRIVIAL(info) << "Entering mainloop";

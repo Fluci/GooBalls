@@ -154,12 +154,21 @@ void ExampleApplication::drawContents() {
             m_controller.apply(m_physicsScene);
             m_physicsEngine.advance(m_physicsScene, dt);
         }
+        m_animated_time += n*dt;
         if(run_state == ONE_FRAME || run_state == ONE_TIME_STEP){
             run_state = PAUSE;
         }
     }
     styler->shapeScene(m_physicsScene, m_renderScene);
     m_renderEngine.render(m_renderScene);
+    if(max_animation_frames >= 0 && max_animation_frames < total_frames){
+        BOOST_LOG_TRIVIAL(debug) << "max-animation-frames reached.";
+        setVisible(false);
+    }
+    if(max_animation_seconds >= 0 && max_animation_seconds < m_animated_time){
+        BOOST_LOG_TRIVIAL(debug) << "max-animation-seconds reached";
+        setVisible(false);
+    }
 }
 
 void ExampleApplication::draw(NVGcontext *ctx) {
