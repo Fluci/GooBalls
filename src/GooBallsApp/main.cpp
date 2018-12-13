@@ -156,6 +156,10 @@ int main(int argc, char **argv) {
             BOOST_LOG_TRIVIAL(info) << "Min fps: " << app->min_fps;
             BOOST_LOG_TRIVIAL(info) << "Max fps: " << app->max_fps;
             BOOST_LOG_TRIVIAL(info) << "Avg fps: " << app->total_frames / double(app->end_time - app->start_time)*CLOCKS_PER_SEC;
+            if(physicsScene.fluid.get() != nullptr){
+                BOOST_LOG_TRIVIAL(info) << "Fluid particles: " << physicsScene.fluid->particles_position().rows();
+                BOOST_LOG_TRIVIAL(info) << "Boundary particles: " << physicsScene.fluid->boundary_position().rows();
+            }
         }
 
         BOOST_LOG_TRIVIAL(info) << "Entering shutdown";
