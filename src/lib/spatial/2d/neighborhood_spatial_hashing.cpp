@@ -1,21 +1,10 @@
 #include "neighborhood_spatial_hashing.hpp"
+#include "generic/eigen.hpp"
 
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
 #include <Eigen/Core>
-
-namespace std {
-template<>
-class hash<std::pair<int, int>> {
-    public:
-    size_t operator()(const std::pair<int, int> &p) const {
-        size_t h1 = std::hash<int>()(p.first);
-        size_t h2 = std::hash<int>()(p.second);
-        return h1 ^ (h2 << 1);
-    }
-};
-}
 
 
 namespace GooBalls {
@@ -49,7 +38,8 @@ void NeighborhoodSpatialHashing::computeInRange(
     Float h) {
     // reset output member members
     resetIndexes(query.rows());
-    std::unordered_map<GridCoord, std::vector<Index>> grid;
+    auto& grid = m_grid;
+    grid.clear();
     // fill grid
     for(int i = 0; i < targetGrid.rows(); ++i){
         grid[GridCoord(targetGrid(i,0), targetGrid(i,1))].push_back(i);
@@ -57,7 +47,10 @@ void NeighborhoodSpatialHashing::computeInRange(
     // guarantee: the indices in the per grid lists are sorted in ascending order (we get that for free)
     // for each point, find all neighbors in the ball with radius h
     Float h2 = h*h;
-    std::vector<Index> candidates;
+    auto& candidates = m_candidates;
+    Coordinates2d& neighbors = m_neighbors; 
+    Coordinates1d& squaredDistance = m_squaredDistance;
+
     for(int i = 0; i < query.rows(); ++i){
         candidates.clear();
         for(int x = -1; x <= 1; x++){
@@ -67,17 +60,20 @@ void NeighborhoodSpatialHashing::computeInRange(
                 candidates.insert(candidates.end(), cell.begin(), cell.end());
             }   
         }
-        Coordinates2d neighbors(candidates.size(), 2); 
+        int N = candidates.size();
+        minSize(neighbors, N);
+        minSize(squaredDistance, N);
+
         // copy coordinates for eigen math
-        for(size_t j = 0; j < candidates.size(); ++j){
+        for(size_t j = 0; j < N; ++j){
             neighbors.row(j) = target.row(candidates[j]);
         }
         // we now have the coordinates of all candidates
         // compute squared distance and find good ones
-        auto difference = (neighbors.rowwise() - query.row(i));
-        auto squared = difference.array() * difference.array();
-        Coordinates1d squaredDistance = squared.rowwise().sum().eval();
-        for(int j = 0; j < squaredDistance.rows(); ++j){
+        auto difference = (neighbors.block(0,0,N,2).rowwise() - query.row(i));
+
+        squaredDistance.block(0,0,N,1) = difference.rowwise().squaredNorm();
+        for(int j = 0; j < N; ++j){
             Float d2 = squaredDistance[j];
             if(d2 <= h2){
                 m_indexes[i].push_back(candidates[j]);
