@@ -23,32 +23,26 @@ void Viscosity::compute(
         Coordinates1d* laplacianResult) const {
     Float epsilon = 0.000001;
     Float A = m_A2d;
+    Float h = m_h;
+    Float h2 = h*h;
+    Float h3 = h*h2;
     Coordinates1d r2 = rs.rowwise().squaredNorm();
     assert(r2.maxCoeff() <= m_h*m_h*1.01);
     Coordinates1d r1 = r2.array().sqrt();
-    Coordinates1d diffH = m_h*m_h - r2.array();
-    Coordinates1d diffH2 = diffH.array() * diffH.array();
-    assert(diffH.rows() == rs.rows());
-    assert(diffH2.rows() == rs.rows());
-    Float h2 = m_h*m_h;
-    Float h3 = m_h*h2;
+
     if(wResult != nullptr){
         wResult->resize(rs.rows(), 1);
         auto r3 = r1.array().pow(3.0);
         *wResult = A * (-r3 / (2*h3) + r2.array() / h2 + (m_h / 2.0) / (r2.array() + epsilon) - 1);
     }
     if(gradientResult != nullptr){
-        Coordinates1d comm = (-3.0/2.0/h3) * r1.array() - (m_h/2.0)/(r1.array().pow(3.0) + epsilon);
-        comm = comm.unaryExpr([](auto v){return std::isfinite(v) ? v : 0.0;});
-        comm = A*2.0/h2 + A*comm.array();
-        gradientResult->resize(rs.rows(), rs.cols());
-        gradientResult->col(0) = rs.col(0).array() * comm.array();
-        gradientResult->col(1) = rs.col(1).array() * comm.array();
-        //*gradientResult = gradientResult->unaryExpr([](auto v){return std::isfinite(v) ? v : 0.0;});
+        gradientResult->resize(r2.rows(), Eigen::NoChange);
+        gradientResult->col(0) = A*2.0/h + A*(-3.0/2.0/h3) * r1.array() - (m_h/2.0)/(r1.array().pow(3.0) + epsilon);
+        *gradientResult = rs.array().colwise() * gradientResult->col(0).array();
     }
     if(laplacianResult != nullptr){
         // according to the paper: 45/pi/h^6 (h - r)
-        *laplacianResult = A * (m_h - r1.array());
+        *laplacianResult = A * (h - r1.array());
         //*laplacianResult = laplacianResult->unaryExpr([](auto v){return std::isfinite(v) ? v : 0.0;});
     }
 }

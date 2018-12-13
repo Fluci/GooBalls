@@ -19,6 +19,7 @@ private:
     Float m_h;
     Float m_A1d;
     Float m_A2d;
+    Float m_epsilon = 0.000001;
 public:
     virtual void setH(Float h);
     virtual void compute(

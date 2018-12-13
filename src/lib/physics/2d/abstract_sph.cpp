@@ -1,6 +1,6 @@
 #include "abstract_sph.hpp"
-#include "pick_rows.hpp"
 #include "generic/is_finite.hpp"
+#include "generic/eigen.hpp"
 
 #include <boost/log/trivial.hpp>
 
@@ -124,11 +124,11 @@ void AbstractSph::computeStandardPressureForce(const Scene& scene, const Kernel&
     const auto& ps = scene.fluid->particles_pressure();
     int PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
+    Coordinates2d jpos, jGrad, jPress;
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
-        Coordinates2d jpos, jGrad;
+        minSize(jPress, index.size());
         pickRows(pos, index, jpos);
-        Coordinates2d jPress(index.size(), 2);
         auto xij = -(jpos.rowwise() - pos.row(i));
         pressureKernel.compute(xij, nullptr, &jGrad, nullptr);
         for(size_t j = 0; j < index.size(); ++j){

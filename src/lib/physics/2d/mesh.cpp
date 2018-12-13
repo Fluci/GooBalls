@@ -1,5 +1,5 @@
 #include "mesh.hpp"
-#include "pick_rows.hpp"
+#include "generic/eigen.hpp"
 #include "kernel_poly6.hpp"
 
 #include "spatial/2d/neighborhood_spatial_hashing.hpp"
@@ -14,16 +14,17 @@ namespace Physics {
 using namespace Spatial;
 
 Mesh::Mesh() : 
+    linearAcceleration(0,0),
     m_vertices_position_global(new Coordinates()), 
-    m_triangles(new TriangleList()),
-    linearAcceleration(0,0){
+    m_triangles(new TriangleList())
+    {
     // empty
 }
 
 Mesh::Mesh(std::shared_ptr<Mesh::Coordinates> verts, std::shared_ptr<TriangleList> tris) : 
+    linearAcceleration(0,0),
     m_vertices_position_global(verts),
-    m_triangles(tris),
-    linearAcceleration(0,0)
+    m_triangles(tris)
 {
     m_vertices_position_local = *verts;
 }

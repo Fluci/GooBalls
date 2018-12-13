@@ -2,7 +2,7 @@
 #include "kernel_debrun_spiky.hpp"
 #include "kernel_poly6.hpp"
 #include "kernel_viscosity.hpp"
-#include "pick_rows.hpp"
+#include "generic/eigen.hpp"
 #include "generic/is_finite.hpp"
 #include <iostream>
 #include <boost/log/trivial.hpp>
@@ -152,12 +152,15 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
             Coordinates2d xik = -(jpos.rowwise() - pos.row(i));
             m_kernelPressure->compute(xik, nullptr, &jGrad, nullptr);
             m_kernelViscosity->compute(xik, nullptr, nullptr, &jLap);
+            Float rhoInv = 1.0/rho[i];
+            Float mA = -ms[i]*rhoInv*rhoInv*ps[i];
+            Float mB = mu_boundary * ms[i]*rhoInv;
             for(size_t j = 0; j < index.size(); ++j){
                 int jj = index[j];
                 TranslationVector vij = -(scene.fluid->boundary_velocity().row(jj) - vs.row(i));
-                jPress.row(j) = -ms[i] * psi[jj] * ps[i]/(rho[i] * rho[i]) * jGrad.row(j);
-                Float PI = h * std::max(vij.dot(xik.row(j)), 0.0)/(xik.squaredNorm() + visc_epsilon*h*h);
-                jVisc.row(j) = mu_boundary * ms[i] * psi[jj] * PI/rho[i] * jGrad.row(j);
+                jPress.row(j) = mA*psi[jj] * jGrad.row(j);
+                Float PI = h * std::max(vij.dot(xik.row(j)), 0.0)/(xik.row(j).squaredNorm() + visc_epsilon*h*h);
+                jVisc.row(j) = mB * psi[jj] * PI * jGrad.row(j);
                 TranslationVector F = scene.fluid->boundary_force().row(jj) - (jPress.row(j) + jVisc.row(j));
                 scene.fluid->boundary_force().row(jj) = F;
             }

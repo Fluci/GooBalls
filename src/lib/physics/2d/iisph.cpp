@@ -3,7 +3,7 @@
 #include "kernel_debrun_spiky.hpp"
 #include "kernel_poly6.hpp"
 #include "kernel_poly_viscosity.hpp"
-#include "pick_rows.hpp"
+#include "generic/eigen.hpp"
 #include "generic/is_finite.hpp"
 
 #include <iostream>

@@ -1,4 +1,5 @@
 #include "kernel_debrun_spiky.hpp"
+#include "generic/eigen.hpp"
 
 #include <iostream>
 
@@ -30,9 +31,10 @@ void DebrunSpiky::compute1d(
         *gradientResult = (-3*A) * diffH2;
     }
     if(laplacianResult != nullptr){
-        *laplacianResult = (6.0*A)*(h - r1.array());
+        *laplacianResult = (6.0*A)*diffH;
     }
 }
+
 
 void DebrunSpiky::compute(
         const Coordinates2d& rs,
@@ -43,13 +45,15 @@ void DebrunSpiky::compute(
     Float A = m_A2d;
     Float epsilon = 0.0001;
     Coordinates1d r2 = rs.rowwise().squaredNorm();
+    int N = r2.rows();
     assert(r2.maxCoeff() <= h*h*1.01);
     Coordinates1d r1 = r2.array().sqrt();
     Coordinates1d diffH = h - r1.array();
     Coordinates1d diffH2 = diffH.array() * diffH.array();
     auto r1Inv = 1.0/(r1.array() + h*epsilon);
     if(wResult != nullptr){
-        *wResult = A * diffH2.array()*diffH.array();
+        minSize(*wResult, N);
+        wResult->block(0,0,N,1) = A * diffH2.array()*diffH.array();
     }
     if(gradientResult != nullptr){
         auto comm = (-3*A) * diffH2;
