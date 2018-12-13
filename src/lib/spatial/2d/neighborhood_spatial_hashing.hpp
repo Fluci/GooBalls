@@ -30,14 +30,13 @@ class NeighborhoodSpatialHashing: public Neighborhood {
     typedef std::pair<int, int> GridCoord;
     void computeInRange(const Coordinates2d& query, const Coordinates2d& target, const GridCoordinates& queryGrid, const GridCoordinates& targetGrid, Float h);
 public:
+    NeighborhoodSpatialHashing();
     virtual void inRange(const Coordinates2d& points, Float h);
     virtual void inRange(const Coordinates2d& query, const Coordinates2d& target_points, Float h);
 private:
     // we keep most datastructures as members to avoid memory allocations
     std::unordered_map<GridCoord, std::vector<Index>> m_grid;
-    std::vector<Index> m_candidates;
-    Coordinates2d m_neighbors;
-    Coordinates1d m_squaredDistance;
+    void populateGrid(const GridCoordinates& target);
 };
 
 } // Spatial
