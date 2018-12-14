@@ -98,25 +98,25 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
     addFluidDensity(scene, *m_kernelDensity);
     // density from fluid<->boundary
     if(consider_boundary){
+        const auto& bPos = scene.fluid->boundary_position();
         for(int i = 0; i < PN; ++i){
             auto& index = boundary_index[i];
             if(index.empty()){
                 continue;
             }
-            Coordinates2d jpos;
-            Coordinates1d jW;
-            pickRows(scene.fluid->boundary_position(), index, jpos);
+            int N = index.size();
             // adjusted density: m_i * sum_j W_ij + m_i * sum_k W_ik
             // = m_i * sum_j W_ij + sum_k psi_k * W_ik
             // sum_k psi_bk(rho_0) W_ik
-            //
-            auto xik = -(jpos.rowwise() - pos.row(i));
-            m_kernelDensity->compute(xik, &jW, nullptr, nullptr);
-            for(size_t j = 0; j < index.size(); ++j){
+            TranslationVector vi = pos.row(i);
+            Float jW = 0.0;
+            for(int j = 0; j < N; ++j){
                 int jj = index[j];
-                jW[j] *= psi[jj];
+                TranslationVector xik = vi - bPos.row(jj);
+                Float w = m_kernelDensity->computeValue(xik);
+                jW += psi[jj] * w;
             }
-            rho[i] += jW.sum();
+            rho[i] += jW;
         }
     }
 

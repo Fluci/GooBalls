@@ -155,28 +155,31 @@ void AbstractSph::computeMomentumPreservingPressureForce(const Scene& scene, con
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
 #if INLINE_KERNELS
     Float h = scene.fluid->h();
-    Float kernelScale = pressureKernel.scale2d();
+    Float kernelScale = -3*pressureKernel.scale2d();
     Float epsilon = 0.000001;
 #endif
-    Coordinates2d jPress;
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
         int N = index.size();
-        minSize(jPress, N);
         Float A = ps[i]/(rho[i] * rho[i]);
-        for(size_t j = 0; j < N; ++j){
+        TranslationVector vi = pos.row(i);
+        TranslationVector jPress;
+        jPress.setZero();
+        for(int j = 0; j < N; ++j){
             int jj = index[j];
-            TranslationVector xij = -(pos.row(jj) - pos.row(i));
+            TranslationVector xij = vi - pos.row(jj);
 #if INLINE_KERNELS
-            auto r1 = xij.rowwise().norm().array();
-            TranslationVector jGrad = (-3*kernelScale) * (xij.array().colwise() *( (h - r1).pow(2.0) / (r1.array() + h*epsilon)));
+            Float r1 = xij.norm();
+            Float hr = h - r1;
+            Float hr2 = hr * hr;
+            TranslationVector jGrad = kernelScale * (xij * ( hr2 / (r1 + h*epsilon)));
 #else
             TranslationVector jGrad = pressureKernel.computeGradient(xij);
 #endif
-            jPress.row(j) = ms[jj] * (A + ps[jj]/(rho[jj]*rho[jj])) * jGrad;
+            jPress += ms[jj] * (A + ps[jj] / (rho[jj] * rho[jj])) * jGrad;
         }
         // f_i^pressure = - m_i * sum_j m_j*(p_i/rho_i^2 + p_j/rho_j^2) \nabla W(r_i - r_j, h)
-        FPressure.row(i) = - ms[i] * jPress.block(0,0,N,2).colwise().sum();
+        FPressure.row(i) = - ms[i] * jPress;
     }
     assert(is_finite(FPressure));
 }
@@ -194,25 +197,25 @@ void AbstractSph::computeStandardViscosityForce(const Scene& scene, const Kernel
     Float h = scene.fluid->h();
     Float kernelScale = viscosityKernel.scale2d();
 #endif
-    Coordinates2d jVisc;
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
         int N = index.size();
-        minSize(jVisc, N);
         TranslationVector vi = pos.row(i);
-
-        for(size_t j = 0; j < index.size(); ++j){
+        TranslationVector vvi = vs.row(i);
+        TranslationVector jVisc;
+        jVisc.setZero();
+        for(int j = 0; j < N; ++j){
             int jj = index[j];
-            auto xij = -(pos.row(jj) - vi);
+            auto xij = vi - pos.row(jj);
 #if INLINE_KERNELS
             Float jLap = kernelScale * (h - xij.norm());
 #else
             Float jLap = viscosityKernel.computeLaplacian(xij);
 #endif
-            jVisc.row(j) = ms[jj] / rho[jj] * (vs.row(jj) - vs.row(i)) * jLap;
+            jVisc += ms[jj] / rho[jj] * (vs.row(jj) - vvi) * jLap;
         }
         // f_i^viscosity = mu * sum_j m_j (v_j - v_i) / rho_j \nabla^2 W(r_i - r_j, h)
-        FViscosity.row(i) = mu * jVisc.block(0,0,N,2).colwise().sum();
+        FViscosity.row(i) = mu * jVisc;
     }
 }
 
@@ -263,32 +266,24 @@ void AbstractSph::addFluidDensity(Scene& scene, const Kernel& densityKernel) con
     Float kernelScale = densityKernel.scale2d();
     Float h2 = h * h;
 #endif
-    Coordinates1d jW;
     for(int i = 0; i < PN; ++i){
         // density from fluid<->fluid
         const auto& index = fluid_index[i];
         int N = index.size();
-        minSize(jW, N);
         TranslationVector vi = pos.row(i);
-        // the index should never be empty, as each particles gets at least itself as neighbor
-        //assert(!index.empty());
-        // rho(r_i) = sum_j m_j W(r_i - r_j, h)
-        /*pickRows(pos, index, jpos);
-        auto xij = -(jpos.rowwise() - pos.row(i));
-        densityKernel.compute(xij, &jW, nullptr, nullptr);
-        */
-        for(size_t j = 0; j < N; ++j){
+        Float jW = 0.0;
+        for(int j = 0; j < N; ++j){
             int jj = index[j];
-            TranslationVector xij = -(pos.row(jj) - vi);
+            TranslationVector xij = vi - pos.row(jj);
 #if INLINE_KERNELS
             Float d = h2 - xij.squaredNorm();
             Float v = kernelScale * d*d*d;
 #else
             Float v = densityKernel.computeValue(xij);
 #endif
-            jW[j] = ms[jj] * v;
+            jW += ms[jj] * v;
         }
-        rho[i] += jW.block(0,0,N,1).sum();
+        rho[i] += jW;
     }
     assert(rho.minCoeff() > 0.0);
     assert(is_finite(rho));
