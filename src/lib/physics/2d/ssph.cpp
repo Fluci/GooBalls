@@ -55,7 +55,6 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
     const auto& vs = scene.fluid->particles_velocity();
     const auto& ms = scene.fluid->particles_mass();
     const auto& ps = scene.fluid->particles_pressure();
-    Float K = scene.fluid->stiffnessConstant(); // gas constant dependent on temperature, TODO: correct value?
     // rho, density: a value measured in kg/m^3, water: 1000, air: 1.3
     // p, pressure: force per unit area
     // nu, kinematic viscosity: high values: fluid doesn't like to deform, low values: fluid likes deformation
@@ -63,7 +62,6 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
     // mu, dynamic viscosity coefficient:
     Float mu_boundary = scene.fluid->boundary_viscosity(); // viscosity towards wall
 
-    Float color_relevant_normal_size = 0.1; // TODO: correct value
     Float visc_epsilon = 0.01;
     const int PN = pos.rows();
     // Müller et al., all equations we need:
@@ -89,7 +87,6 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
     // let's get the neighborhood information
     bool consider_boundary = considerBoundary() && scene.fluid->boundary_volume().rows() > 0;
 
-    BOOST_LOG_TRIVIAL(trace) << "consider boundary: " << consider_boundary;
     if(consider_boundary){
         prepareBoundary(scene);
     }

@@ -26,6 +26,7 @@ public:
             Coordinates1d* W,
             Coordinates2d* gradient,
             Coordinates1d* laplacian) const;
+    virtual Float scale2d() const override;
     virtual Float computeValue(const TranslationVector rs) const override;
     virtual TranslationVector computeGradient(const TranslationVector rs) const override;
     virtual Float computeLaplacian(const TranslationVector rs) const override;

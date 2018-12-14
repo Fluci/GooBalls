@@ -42,6 +42,10 @@ void PolyViscosity::compute1d(
     }
 }
 
+Float PolyViscosity::scale2d() const {
+    return m_A2d;
+}
+
 Float PolyViscosity::computeValue(const TranslationVector rs) const {
     assert(false);
     // TODO

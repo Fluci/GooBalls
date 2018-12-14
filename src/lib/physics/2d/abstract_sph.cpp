@@ -1,7 +1,6 @@
 #include "abstract_sph.hpp"
 #include "generic/is_finite.hpp"
 #include "generic/eigen.hpp"
-#include "kernel_debrun_spiky.hpp"
 
 #include <boost/log/trivial.hpp>
 
@@ -10,6 +9,8 @@ namespace GooBalls {
 namespace d2 {
 
 namespace Physics {
+
+#define INLINE_KERNELS 1
 
 void AbstractSph::initFluid(Scene& scene) {
     BOOST_LOG_TRIVIAL(trace) << "AbstractSph: initializing";
@@ -152,6 +153,11 @@ void AbstractSph::computeMomentumPreservingPressureForce(const Scene& scene, con
     assert(is_finite(ps));
     int PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
+#if INLINE_KERNELS
+    Float h = scene.fluid->h();
+    Float kernelScale = pressureKernel.scale2d();
+    Float epsilon = 0.000001;
+#endif
     Coordinates2d jPress;
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
@@ -161,7 +167,12 @@ void AbstractSph::computeMomentumPreservingPressureForce(const Scene& scene, con
         for(size_t j = 0; j < N; ++j){
             int jj = index[j];
             TranslationVector xij = -(pos.row(jj) - pos.row(i));
+#if INLINE_KERNELS
+            auto r1 = xij.rowwise().norm().array();
+            TranslationVector jGrad = (-3*kernelScale) * (xij.array().colwise() *( (h - r1).pow(2.0) / (r1.array() + h*epsilon)));
+#else
             TranslationVector jGrad = pressureKernel.computeGradient(xij);
+#endif
             jPress.row(j) = ms[jj] * (A + ps[jj]/(rho[jj]*rho[jj])) * jGrad;
         }
         // f_i^pressure = - m_i * sum_j m_j*(p_i/rho_i^2 + p_j/rho_j^2) \nabla W(r_i - r_j, h)
@@ -179,6 +190,10 @@ void AbstractSph::computeStandardViscosityForce(const Scene& scene, const Kernel
     const auto& rho = scene.fluid->particles_density();
     int PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
+#if INLINE_KERNELS
+    Float h = scene.fluid->h();
+    Float kernelScale = viscosityKernel.scale2d();
+#endif
     Coordinates2d jVisc;
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
@@ -189,7 +204,11 @@ void AbstractSph::computeStandardViscosityForce(const Scene& scene, const Kernel
         for(size_t j = 0; j < index.size(); ++j){
             int jj = index[j];
             auto xij = -(pos.row(jj) - vi);
+#if INLINE_KERNELS
+            Float jLap = kernelScale * (h - xij.norm());
+#else
             Float jLap = viscosityKernel.computeLaplacian(xij);
+#endif
             jVisc.row(j) = ms[jj] / rho[jj] * (vs.row(jj) - vs.row(i)) * jLap;
         }
         // f_i^viscosity = mu * sum_j m_j (v_j - v_i) / rho_j \nabla^2 W(r_i - r_j, h)
@@ -239,6 +258,11 @@ void AbstractSph::addFluidDensity(Scene& scene, const Kernel& densityKernel) con
     assert(ms.minCoeff() > 0.0);
     auto& rho = scene.fluid->particles_density();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
+#if INLINE_KERNELS
+    Float h = scene.fluid->h();
+    Float kernelScale = densityKernel.scale2d();
+    Float h2 = h * h;
+#endif
     Coordinates1d jW;
     for(int i = 0; i < PN; ++i){
         // density from fluid<->fluid
@@ -256,8 +280,13 @@ void AbstractSph::addFluidDensity(Scene& scene, const Kernel& densityKernel) con
         for(size_t j = 0; j < N; ++j){
             int jj = index[j];
             TranslationVector xij = -(pos.row(jj) - vi);
-            jW[j] = ms[jj] * densityKernel.computeValue(xij);
-            //jW[j] *= ms[jj];
+#if INLINE_KERNELS
+            Float d = h2 - xij.squaredNorm();
+            Float v = kernelScale * d*d*d;
+#else
+            Float v = densityKernel.computeValue(xij);
+#endif
+            jW[j] = ms[jj] * v;
         }
         rho[i] += jW.block(0,0,N,1).sum();
     }

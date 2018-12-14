@@ -14,6 +14,10 @@ void Viscosity::setH(Float h) {
     m_A2d = 45.0 / (M_PI * std::pow(h, 6));
 }
 
+Float Viscosity::scale2d() const {
+    return m_A2d;
+}
+
 Float Viscosity::computeValue(const TranslationVector rs) const {
     assert(false);
     // TODO

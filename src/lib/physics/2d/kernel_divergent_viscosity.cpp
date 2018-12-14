@@ -49,6 +49,10 @@ void computeDivergentViscosity(
     }
 }
 
+Float DivergentViscosity::scale2d() const {
+    return m_A2d;
+}
+
 Float DivergentViscosity::computeValue(const TranslationVector rs) const {
     assert(false);
     // TODO

@@ -35,6 +35,10 @@ void DebrunSpiky::compute1d(
     }
 }
 
+Float DebrunSpiky::scale2d() const {
+    return m_A2d;
+}
+
 Float DebrunSpiky::computeValue(const TranslationVector rs) const {
     assert(false);
     // TODO

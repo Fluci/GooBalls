@@ -44,6 +44,18 @@ void NeighborhoodSpatialHashing::populateGrid(const GridCoordinates& targetGrid)
         grid[GridCoord(targetGrid(i,0), targetGrid(i,1))].push_back(i);
     }
 }
+
+inline void addCell(const std::vector<int>& cell, const Coordinates2d& target, const TranslationVector iv, const Float h2, std::vector<int>& indexes){
+    for(int jj : cell){
+        // we now have the coordinates of all candidates
+        // compute squared distance and find good ones
+        Float d2 = (target.row(jj) - iv).squaredNorm();
+        if(d2 <= h2){
+            indexes.push_back(jj);
+        }
+    }
+}
+
 void NeighborhoodSpatialHashing::computeInRange(
     const Coordinates2d& query, const Coordinates2d& target, 
     const GridCoordinates& queryGrid, const GridCoordinates& targetGrid, 
@@ -53,10 +65,10 @@ void NeighborhoodSpatialHashing::computeInRange(
     populateGrid(targetGrid);
     // guarantee: the indices in the per grid lists are sorted in ascending order (we get that for free)
     // for each point, find all neighbors in the ball with radius h
-    Float h2 = h*h;
+    const Float h2 = h*h;
     const auto& grid = m_grid;
 
-    //#pragma omp for schedule(static)
+    //#pragma omp parallel for schedule(static)
     for(int i = 0; i < query.rows(); ++i){
         auto& indexes = m_indexes[i];
         int ix = queryGrid(i, 0);
@@ -65,7 +77,7 @@ void NeighborhoodSpatialHashing::computeInRange(
         int iy = queryGrid(i, 1);
         int iys = iy-1;
         int iye = iy+1;
-        auto iv = query.row(i);
+        TranslationVector iv = query.row(i);
         for(int iix = ixs; iix <= ixe; iix++){
             for(int iiy = iys; iiy <= iye; iiy++){
                 const auto coord = GridCoord(iix, iiy);
@@ -73,14 +85,7 @@ void NeighborhoodSpatialHashing::computeInRange(
                 if(cell == grid.end()){
                     continue;
                 }
-                for(Index jj : cell->second){
-                    // we now have the coordinates of all candidates
-                    // compute squared distance and find good ones
-                    Float d2 = (target.row(jj) - iv).squaredNorm();
-                    if(d2 <= h2){
-                        indexes.push_back(jj);
-                    }
-                };
+                addCell(cell->second, target, iv, h2, indexes);
             }
         }
     }

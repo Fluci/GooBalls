@@ -41,6 +41,10 @@ void Poly6::compute1d(
     }
 }
 
+Float Poly6::scale2d() const {
+    return m_A2d;
+}
+
 Float Poly6::computeValue(const TranslationVector rs) const {
     Float h = m_h;
     Float A = m_A2d;
