@@ -24,6 +24,9 @@ public:
             Coordinates1d* wResult, 
             Coordinates2d* gradientResult, 
             Coordinates1d* laplacianResult) const = 0;
+    virtual Float computeValue(const TranslationVector rs) const = 0;
+    virtual TranslationVector computeGradient(const TranslationVector rs) const = 0;
+    virtual Float computeLaplacian(const TranslationVector rs) const = 0;
     virtual void compute1d(
             const Coordinates1d& squaredNorm,
             Coordinates1d* wResult,

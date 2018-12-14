@@ -14,6 +14,24 @@ void Viscosity::setH(Float h) {
     m_A2d = 45.0 / (M_PI * std::pow(h, 6));
 }
 
+Float Viscosity::computeValue(const TranslationVector rs) const {
+    assert(false);
+    // TODO
+    return 0.0;
+}
+
+TranslationVector Viscosity::computeGradient(const TranslationVector rs) const {
+    assert(false);
+    // TODO
+    return TranslationVector();
+}
+
+Float Viscosity::computeLaplacian(const TranslationVector rs) const {
+    Float A = m_A2d;
+    Float h = m_h;
+    return A * (h - rs.norm());
+}
+
 /// 15.0/(2*pi*h^3) * (-r^3 / (2h^3) + r^2 / h^2 + h / (2r + epsilon) - 1)
 ///
 void Viscosity::compute(

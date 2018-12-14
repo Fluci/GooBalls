@@ -42,6 +42,24 @@ void PolyViscosity::compute1d(
     }
 }
 
+Float PolyViscosity::computeValue(const TranslationVector rs) const {
+    assert(false);
+    // TODO
+    return 0.0;
+}
+
+TranslationVector PolyViscosity::computeGradient(const TranslationVector rs) const {
+    assert(false);
+    // TODO
+}
+
+Float PolyViscosity::computeLaplacian(const TranslationVector rs) const {
+    assert(false);
+    // TODO
+    return 0.0;
+}
+
+
 /// 15.0/(2*pi*h^3) * (-r^3 / (2h^3) + r^2 / h^2 + h / (2r + epsilon) - 1)
 ///
 void PolyViscosity::compute(

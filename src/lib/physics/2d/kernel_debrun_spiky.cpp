@@ -35,6 +35,25 @@ void DebrunSpiky::compute1d(
     }
 }
 
+Float DebrunSpiky::computeValue(const TranslationVector rs) const {
+    assert(false);
+    // TODO
+    return 0.0;
+}
+
+TranslationVector DebrunSpiky::computeGradient(const TranslationVector rs) const {
+    Float h = m_h;
+    Float A = m_A2d;
+    Float epsilon = m_epsilon;
+    auto r1 = rs.rowwise().norm().array();
+    return (-3*A) * (rs.array().colwise() *( (h - r1).pow(2.0) / (r1.array() + h*epsilon)));
+}
+
+Float DebrunSpiky::computeLaplacian(const TranslationVector rs) const {
+    assert(false);
+    // TODO
+    return 0.0;
+}
 
 void DebrunSpiky::compute(
         const Coordinates2d& rs,
@@ -43,7 +62,7 @@ void DebrunSpiky::compute(
         Coordinates1d* laplacianResult) const {
     Float h = m_h;
     Float A = m_A2d;
-    Float epsilon = 0.0001;
+    Float epsilon = m_epsilon;
     Coordinates1d r2 = rs.rowwise().squaredNorm();
     int N = r2.rows();
     assert(r2.maxCoeff() <= h*h*1.01);

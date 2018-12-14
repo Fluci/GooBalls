@@ -27,6 +27,9 @@ public:
             Coordinates1d* W,
             Coordinates2d* gradient,
             Coordinates1d* laplacian) const override;
+    virtual Float computeValue(const TranslationVector rs) const override;
+    virtual TranslationVector computeGradient(const TranslationVector rs) const override;
+    virtual Float computeLaplacian(const TranslationVector rs) const override;
     virtual void compute1d(
             const Coordinates1d& squaredNorm,
             Coordinates1d* wResult,

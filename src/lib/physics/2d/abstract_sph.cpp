@@ -1,6 +1,7 @@
 #include "abstract_sph.hpp"
 #include "generic/is_finite.hpp"
 #include "generic/eigen.hpp"
+#include "kernel_debrun_spiky.hpp"
 
 #include <boost/log/trivial.hpp>
 
@@ -151,19 +152,20 @@ void AbstractSph::computeMomentumPreservingPressureForce(const Scene& scene, con
     assert(is_finite(ps));
     int PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
+    Coordinates2d jPress;
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
-        Coordinates2d jpos, jGrad;
-        pickRows(pos, index, jpos);
-        Coordinates2d jPress(index.size(), 2);
-        auto xij = -(jpos.rowwise() - pos.row(i));
-        pressureKernel.compute(xij, nullptr, &jGrad, nullptr);
-        for(size_t j = 0; j < index.size(); ++j){
+        int N = index.size();
+        minSize(jPress, N);
+        Float A = ps[i]/(rho[i] * rho[i]);
+        for(size_t j = 0; j < N; ++j){
             int jj = index[j];
-            jPress.row(j) = ms[jj] * (ps[i]/(rho[i] * rho[i]) + ps[jj]/(rho[jj]*rho[jj])) * jGrad.row(j);
+            TranslationVector xij = -(pos.row(jj) - pos.row(i));
+            TranslationVector jGrad = pressureKernel.computeGradient(xij);
+            jPress.row(j) = ms[jj] * (A + ps[jj]/(rho[jj]*rho[jj])) * jGrad;
         }
         // f_i^pressure = - m_i * sum_j m_j*(p_i/rho_i^2 + p_j/rho_j^2) \nabla W(r_i - r_j, h)
-        FPressure.row(i) = - ms[i] * jPress.colwise().sum();
+        FPressure.row(i) = - ms[i] * jPress.block(0,0,N,2).colwise().sum();
     }
     assert(is_finite(FPressure));
 }
@@ -177,20 +179,21 @@ void AbstractSph::computeStandardViscosityForce(const Scene& scene, const Kernel
     const auto& rho = scene.fluid->particles_density();
     int PN = pos.rows();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
+    Coordinates2d jVisc;
     for(int i = 0; i < PN; ++i){
         const auto& index = fluid_index[i];
-        Coordinates2d jpos;
-        pickRows(pos, index, jpos);
-        Coordinates1d jLap;
-        Coordinates2d jVisc(index.size(), 2);
-        auto xij = -(jpos.rowwise() - pos.row(i));
-        viscosityKernel.compute(xij, nullptr, nullptr, &jLap);
+        int N = index.size();
+        minSize(jVisc, N);
+        TranslationVector vi = pos.row(i);
+
         for(size_t j = 0; j < index.size(); ++j){
             int jj = index[j];
-            jVisc.row(j) = ms[jj] / rho[jj] * (vs.row(jj) - vs.row(i)) * jLap[j];
+            auto xij = -(pos.row(jj) - vi);
+            Float jLap = viscosityKernel.computeLaplacian(xij);
+            jVisc.row(j) = ms[jj] / rho[jj] * (vs.row(jj) - vs.row(i)) * jLap;
         }
         // f_i^viscosity = mu * sum_j m_j (v_j - v_i) / rho_j \nabla^2 W(r_i - r_j, h)
-        FViscosity.row(i) = mu * jVisc.colwise().sum();
+        FViscosity.row(i) = mu * jVisc.block(0,0,N,2).colwise().sum();
     }
 }
 
@@ -236,22 +239,27 @@ void AbstractSph::addFluidDensity(Scene& scene, const Kernel& densityKernel) con
     assert(ms.minCoeff() > 0.0);
     auto& rho = scene.fluid->particles_density();
     const auto& fluid_index = scene.fluid->fluid_neighborhood->indexes();
+    Coordinates1d jW;
     for(int i = 0; i < PN; ++i){
-        Coordinates1d jW;
-        Coordinates2d jpos;
         // density from fluid<->fluid
         const auto& index = fluid_index[i];
+        int N = index.size();
+        minSize(jW, N);
+        TranslationVector vi = pos.row(i);
         // the index should never be empty, as each particles gets at least itself as neighbor
-        assert(!index.empty());
+        //assert(!index.empty());
         // rho(r_i) = sum_j m_j W(r_i - r_j, h)
-        pickRows(pos, index, jpos);
+        /*pickRows(pos, index, jpos);
         auto xij = -(jpos.rowwise() - pos.row(i));
         densityKernel.compute(xij, &jW, nullptr, nullptr);
-        for(size_t j = 0; j < index.size(); ++j){
+        */
+        for(size_t j = 0; j < N; ++j){
             int jj = index[j];
-            jW[j] *= ms[jj];
+            TranslationVector xij = -(pos.row(jj) - vi);
+            jW[j] = ms[jj] * densityKernel.computeValue(xij);
+            //jW[j] *= ms[jj];
         }
-        rho[i] += jW.sum();
+        rho[i] += jW.block(0,0,N,1).sum();
     }
     assert(rho.minCoeff() > 0.0);
     assert(is_finite(rho));

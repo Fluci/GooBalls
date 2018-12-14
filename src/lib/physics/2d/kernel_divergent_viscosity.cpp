@@ -49,6 +49,23 @@ void computeDivergentViscosity(
     }
 }
 
+Float DivergentViscosity::computeValue(const TranslationVector rs) const {
+    assert(false);
+    // TODO
+    return 0.0;
+}
+
+TranslationVector DivergentViscosity::computeGradient(const TranslationVector rs) const {
+    assert(false);
+    // TODO
+}
+
+Float DivergentViscosity::computeLaplacian(const TranslationVector rs) const {
+    assert(false);
+    // TODO
+    return 0.0;
+}
+
 void DivergentViscosity::compute1d(
         const Coordinates1d& squaredNorm,
         Coordinates1d* wResult,

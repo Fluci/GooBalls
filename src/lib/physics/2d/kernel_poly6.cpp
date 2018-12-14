@@ -41,6 +41,25 @@ void Poly6::compute1d(
     }
 }
 
+Float Poly6::computeValue(const TranslationVector rs) const {
+    Float h = m_h;
+    Float A = m_A2d;
+    Float h2 = h * h;
+    Float d = h2 - rs.squaredNorm();
+    return A * d*d*d;
+}
+
+TranslationVector Poly6::computeGradient(const TranslationVector rs) const {
+    assert(false);
+    // TODO
+}
+
+Float Poly6::computeLaplacian(const TranslationVector rs) const {
+    assert(false);
+    // TODO
+    return 0.0;
+}
+
 void Poly6::compute(
         const Coordinates2d& rs, 
         Coordinates1d* wResult, 
