@@ -66,9 +66,6 @@ void AbstractSph::prepareFluid(Scene& scene) const {
     assert(is_finite(vs));
     assert(is_finite(ms));
     scene.fluid->fluid_neighborhood->inRange(pos, scene.fluid->h());
-    scene.fluid->particles_density().setZero();
-    scene.fluid->particles_pressure().setZero();
-    scene.fluid->particles_total_force().setZero();
 }
 
 void AbstractSph::prepareBoundary(Scene& scene) const {
@@ -77,7 +74,6 @@ void AbstractSph::prepareBoundary(Scene& scene) const {
     psi = rho0 * scene.fluid->boundary_volume();
     auto h = scene.fluid->h();
     scene.fluid->boundary_neighborhood->inRange(scene.fluid->particles_position(), scene.fluid->boundary_position(), h);
-    scene.fluid->boundary_force().setZero();
 }
 
 void AbstractSph::advance(Scene& scene, TimeStep dt){
@@ -254,7 +250,7 @@ void AbstractSph::computeStandardSurfaceTensionForce(const Scene& scene, const K
 }
 
 /// computes rho_i += sum_j m_j W_ij
-void AbstractSph::addFluidDensity(Scene& scene, const Kernel& densityKernel) const {
+void AbstractSph::computeFluidDensity(Scene& scene, const Kernel& densityKernel) const {
     const auto& pos = scene.fluid->particles_position();
     int PN = pos.rows();
     const auto& ms = scene.fluid->particles_mass();
@@ -283,7 +279,7 @@ void AbstractSph::addFluidDensity(Scene& scene, const Kernel& densityKernel) con
 #endif
             jW += ms[jj] * v;
         }
-        rho[i] += jW;
+        rho[i] = jW;
     }
     assert(rho.minCoeff() > 0.0);
     assert(is_finite(rho));

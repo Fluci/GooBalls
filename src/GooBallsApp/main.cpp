@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
         solver = std::make_unique<Physics::ViscoElastic>();
     } else if (desiredSolver == "iisph") {
         solver = std::make_unique<Physics::IISPH>();
-        dt = 0.005;
+        dt = 0.001;
     }
     physicsEngine.fluidSolver(std::move(solver));
     physicsEngine.initScene(physicsScene);

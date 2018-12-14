@@ -28,7 +28,7 @@ protected:
     /// resizes matrices etc.
     void prepareBoundary(Scene& scene) const;
     /// computes rho_i += sum_j m_j W_ij, for i and j being fluid particles
-    void addFluidDensity(Scene& scene, const Kernel& densityKernel) const;
+    void computeFluidDensity(Scene& scene, const Kernel& densityKernel) const;
     /// p := rho0 * K / gamma ((rho / rho0)^gamma - 1)
     void computeFluidPressure(Scene& scene) const;
     /// s.t. F = m * scene.gravity

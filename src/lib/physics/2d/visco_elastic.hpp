@@ -25,13 +25,15 @@ protected:
     void updateVelocityCorrectionCoefficients(Scene& scene, TimeStep dt);
     void mergeConnections(Scene& scene, Float slack = 1.0);
     void splitConnections(Scene& scene);
+    void prepareFluidPositionCorrection(Scene& scene);
     void prepareBoundaryPositionCorrection(Scene& scene);
-    void addFluidPositionCorrection(const Scene& scene);
-    void addBoundaryPositionCorrection(const Scene& scene);
+    void computeFluidPositionCorrection(const Scene& scene);
+    void computeBoundaryPositionCorrection(const Scene& scene);
 private:
     /// This is the main fluid solver who's results we adjust to make the fluid visco elastic
     std::unique_ptr<FluidSolver> m_solver;
-    Coordinates2d m_dx;
+    Coordinates2d m_fluid_dx;
+    Coordinates2d m_boundary_dx;
 };
 
 } // Physics

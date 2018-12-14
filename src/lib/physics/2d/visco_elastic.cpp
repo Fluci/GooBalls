@@ -35,8 +35,7 @@ void ViscoElastic::initFluid(Scene& scene) {
     mergeConnections(scene);
 }
 
-void ViscoElastic::addFluidPositionCorrection(const Scene& scene){
-    const auto& rho = scene.fluid->particles_density();
+void ViscoElastic::computeFluidPositionCorrection(const Scene& scene){
     const auto& pos = scene.fluid->particles_position();
     const auto& cs = scene.fluid->particles_velocity_correction();
     const auto& ms = scene.fluid->particles_mass();
@@ -44,15 +43,25 @@ void ViscoElastic::addFluidPositionCorrection(const Scene& scene){
         const auto& conn = scene.fluid->particles_connectivity()[i];
         TranslationVector pi = pos.row(i);
         TranslationVector sum;
+        Float ci = cs[i];
+        Float mi = ms[i];
         sum.setZero();
         for(size_t j = 0; j < conn.size(); ++j){
             int jj = conn[j].partner;
             auto xij = pi - pos.row(jj);
             auto xijN = xij.norm();
             auto Dij = std::max(xijN - conn[j].rij, 0.0);
-            sum = sum + (cs[i] + cs[jj])/2.0 * ms[jj] / (ms[i] + ms[jj]) * Dij * xij.normalized();
+            sum += (ci + cs[jj]) * ms[jj] / (mi + ms[jj]) * Dij * xij.normalized();
         }
-        m_dx.row(i) = sum;
+        m_fluid_dx.row(i) = 0.5 * sum;
+    }
+}
+
+void ViscoElastic::prepareFluidPositionCorrection(Scene& scene) {
+    const auto& pos = scene.fluid->particles_position();
+    if(pos.rows() != m_fluid_dx.rows()){
+        m_fluid_dx.resize(pos.rows(), Eigen::NoChange);
+        m_fluid_dx.setZero();
     }
 }
 
@@ -60,10 +69,15 @@ void ViscoElastic::prepareBoundaryPositionCorrection(Scene& scene) {
     auto h = scene.fluid->h();
     auto alpha = scene.fluid->boundary_merge_threshold();
     const auto& pos = scene.fluid->particles_position();
+    if(pos.rows() != m_boundary_dx.rows()){
+        m_boundary_dx.resize(pos.rows(), Eigen::NoChange);
+        m_boundary_dx.setZero();
+    }
     const auto& bPos = scene.fluid->boundary_position();
+    scene.fluid->boundary_neighborhood->inRange(pos, bPos, alpha*h);
 }
 
-void ViscoElastic::addBoundaryPositionCorrection(const Scene& scene){
+void ViscoElastic::computeBoundaryPositionCorrection(const Scene& scene){
     auto h = scene.fluid->h();
     auto alpha = scene.fluid->boundary_merge_threshold();
     const auto& pos = scene.fluid->particles_position();
@@ -71,7 +85,6 @@ void ViscoElastic::addBoundaryPositionCorrection(const Scene& scene){
     const auto& ms = scene.fluid->particles_mass();
     const auto& bCs = scene.fluid->boundary_velocity_correction_coefficient();
     const auto& bMs = scene.fluid->boundary_mass();
-    scene.fluid->boundary_neighborhood->inRange(pos, bPos, alpha*h);
     for(int i = 0; i < pos.rows(); ++i){
         const auto& index = scene.fluid->boundary_neighborhood->indexes()[i];
         if(index.empty()){
@@ -81,6 +94,7 @@ void ViscoElastic::addBoundaryPositionCorrection(const Scene& scene){
         TranslationVector pi = pos.row(i);
         TranslationVector sum;
         sum.setZero();
+        Float mi = ms[i];
         for(int j = 0; j < N; ++j){
             int jj = index[j];
             TranslationVector xij = pi - bPos.row(jj);
@@ -88,16 +102,16 @@ void ViscoElastic::addBoundaryPositionCorrection(const Scene& scene){
             Float Dij = std::max(xij.norm() - 0.8*alpha*h, 0.0);
             Float M;
             if(bMs[jj] > 0){
-                M =  bMs[jj] / (ms[i] + bMs[jj]);
+                M =  bMs[jj] / (mi + bMs[jj]);
             } else {
                 // mass equal to zero means it is a static object, hence m_j = infinity
-                M = 1.0/ms[i];
+                M = 1.0/mi;
             }
             // according to the paper it should be cs[i] + bCs[jj]
             // but that gives us really poor control
             sum += bCs[jj] * M * Dij * xij.normalized();
         }
-        m_dx.row(i) = sum/2.0;
+        m_boundary_dx.row(i) = 0.5*sum;
     }
 }
 
@@ -120,18 +134,16 @@ void ViscoElastic::advance(Scene& scene, TimeStep dt){
     // v^* = v^t + dt * a;
     // D_ij = max(||x_ij|| - r_ij, 0)
     // Delta v_i = - 1/dt * sum_j (c_i + c_j)/2 * m_j/(m_i+m_j) D_ij x_ij / ||x_ij||
-
-    m_dx.resize(pos.rows(), Eigen::NoChange);
-    m_dx.setZero();
-    addFluidPositionCorrection(scene);
+    prepareFluidPositionCorrection(scene);
+    computeFluidPositionCorrection(scene);
 
     const auto& bPos = scene.fluid->boundary_position();
     bool consider_boundary = considerBoundary() && bPos.rows() > 0;
     if(consider_boundary){
         prepareBoundaryPositionCorrection(scene);
-        addBoundaryPositionCorrection(scene);
+        computeBoundaryPositionCorrection(scene);
     }
-    Coordinates2d Dv = -m_dx/dt;
+    Coordinates2d Dv = -(m_fluid_dx + m_boundary_dx)/dt;
     vs = vs + dt * a + Dv;
     pos = pos + dt * vs;
     scene.room.restrictFluid(* scene.fluid);

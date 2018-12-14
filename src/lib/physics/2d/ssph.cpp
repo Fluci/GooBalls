@@ -95,7 +95,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
 
     const Coordinates1d& psi = scene.fluid->boundary_psi();
 
-    addFluidDensity(scene, *m_kernelDensity);
+    computeFluidDensity(scene, *m_kernelDensity);
     // density from fluid<->boundary
     if(consider_boundary){
         const auto& bPos = scene.fluid->boundary_position();

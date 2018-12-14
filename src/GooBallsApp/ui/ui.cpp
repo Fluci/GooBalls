@@ -133,9 +133,8 @@ void ExampleApplication::drawContents() {
     fps_label->setCaption(std::to_string(fps) + " fps");
     if(run_state != PAUSE){
         //std::cout << "Fps: " << fps << "\n";
-        double simulationSpeed = 0.5; // 1 = real time, 0.5: slomotion, 2: faster than real time
         /// How large of a total time step should be simulated?
-        double target = std::min(double(current - previous)/CLOCKS_PER_SEC, 1/60.0)*simulationSpeed;
+        double target = std::min(double(current - previous)/CLOCKS_PER_SEC, 1/60.0);
         /// dt: largest possible timestep, for which the simulation stays
         /// stable
         double dt = default_dt;
@@ -162,11 +161,11 @@ void ExampleApplication::drawContents() {
     styler->shapeScene(m_physicsScene, m_renderScene);
     m_renderEngine.render(m_renderScene);
     if(max_animation_frames >= 0 && max_animation_frames < total_frames){
-        BOOST_LOG_TRIVIAL(debug) << "max-animation-frames reached.";
+        BOOST_LOG_TRIVIAL(debug) << "max-animation-frames reached: " << max_animation_frames << " < " << total_frames;
         setVisible(false);
     }
     if(max_animation_seconds >= 0 && max_animation_seconds < m_animated_time){
-        BOOST_LOG_TRIVIAL(debug) << "max-animation-seconds reached";
+        BOOST_LOG_TRIVIAL(debug) << "max-animation-seconds reached: " << max_animation_seconds << " < " << m_animated_time;
         setVisible(false);
     }
 }

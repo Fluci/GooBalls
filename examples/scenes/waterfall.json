@@ -9,7 +9,7 @@
         "particles": {
             "type": "grid",
             "gridWidth": 10,
-            "gridHeight": 200,
+            "gridHeight": 100,
             "gridSpacing": 1
         },
         "position": [10, 30],

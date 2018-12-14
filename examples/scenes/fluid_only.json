@@ -6,7 +6,7 @@
     "fluid": {
         "particles": {
             "type": "grid",
-            "gridWidth": 20,
+            "gridWidth": 10,
             "gridHeight": 100,
             "gridSpacing": 1
         },

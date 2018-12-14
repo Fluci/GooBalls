@@ -88,7 +88,7 @@ void IISPH::predictAdvection(Scene& scene, TimeStep dt, const Kernel& kernel) {
     int PN = vs.rows();
     // for all particle i do
     //     compute rho_i(t) = sum_j m_j W_ij
-    addFluidDensity(scene, *m_kernelDensity);
+    computeFluidDensity(scene, *m_kernelDensity);
     //     compute F^adv_i = F^SurfaceTension_i + F^Gravity_i + F^Visco_i + ...
     computeGravityForce(scene);
     computeStandardViscosityForce(scene, *m_kernelViscosity);
