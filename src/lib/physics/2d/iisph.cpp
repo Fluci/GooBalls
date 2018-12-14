@@ -48,11 +48,7 @@ void IISPH::computeTotalForce(Scene& scene, TimeStep dt){
     m_kernelPressure->setH(h);
     m_kernelViscosity->setH(h);
     auto& pos = scene.fluid->particles_position();
-    auto& vs = scene.fluid->particles_velocity();
-    auto& ms = scene.fluid->particles_mass();
     assert(is_finite(pos));
-    assert(is_finite(vs));
-    assert(is_finite(ms));
     Float K = scene.fluid->stiffnessConstant(); // gas constant dependent on temperature, TODO: correct value?
 
     // p_i = k rho0 / gamma ((rho_i/rho0)^gamma - 1)

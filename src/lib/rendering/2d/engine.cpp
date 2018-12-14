@@ -48,9 +48,9 @@ void Engine::render(const Scene& scene) {
         }
     }
 
-    for(const auto& mesh : scene.meshes){
+    //for(const auto& mesh : scene.meshes){
         // mesh->render();
-    }
+    //}
     glDisable(GL_DEPTH_TEST);
 }
 } // Render

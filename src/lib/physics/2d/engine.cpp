@@ -81,7 +81,6 @@ void Engine::fluidToMesh(Scene& scene) const {
         const auto& local = mesh.particles_position_local();
         const auto& force = scene.fluid->boundary_force().block(s, 0, local.rows(), 2);
         const auto& pos = scene.fluid->boundary_position().block(s, 0, local.rows(), 2);
-        const auto& ms = scene.fluid->boundary_mass().block(s, 0, local.rows(), 1);
         s += local.rows();
 
         if(mesh.body->GetMass() == 0.0){

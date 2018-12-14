@@ -60,11 +60,7 @@ void AbstractSph::prepareFluid(Scene& scene) const {
     assert(scene.fluid.get() != nullptr);
     assert(scene.fluid->sanity_check());
     const auto& pos = scene.fluid->particles_position();
-    const auto& vs = scene.fluid->particles_velocity();
-    const auto& ms = scene.fluid->particles_mass();
     assert(is_finite(pos));
-    assert(is_finite(vs));
-    assert(is_finite(ms));
     scene.fluid->fluid_neighborhood->inRange(pos, scene.fluid->h());
 }
 
