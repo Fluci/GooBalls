@@ -19,14 +19,19 @@ public:
     virtual void initFluid(Scene& scene) override;
     virtual bool considerBoundary(bool consider);
     virtual bool considerBoundary() const;
+    /// Set the fluid solver responsible for the core physics
+    void base(std::unique_ptr<FluidSolver>&& b);
+protected:
     void updateVelocityCorrectionCoefficients(Scene& scene, TimeStep dt);
     void mergeConnections(Scene& scene, Float slack = 1.0);
     void splitConnections(Scene& scene);
-    /// Set the fluid solver responsible for the core physics
-    void base(std::unique_ptr<FluidSolver>&& b);
+    void prepareBoundaryPositionCorrection(Scene& scene);
+    void addFluidPositionCorrection(const Scene& scene);
+    void addBoundaryPositionCorrection(const Scene& scene);
 private:
     /// This is the main fluid solver who's results we adjust to make the fluid visco elastic
     std::unique_ptr<FluidSolver> m_solver;
+    Coordinates2d m_dx;
 };
 
 } // Physics
