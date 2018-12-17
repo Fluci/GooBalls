@@ -34,9 +34,9 @@
             "name": "dynamicBox",
             "position": [25, 40],
             "rotation": 45,
-            "initialVelocity": [-0.5, 0],
+            "initialVelocity": [0, 0],
             "type": "dynamic",
-            "density": 10000,
+            "density": 1000,
             "vertices": [
 				[0, 0],
 				[4, 0],

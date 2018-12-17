@@ -63,16 +63,16 @@ void ViscoElastic::prepareFluidPositionCorrection(Scene& scene) {
         m_fluid_dx.resize(pos.rows(), Eigen::NoChange);
         m_fluid_dx.setZero();
     }
+    if(pos.rows() != m_boundary_dx.rows()){
+        m_boundary_dx.resize(pos.rows(), Eigen::NoChange);
+        m_boundary_dx.setZero();
+    }
 }
 
 void ViscoElastic::prepareBoundaryPositionCorrection(Scene& scene) {
     auto h = scene.fluid->h();
     auto alpha = scene.fluid->boundary_merge_threshold();
     const auto& pos = scene.fluid->particles_position();
-    if(pos.rows() != m_boundary_dx.rows()){
-        m_boundary_dx.resize(pos.rows(), Eigen::NoChange);
-        m_boundary_dx.setZero();
-    }
     const auto& bPos = scene.fluid->boundary_position();
     scene.fluid->boundary_neighborhood->inRange(pos, bPos, alpha*h);
 }

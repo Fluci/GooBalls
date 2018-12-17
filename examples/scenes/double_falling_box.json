@@ -18,7 +18,7 @@
         "restDensity": 100,
         "surfaceTension": 0,
         "fluidViscosity": 0.3,
-        "boundaryViscosity": 0.3,
+        "boundaryViscosity": 0,
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],
         "radius": 0.23,

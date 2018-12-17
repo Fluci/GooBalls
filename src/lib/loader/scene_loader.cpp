@@ -325,13 +325,13 @@ void SceneLoader::readObject(Physics::Scene& physScene, Render::Scene& renderSce
         BOOST_LOG_TRIVIAL(debug) << "acceleration: " << physMesh.linearAcceleration.x << ", " << physMesh.linearAcceleration.y;
     }
     if(obj.isMember("rotation")){
-        bodyDefinition.angle = scale*obj["rotation"].asDouble();
+        //bodyDefinition.angle = obj["rotation"].asDouble()/180*M_PI;
     }
     if(obj.isMember("angularVelocity")){
-        bodyDefinition.angularVelocity = obj["angularVelocity"].asDouble();
+        //bodyDefinition.angularVelocity = obj["angularVelocity"].asDouble();
     }
     if(obj.isMember("angularAcceleration")){
-        physMesh.angularAcceleration = obj["angularAcceleration"].asDouble();
+        //physMesh.angularAcceleration = obj["angularAcceleration"].asDouble();
     }
     if(obj.isMember("dynamic")){
         BOOST_LOG_TRIVIAL(warning) << "Found deprecated property 'dynamic', please use 'type' = 'dynamic'. Ignoring property.";

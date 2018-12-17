@@ -24,7 +24,7 @@
         "radius": 0.23,
         "velocityCorrectionCoefficient": 0.01,
         "velocityCorrectionCoefficientMin": 0.00000,
-        "weakeningSpeed": 0.000,
+        "weakeningSpeed": 0.00,
         "yieldCriterion": 1.01,
         "mergeThreshold": 1,
         "splitThreshold": 1.2,

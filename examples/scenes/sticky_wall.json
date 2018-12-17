@@ -13,7 +13,7 @@
         "position": [7, 30],
         "kernelRadius": 2,
         "mass": 0.12,
-        "initialVelocity": [3, 1],
+        "initialVelocity": [50, 30],
         "stiffnessConstant": 200000,
         "restDensity": 100,
         "surfaceTension": 0,

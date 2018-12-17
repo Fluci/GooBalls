@@ -22,7 +22,7 @@
         "pressureGamma": 7.0,
         "color": [0.6, 0.6, 1.0],
         "radius": 0.23,
-        "velocityCorrectionCoefficient": 0.001,
+        "velocityCorrectionCoefficient": 0.005,
         "velocityCorrectionCoefficientMin": 0.00000,
         "weakeningSpeed": 0.001,
         "yieldCriterion": 1.01,

@@ -12,7 +12,7 @@
                     "gridHeight": 10,
                     "gridSpacing": 1
                 },
-                "position": [30, 30],
+                "position": [30, 20],
                 "initialVelocity": [-50, 0],
                 "mass": 0.12,
                 "velocityCorrectionCoefficient": 0.002,
@@ -26,7 +26,7 @@
                     "gridHeight": 10,
                     "gridSpacing": 1
                 },
-                "position": [10, 35],
+                "position": [10, 25],
                 "initialVelocity": [50, 0],
                 "mass": 0.12,
                 "velocityCorrectionCoefficient": 0.002,
@@ -39,7 +39,7 @@
         "restDensity": 100,
         "surfaceTension": 0,
         "fluidViscosity": 0.3,
-        "boundaryViscosity": 0.06,
+        "boundaryViscosity": 1000,
         "pressureGamma": 7.0,
         "velocityCorrectionCoefficientMin": 0.0001,
         "weakeningSpeed": 0,

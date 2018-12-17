@@ -124,12 +124,12 @@ void ExampleApplication::drawContents() {
     }
     total_frames++;
     frames.push_back(current);
+    assert(frames.size() > 0);
     fps = std::floor(frames.size()/double(frames.back() - frames.front())*CLOCKS_PER_SEC);
     if(fps < 120){
         min_fps = std::min(min_fps, fps);
         max_fps = std::max(max_fps, fps);
     }
-    assert(frames.size() > 0);
     fps_label->setCaption(std::to_string(fps) + " fps");
     if(run_state != PAUSE){
         //std::cout << "Fps: " << fps << "\n";

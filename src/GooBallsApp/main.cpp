@@ -22,6 +22,7 @@
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
 #include <ctime>
+#include <omp.h>
 
 using namespace GooBalls;
 using namespace d2;
@@ -31,6 +32,10 @@ namespace op = boost::program_options;
 /// none, trace, debug, info, warning, error, fatal
 /// Unknown values default to info
 void setLogLevel(const std::string &level) {
+    // try to avoid hyperthreading
+    int threads = omp_get_max_threads()/2;
+    omp_set_num_threads(std::max(1, threads));
+    BOOST_LOG_TRIVIAL(info) << "OMP threads: " << omp_get_max_threads();
     namespace log = boost::log::trivial;
     if (level == "none") {
         boost::log::core::get()->set_filter(log::severity > log::fatal);
@@ -117,7 +122,7 @@ int main(int argc, char **argv) {
     }
     std::unique_ptr<Physics::FluidSolver> solver;
     auto desiredSolver = cli_options["fluid-solver"].as<std::string>();
-    Float dt = 0.001;
+    Float dt = cli_options["time-step"].as<double>();
     if(desiredSolver == "ssph"){
         solver = std::make_unique<Physics::SSPH>();
     } else if (desiredSolver == "viscoElastic") {
