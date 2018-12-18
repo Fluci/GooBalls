@@ -53,7 +53,7 @@ void GameController::apply(Physics::Scene& scene){
             scene.fluid->particles_external_force().array() = 0;
         }
     } else {
-        Float vMax = 3;
+        Float vMax = 2;
         Float acc = 0.01;
 
         auto& vs = scene.fluid->particles_velocity();

@@ -37,6 +37,7 @@
             "name": "dynamicBox",
             "position": [11, 30],
             "type": "dynamic",
+            "density": 1000,
             "vertices": [
 				[0, 0],
 				[4, 0],
@@ -52,6 +53,7 @@
             "name": "dynamicBox2",
             "position": [20, 30],
             "type": "dynamic",
+            "density": 1000,
             "vertices": [
 				[0, 0],
 				[4, 0],
@@ -67,6 +69,7 @@
             "name": "dynamicBox3",
             "position": [20, 70],
             "type": "dynamic",
+            "density": 1000,
             "vertices": [
 				[0, 0],
 				[4, 0],
@@ -82,10 +85,11 @@
             "name": "dynamicBox4",
             "position": [27, 60],
             "type": "dynamic",
+            "density": 500,
             "vertices": [
 				[0, 0],
-				[4, 0],
-				[4, 4],
+				[7, 0],
+				[7, 4],
 				[0, 4]
             ],
             "faces": [
@@ -97,10 +101,11 @@
             "name": "dynamicBox5",
             "position": [15, 60],
             "type": "dynamic",
+            "density": 500,
             "vertices": [
 				[0, 0],
-				[4, 0],
-				[4, 4],
+				[10, 0],
+				[10, 4],
 				[0, 4]
             ],
             "faces": [

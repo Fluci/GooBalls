@@ -44,6 +44,8 @@ Ubuntu packages:
 
 `sudo apt install libbox2d-dev libboost-filesystem-dev libboost-program-options-dev libboost-log-dev libboost-test-dev libjsoncpp-dev xorg-dev libgl1-mesa-dev`
 
+Needed boost version: 1.65
+
 ### Run the application
 
 After building, you should find the executable in the build folder at `src/GooBallsApp/gooBalls`.
