@@ -365,7 +365,7 @@ void SceneLoader::readObject(Physics::Scene& physScene, Render::Scene& renderSce
 
     // insert the mesh into the scene's rendering
     auto mesh = std::make_unique<Render::Mesh>(vertex_ptr, face_ptr);
-    mesh->vertices_color() = Eigen::MatrixXd::Zero(vertex.size(), 3);
+    mesh->vertices_color() = ColorsFloatRGB::Zero(vertex.size(), 3);
     mesh->vertices_color().array() += 0.5; // grey
     renderScene.meshes.push_back(std::move(mesh));
 }

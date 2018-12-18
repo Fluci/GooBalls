@@ -156,7 +156,7 @@ void SSPH::computeTotalForce(Scene& scene, TimeStep){
                 int jj = index[j];
                 TranslationVector vij = -(scene.fluid->boundary_velocity().row(jj) - vs.row(i));
                 jPress.row(j) = mA*psi[jj] * jGrad.row(j);
-                Float PI = h * std::max(vij.dot(xik.row(j)), 0.0)/(xik.row(j).squaredNorm() + visc_epsilon*h*h);
+                Float PI = h * std::max(vij.dot(xik.row(j)), Float(0.0))/(xik.row(j).squaredNorm() + visc_epsilon*h*h);
                 jVisc.row(j) = mB * psi[jj] * PI * jGrad.row(j);
                 TranslationVector F = scene.fluid->boundary_force().row(jj) - (jPress.row(j) + jVisc.row(j));
                 scene.fluid->boundary_force().row(jj) = F;

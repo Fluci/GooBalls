@@ -50,7 +50,7 @@ void ViscoElastic::computeFluidPositionCorrection(const Scene& scene){
             int jj = conn[j].partner;
             auto xij = pi - pos.row(jj);
             auto xijN = xij.norm();
-            auto Dij = std::max(xijN - conn[j].rij, 0.0);
+            auto Dij = std::max(xijN - conn[j].rij, Float(0.0));
             sum += (ci + cs[jj]) * ms[jj] / (mi + ms[jj]) * Dij * xij.normalized();
         }
         m_fluid_dx.row(i) = 0.5 * sum;
@@ -178,7 +178,7 @@ void ViscoElastic::updateVelocityCorrectionCoefficients(Scene& scene, TimeStep d
         for(size_t j = 0; j < conn.size(); ++j){
             auto xij = pos.row(i) - pos.row(conn[j].partner);
             auto xijN = xij.norm();
-            auto Dij = std::max(xijN - conn[j].rij, 0.0);
+            auto Dij = std::max(xijN - conn[j].rij, Float(0.0));
             if(lowerDij >= Dij){
                 continue;
             }

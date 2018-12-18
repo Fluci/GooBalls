@@ -19,7 +19,7 @@ typedef Eigen::Matrix<Float, 2, 2, Eigen::RowMajor> RotationMatrix;
 typedef Eigen::Matrix<Float, 1, 2, Eigen::RowMajor> TranslationVector;
 
 /// Colors in the range [0,1]
-typedef double ColorFloat;
+typedef Float ColorFloat;
 
 /// Holds a list of intensity values
 typedef Eigen::Matrix<ColorFloat, Eigen::Dynamic, 1, Eigen::RowMajor> ColorsFloatGrey;
