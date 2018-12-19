@@ -25,6 +25,8 @@
 #include <nanogui/tabwidget.h>
 #include <iostream>
 #include <string>
+#include <chrono>
+#include <thread>
 
 // Includes for the GLTexture class.
 #include <cstdint>
@@ -78,6 +80,7 @@ ExampleApplication::ExampleApplication(Physics::Engine& physicsEngine, Render::E
     setBackground({190, 190, 255, 255});
     performLayout();
     start_time = clock();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 bool ExampleApplication::keyboardEvent(int key, int scancode, int action, int modifiers) {
