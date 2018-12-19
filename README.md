@@ -46,7 +46,7 @@ Eigen as linear algebra library.
 
 Ubuntu packages:
 
-`sudo apt install libbox2d-dev libboost-filesystem-dev libboost-program-options-dev libboost-log-dev libboost-test-dev libjsoncpp-dev xorg-dev libgl1-mesa-dev`
+`sudo apt install libbox2d-dev libboost-filesystem-dev libboost-program-options-dev libboost-log-dev libboost-test-dev libjsoncpp-dev xorg-dev libgl1-mesa-dev libeigen3-dev`
 
 Needed boost version: at least 1.65
 
