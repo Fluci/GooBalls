@@ -28,7 +28,7 @@ $ git submodule update --recursive
 
 ## Build instructions
 
-As for each cmake project, create a `build` folder and run `cmake ..`. Then call `make` and wait until it compiled.
+As for each cmake project, create a `build` folder (preferably in the project root, otherwise the default paths won't work) and run `cmake ..`. Then call `make` and wait until it compiled.
 
 ### Building tools
 
@@ -82,7 +82,7 @@ Following controlls are available:
 
 - `Down arrow`: Slow the simulation down. Note: The simulation timestep is not changed, so the lowest speed you can choose, is one simulation step at a time. This means hitting the down arrow will slow the simulation down only to a minimum speed.
 
-- `W`/`A`/`S`/`D`: Change the fluid's velocity. Note: The fluid can get stuck, if the adhesion to a wall is to strong.
+- `W`/`A`/`S`/`D`: Change the fluid's velocity. Note: The fluid can get stuck, if the adhesion to a wall is to strong. Note: The integration with nanogui isn't optimal, causing notable lag on occasion.
 
 - You can find additional command line controlls via the `--help` flag of the application.
 
