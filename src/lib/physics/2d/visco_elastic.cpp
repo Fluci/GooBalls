@@ -117,7 +117,7 @@ void ViscoElastic::computeBoundaryPositionCorrection(const Scene& scene){
 
 
 void ViscoElastic::advance(Scene& scene, TimeStep dt){
-    if(scene.fluid.get() == nullptr){
+    if(scene.fluid.get() == nullptr || scene.fluid->particles_position().rows() == 0){
         return;
     }
     computeTotalForce(scene, dt);

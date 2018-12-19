@@ -40,7 +40,7 @@ bool SSPH::considerBoundary() const {
 }
 
 void SSPH::computeTotalForce(Scene& scene, TimeStep){
-    if(scene.fluid.get() == nullptr){
+    if(scene.fluid.get() == nullptr || scene.fluid->particles_position().rows() == 0){
         return;
     }
     prepareFluid(scene);
