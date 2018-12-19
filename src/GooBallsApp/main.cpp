@@ -177,6 +177,7 @@ int main(int argc, char **argv) {
 
         BOOST_LOG_TRIVIAL(info) << "Entering shutdown";
         nanogui::shutdown();
+        BOOST_LOG_TRIVIAL(debug) << "Leaving shutdown";
     } catch (const std::runtime_error &e) {
         std::string error_msg = std::string("Caught a fatal error: ") + std::string(e.what());
         #if defined(_WIN32)
