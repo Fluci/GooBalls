@@ -35,7 +35,7 @@ void setLogLevel(const std::string &level) {
     // try to avoid hyperthreading
     int threads = omp_get_max_threads()/2;
     omp_set_num_threads(std::max(1, threads));
-    BOOST_LOG_TRIVIAL(info) << "OMP threads: " << omp_get_max_threads();
+    BOOST_LOG_TRIVIAL(debug) << "OMP threads: " << omp_get_max_threads();
     namespace log = boost::log::trivial;
     if (level == "none") {
         boost::log::core::get()->set_filter(log::severity > log::fatal);

@@ -150,7 +150,7 @@ void ExampleApplication::drawContents() {
             n = 1;
         }
         if(n == 1){
-            BOOST_LOG_TRIVIAL(info) << "Performing one timestep of " << dt;
+            BOOST_LOG_TRIVIAL(debug) << "Performing one timestep of " << dt;
         }
         for(int i = 0; i < n; ++i){
             m_controller.apply(m_physicsScene);
